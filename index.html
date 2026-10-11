@@ -603,6 +603,7 @@ function enterApp() { $('#authScreen').classList.add('h'); $('#adminScreen').cla
     const l2 = $('#logS'); if (l2 && logSVal) { l2.value = logSVal; renderLog(); }
   });
 }, 30000);
+                    }
 async function refresh() { if (!session) return; try { await loadAll(session.invId); renderTab(); } catch (e) {} }
 async function logout() { if (session) await log('خروج', session.user); if (window._sy) { clearInterval(window._sy); window._sy = null; } session = null; invData = null; reqs = []; receipts = []; localStorage.removeItem(SK); clearToken(); $('#appScreen').classList.add('h'); $('#authScreen').classList.remove('h'); $('#lP').value = ''; aMsg(''); }
 async function restore() {
