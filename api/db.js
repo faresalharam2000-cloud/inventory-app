@@ -55,16 +55,17 @@ function verifyQuery(sqlText, params, claims) {
   const info = getTableInfo(sqlText);
   if (!info) throw new Error('Cannot parse SQL');
   const { verb, table } = info;
+  const clean = sqlText.replace(/"/g, '');
 
   if (table === 'inventories') {
     if (verb === 'SELECT') {
-      if (/public_token/i.test(sqlText)) return true;
-      const m = sqlText.match(/\bid\s*=\s*\$(\d+)/i);
+      if (/public_token/i.test(clean)) return true;
+      const m = clean.match(/\bid\s*=\s*\$(\d+)/i);
       if (!m) throw new Error('inventories query must filter by id');
       const idx = parseInt(m[1]) - 1;
       if (String(params[idx]) !== String(claims.invId)) throw new Error('inv_id mismatch');
     } else if (verb === 'UPDATE') {
-      const m = sqlText.match(/\bid\s*=\s*\$(\d+)/i);
+      const m = clean.match(/\bid\s*=\s*\$(\d+)/i);
       if (!m) throw new Error('UPDATE must filter by id');
       const idx = parseInt(m[1]) - 1;
       if (String(params[idx]) !== String(claims.invId)) throw new Error('inv_id mismatch');
@@ -77,17 +78,17 @@ function verifyQuery(sqlText, params, claims) {
   if (!INV_TABLES.includes(table)) throw new Error('Table not allowed');
 
   if (verb.startsWith('SELECT') || verb.startsWith('UPDATE') || verb.startsWith('DELETE')) {
-    const m = sqlText.match(/\binv_id\s*=\s*\$(\d+)/i);
+    const m = clean.match(/\binv_id\s*=\s*\$(\d+)/i);
     if (!m) throw new Error('Query must filter by inv_id');
     const idx = parseInt(m[1]) - 1;
     if (String(params[idx]) !== String(claims.invId)) throw new Error('inv_id mismatch');
   } else if (verb.startsWith('INSERT')) {
-    const m = sqlText.match(/INSERT\s+INTO\s+"?\w+"?\s*\(([^)]+)\)/i);
+    const m = clean.match(/INSERT\s+INTO\s+\w+\s*\(([^)]+)\)/i);
     if (!m) throw new Error('Cannot parse INSERT');
-    const cols = m[1].split(',').map(c => c.trim().replace(/"/g, '').toLowerCase());
+    const cols = m[1].split(',').map(c => c.trim().toLowerCase());
     const invIdx = cols.indexOf('inv_id');
     if (invIdx === -1) throw new Error('INSERT must include inv_id');
-    const valuesMatch = sqlText.match(/VALUES\s*\(([^)]+)\)/i);
+    const valuesMatch = clean.match(/VALUES\s*\(([^)]+)\)/i);
     if (!valuesMatch) throw new Error('Cannot parse VALUES');
     const vals = valuesMatch[1].split(',').map(v => v.trim());
     const ph = vals[invIdx].match(/^\$(\d+)$/);
