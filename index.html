@@ -187,6 +187,12 @@ const MAX_DEBTS = 1000;
 const LOG_RETENTION_DAYS = 180;
 const REQUESTS_MAX = 1000;
 const SETTLED_MAX_DAYS = 180;
+  const SCOPED_TABLES = ['products', 'customers', 'orders', 'logs', 'public_requests', 'customer_accounts', 'stock_receipts'];
+let currentInvId = null;
+function setCurrentInvId(id) { currentInvId = id; }
+  const SCOPED_TABLES = ['products', 'customers', 'orders', 'logs', 'public_requests', 'customer_accounts', 'stock_receipts'];
+let currentInvId = null;
+function setCurrentInvId(id) { currentInvId = id; }
 const getToken = () => localStorage.getItem(SK_TOKEN) || '';
 const setToken = (t) => localStorage.setItem(SK_TOKEN, t);
 const clearToken = () => localStorage.removeItem(SK_TOKEN);
@@ -242,13 +248,21 @@ function createSQLShim() {
     maybeSingle() { this.singleMode = 'maybeSingle'; return this; }
     _q(id) { return '"' + String(id).replace(/"/g, '""') + '"'; }
     _where(p) {
-      if (!this.filters.length) return '';
-      return ' WHERE ' + this.filters.map(f => {
-        p.push(serialize(f.v));
-        const cl = this._q(f.c) + ' ' + f.op + ' $' + p.length;
-        return f.negated ? 'NOT (' + cl + ')' : cl;
-      }).join(' AND ');
+  const parts = [];
+  this.filters.forEach(f => {
+    p.push(serialize(f.v));
+    const cl = this._q(f.c) + ' ' + f.op + ' $' + p.length;
+    parts.push(f.negated ? 'NOT (' + cl + ')' : cl);
+  });
+  if (SCOPED_TABLES.includes(this.table) && currentInvId) {
+    const hasInvId = this.filters.some(f => f.c === 'inv_id');
+    if (!hasInvId) {
+      p.push(currentInvId);
+      parts.push('"inv_id" = $' + p.length);
     }
+  }
+  return parts.length ? ' WHERE ' + parts.join(' AND ') : '';
+}
     _build() {
       const p = [], tq = this._q(this.table);
       if (this.mode === 'select') {
@@ -573,6 +587,7 @@ async function loadAll(id) {
     sb.from('stock_receipts').select('*').eq('inv_id', id).order('created_at', { ascending: false }).limit(500)
   ]);
   if (iR.error) throw new Error(iR.error.message);
+  setCurrentInvId(id);
   const cm = Number(iR.data.cleanup_months);
   invData = { id: iR.data.id, name: iR.data.name, password: iR.data.password, ownerName: iR.data.owner_name || '', expiresAt: iR.data.expires_at || null, status: iR.data.status || 'active', members: Array.isArray(iR.data.members) ? iR.data.members : [], publicToken: iR.data.public_token || null, publicEnabled: !!iR.data.public_enabled, cleanupMonths: (isNaN(cm) || cm < 1) ? 1 : cm, autoDelSettled: !!iR.data.auto_del_settled, settledDelDays: +iR.data.settled_del_days || 30, products: (pR.data || []).map(mP), customers: (cR.data || []).map(mC), orders: (oR.data || []).map(mO), logs: (lR.data || []).map(mL) };
   reqs = (qR.data || []).map(mR);
@@ -599,7 +614,7 @@ function stats() {
   $('#statsB').innerHTML = '<div class="st"><div class="l">المنتجات</div><div class="v b">' + p.length + '/1000</div></div><div class="st"><div class="l">القطع</div><div class="v">' + mn(tq) + '</div></div><div class="st"><div class="l">قيمة</div><div class="v">' + mn(sv) + '</div></div><div class="st"><div class="l">المبيعات</div><div class="v g">' + mn(sa) + '</div></div><div class="st"><div class="l">الربح</div><div class="v g">' + mn(pf) + '</div></div><div class="st"><div class="l">الديون</div><div class="v r">' + unpaid + '/1000</div></div>' + (dl !== null ? '<div class="st"><div class="l">متبقي</div><div class="v ' + (dl <= 3 ? 'r' : dl <= 7 ? 'y' : 'g') + '">' + dl + ' يوم</div></div>' : '');
 }
 function badges() { const lc = (invData.products || []).filter(p => (+p.qty || 0) <= (+p.minQty || 0)).length; const ab = $('#alB'); if (lc > 0) { ab.textContent = lc; ab.classList.remove('h'); } else ab.classList.add('h'); const nr = reqs.filter(r => r.status === 'new').length; const rb = $('#reqB'); if (nr > 0) { rb.textContent = nr; rb.classList.remove('h'); } else rb.classList.add('h'); }
-  function hProd() { return '<div class="tb3"><button class="b p" onclick="pOpen()">+ منتج</button><button class="b s" onclick="pBulkOpen()">📦 إضافة دفعة</button><button class="b" onclick="printInv()">🖨️</button><button class="b" onclick="printLow()">🔔</button><input class="srch" id="pS" placeholder="🔍 ابحث بالاسم أو القسم أو التصنيف..." oninput="renderProd()"></div><div class="tbr"><table><thead><tr><th>المنتج</th><th>القسم</th><th>التصنيفات</th><th>الكمية</th><th>شراء</th><th>بيع</th><th>حالة</th><th>إجراءات</th></tr></thead><tbody id="pR"></tbody></table></div>'; }
+  function hProd() { return '<div class="tb3"><button class="b p" onclick="pOpen()">+ منتج</button><button class="b s" onclick="qkOpen()">⚡ إضافة سريعة</button><button class="b w" onclick="qcOpen()">✏️ تعديل سريع</button><button class="b" onclick="printInv()">🖨️</button><button class="b" onclick="printLow()">🔔</button><input class="srch" id="pS" placeholder="🔍 ابحث بالاسم أو القسم أو التصنيف..." oninput="renderProd()"></div><div class="tbr"><table><thead><tr><th>المنتج</th><th>القسم</th><th>التصنيفات</th><th>الكمية</th><th>شراء</th><th>بيع</th><th>حالة</th><th>إجراءات</th></tr></thead><tbody id="pR"></tbody></table></div>'; }
 function renderProd() {
   const q = ($('#pS') ? $('#pS').value : '').trim().toLowerCase();
   const L = (invData.products || []).filter(p => {
@@ -984,15 +999,6 @@ function renderLog() { const uf = ($('#logU') ? $('#logU').value : ''), q = ($('
 
 function hSet() {
   const prods = invData.products || [];
-  let qckRows = '';
-  if (prods.length) {
-    prods.forEach(p => {
-      const tg = tagsOf(p).join(', ');
-      qckRows += '<tr data-name="' + esc(p.name).toLowerCase() + '" data-cat="' + esc((p.category || '').toLowerCase()) + '" data-tags="' + esc(tg.toLowerCase()) + '"><td><strong>' + esc(p.name) + '</strong></td><td>' + mn(p.qty) + '</td><td><input type="number" min="0" class="qck-input" data-pid="' + p.id + '" data-cur="' + p.qty + '" placeholder="' + p.qty + '" style="width:90px;padding:4px 6px;text-align:center"></td></tr>';
-    });
-  } else {
-    qckRows = '<tr><td colspan="3" class="emp">لا منتجات</td></tr>';
-  }
   return '<div class="cbx"><h4>⚙️ الإعدادات</h4><p class="mut" style="margin:8px 0">المستخدم: <strong>' + esc(session.user) + '</strong></p><p class="mut">المخزون: <strong>' + esc(session.invName) + '</strong></p></div>' +
     '<div class="cbx"><h4>🔑 تغيير كلمة سر المخزون</h4>' +
     '<div class="f"><label>كلمة السر الحالية</label><input id="oldInvPass" type="password"></div>' +
@@ -1004,12 +1010,6 @@ function hSet() {
     '<div class="f"><label class="chk-label"><input type="checkbox" id="autoDelSettled" ' + (invData.autoDelSettled ? 'checked' : '') + '> حذف الديون المسددة تلقائيًا</label></div>' +
     '<div class="f"><label>بعد كم يوم من السداد الكامل؟ (الحد الأقصى 180 يوم)</label><input type="number" id="settledDelDays" min="1" max="180" value="' + (invData.settledDelDays || 30) + '"></div>' +
     '<button class="b p" onclick="saveCleanSettings()" style="padding:8px 14px;font-weight:700">💾 حفظ إعدادات التنظيف</button>' +
-    '</div>' +
-    '<div class="cbx"><h4>🔧 تصحيح سريع للعداد</h4>' +
-    '<p class="mut" style="margin-bottom:8px">عدّل الكميات مباشرة في العمود الأخير. اترك الحقل فارغًا إذا لم ترد التعديل.</p>' +
-    '<input type="text" id="qckSearch" placeholder="🔍 ابحث بالاسم أو القسم أو التصنيف..." oninput="qckFilter(this.value)" style="margin-bottom:8px;background:#f8fafc">' +
-    '<div class="tbr"><table><thead><tr><th>المنتج</th><th>الكمية الحالية</th><th>الكمية الجديدة</th></tr></thead><tbody id="qckTbody">' + qckRows + '</tbody></table></div>' +
-    '<button class="b p" onclick="quickCorr()" style="margin-top:9px;padding:8px 14px;font-weight:700">💾 حفظ التصحيحات</button>' +
     '</div>' +
     '<div class="cbx" style="background:#fef2f2;border-color:#fecaca">' +
     '<h4 style="color:#dc2626">⚠️ منطقة الخطر</h4>' +
@@ -1108,6 +1108,76 @@ async function delInvAll() {
   catch (e) { ul(); alert('خطأ: ' + (e.message || e)); }
 }
 
+  function qkOpen() {
+  const b = '<div class="f"><label>القسم المشترك (اختياري)</label><input id="qkCat" placeholder="مثال: قطع غيار"></div><p class="mut" style="margin:8px 0">أضف الصفوف: الاسم + الكمية + التصنيفات (اختياري):</p><div id="qkRows"><div class="qkr"><input type="text" class="qk-name" placeholder="اسم المنتج"><input type="number" class="qk-qty" placeholder="الكمية" min="0" value="1"><input type="text" class="qk-tags" placeholder="ربل، حديد..."><button class="b sm d" onclick="this.parentElement.remove()" type="button">✕</button></div></div><button class="b sm" onclick="qkAddRow()" type="button">+ صف</button>';
+  openModal('⚡ إضافة سريعة', b, '<button class="b" onclick="closeModal()">إلغاء</button><button class="b s" onclick="qkSave()">📥 إضافة الكل</button>');
+}
+function qkAddRow() {
+  const d = document.createElement('div');
+  d.className = 'qkr';
+  d.innerHTML = '<input type="text" class="qk-name" placeholder="اسم المنتج"><input type="number" class="qk-qty" placeholder="الكمية" min="0" value="1"><input type="text" class="qk-tags" placeholder="ربل، حديد..."><button class="b sm d" onclick="this.parentElement.remove()" type="button">✕</button>';
+  $('#qkRows').appendChild(d);
+}
+async function qkSave() {
+  const cat = ($('#qkCat') ? $('#qkCat').value : '').trim();
+  const rows = document.querySelectorAll('#qkRows .qkr');
+  const items = [];
+  rows.forEach(r => {
+    const name = (r.querySelector('.qk-name').value || '').trim();
+    const qty = +r.querySelector('.qk-qty').value || 0;
+    const tagsRaw = (r.querySelector('.qk-tags').value || '').trim();
+    if (!name) return;
+    const tags = tagsRaw ? tagsRaw.split(/[,،]/).map(s => s.trim()).filter(s => s) : [];
+    items.push({ name, qty, tags });
+  });
+  if (!items.length) return alert('أضف منتجات');
+  if (invData.products.length + items.length > MAX_PRODUCTS) return alert('سيتجاوز الحد الأقصى 1000');
+  closeModal(); ld();
+  let ok = 0;
+  try {
+    for (const it of items) {
+      const nid = uid();
+      const r = await sb.from('products').insert({ id: nid, inv_id: invData.id, name: it.name, category: cat || null, qty: it.qty, min_qty: 0, buy_price: 0, sell_price: 0, tags: it.tags });
+      if (r.error) throw new Error(r.error.message);
+      invData.products.push({ id: nid, name: it.name, category: cat, qty: it.qty, minQty: 0, buyPrice: 0, sellPrice: 0, tags: it.tags });
+      ok++;
+    }
+    await log('إضافة سريعة', ok + ' منتج');
+    ul(); alert('✅ تم إضافة ' + ok + ' منتج'); renderTab();
+  } catch (e) { ul(); alert('تم إضافة ' + ok + ' من ' + items.length + '\nخطأ: ' + (e.message || e)); renderTab(); }
+}
+function qcOpen() {
+  const prods = invData.products || [];
+  if (!prods.length) return alert('لا منتجات');
+  let rows = '';
+  prods.forEach(p => {
+    const tg = tagsOf(p).join(', ');
+    rows += '<tr data-name="' + esc(p.name).toLowerCase() + '" data-cat="' + esc((p.category || '').toLowerCase()) + '" data-tags="' + esc(tg.toLowerCase()) + '"><td><strong>' + esc(p.name) + '</strong></td><td>' + mn(p.qty) + '</td><td><input type="number" min="0" class="qck-input" data-pid="' + p.id + '" data-cur="' + p.qty + '" placeholder="' + p.qty + '" style="width:90px;padding:4px 6px;text-align:center"></td></tr>';
+  });
+  const b = '<p class="mut" style="margin-bottom:8px">عدّل الكميات مباشرة في العمود الأخير. اتركه فارغًا إذا لم ترد التعديل.</p><input type="text" id="qckSearch" placeholder="🔍 ابحث..." oninput="qckFilter(this.value)" style="margin-bottom:8px;background:#f8fafc"><div class="tbr" style="max-height:400px;overflow:auto"><table><thead><tr><th>المنتج</th><th>الكمية الحالية</th><th>الكمية الجديدة</th></tr></thead><tbody id="qckTbody">' + rows + '</tbody></table></div>';
+  openModal('✏️ تعديل سريع', b, '<button class="b" onclick="closeModal()">إلغاء</button><button class="b p" onclick="qcSave()">💾 حفظ التصحيحات</button>');
+}
+async function qcSave() {
+  const inputs = document.querySelectorAll('.qck-input');
+  const changes = [];
+  inputs.forEach(inp => {
+    const v = inp.value.trim(); if (v === '') return;
+    const q = +v; if (isNaN(q) || q < 0) return;
+    const pid = inp.dataset.pid; const cur = +inp.dataset.cur;
+    const p = invData.products.find(x => String(x.id) === String(pid)); if (!p) return;
+    if (q === cur) return;
+    changes.push({ p, q });
+  });
+  if (!changes.length) return alert('لم يتم تعديل أي كمية.');
+  if (!confirm('سيتم تحديث ' + changes.length + ' منتج. متابعة؟')) return;
+  closeModal(); ld();
+  let ok = 0;
+  try {
+    for (const { p, q } of changes) { const r = await sb.from('products').update({ qty: q }).eq('id', p.id); if (r.error) throw new Error(r.error.message); p.qty = q; ok++; }
+    await log('تصحيح عداد', ok + ' منتج');
+    ul(); alert('✅ تم تحديث ' + ok + ' منتج'); renderTab();
+  } catch (e) { ul(); alert('تم تحديث ' + ok + ' من ' + changes.length + '\nخطأ: ' + (e.message || e)); renderTab(); }
+}
 function openModal(t, b, f) { $('#mT').textContent = t; $('#mB').innerHTML = b; $('#mF').innerHTML = f; $('#ov').classList.remove('h'); }
 function closeModal() { $('#ov').classList.add('h'); }
 
@@ -1122,7 +1192,8 @@ window.adminExtendApply = adminExtendApply; window.adminChangePassApply = adminC
 window.catSetView = catSetView; window.catLogin = catLogin; window.catRegister = catRegister; window.catLogout = catLogout;
 window.catTog = catTog; window.catQty = catQty; window.catSubmit = catSubmit; window.catSearch = catSearch; window.catTagFilter = catTagFilter;
 window.pOpen = pOpen; window.pSave = pSave; window.pAdj = pAdj; window.pApply = pApply; window.pDel = pDel; window.pBulkOpen = pBulkOpen;
-window.tagAddChip = tagAddChip; window.tagRemoveChip = tagRemoveChip; window.renderTagChips = renderTagChips;
+window.tagAddChip = tagAddChip; window.qkOpen = qkOpen; window.qkAddRow = qkAddRow; window.qkSave = qkSave;
+window.qcOpen = qcOpen; window.qcSave = qcSave; window.tagRemoveChip = tagRemoveChip; window.renderTagChips = renderTagChips;
 window.recOpen = recOpen; window.recAddItem = recAddItem; window.recSave = recSave; window.recView = recView; window.recDel = recDel; window.recCalc = recCalc;
 window.payOpen = payOpen; window.payApply = payApply; window.printCust = printCust; window.printInv = printInv; window.printLow = printLow;
 window.cOpen = cOpen; window.cSave = cSave; window.cDel = cDel; window.oOpen = oOpen; window.oAddItem = oAddItem;
