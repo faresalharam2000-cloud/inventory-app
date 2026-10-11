@@ -190,9 +190,6 @@ const SETTLED_MAX_DAYS = 180;
   const SCOPED_TABLES = ['products', 'customers', 'orders', 'logs', 'public_requests', 'customer_accounts', 'stock_receipts'];
 let currentInvId = null;
 function setCurrentInvId(id) { currentInvId = id; }
-  const SCOPED_TABLES = ['products', 'customers', 'orders', 'logs', 'public_requests', 'customer_accounts', 'stock_receipts'];
-let currentInvId = null;
-function setCurrentInvId(id) { currentInvId = id; }
 const getToken = () => localStorage.getItem(SK_TOKEN) || '';
 const setToken = (t) => localStorage.setItem(SK_TOKEN, t);
 const clearToken = () => localStorage.removeItem(SK_TOKEN);
