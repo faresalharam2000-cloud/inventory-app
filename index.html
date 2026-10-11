@@ -183,9 +183,10 @@ const SK_TOKEN = 'jwt_token_v1';
 const SK = 'inv_v21';
 const ADMIN_CONFIG = '__admin__config__';
 const MAX_PRODUCTS = 1000;
-const MAX_DEBTS = 1000;
+const MAX_DEBTS = 2000;
 const LOG_RETENTION_DAYS = 180;
-const REQUESTS_MAX = 1000;
+const ORDER_RETENTION_DAYS = 180;
+const REQUESTS_RETENTION_DAYS = 90;
 const SETTLED_MAX_DAYS = 180;
   const SCOPED_TABLES = ['products', 'customers', 'orders', 'logs', 'public_requests', 'customer_accounts', 'stock_receipts'];
 let currentInvId = null;
@@ -356,11 +357,16 @@ async function runAutoClean() {
   try {
     const logCutoff = new Date(now - LOG_RETENTION_DAYS * 86400000).toISOString();
     await sb.from('logs').delete().eq('inv_id', invData.id).lt('created_at', logCutoff);
-    if (invData.autoDelSettled) {
-      const days = Math.min(invData.settledDelDays || 30, SETTLED_MAX_DAYS);
-      const settleCutoff = new Date(now - days * 86400000).toISOString();
-      await sb.from('orders').delete().eq('inv_id', invData.id).eq('payment', 'later').eq('paid', true).lt('created_at', settleCutoff);
+
+    const orderCutoff = new Date(now - ORDER_RETENTION_DAYS * 86400000).toISOString();
+    for (const p of ['cash', 'bank']) {
+      await sb.from('orders').delete().eq('inv_id', invData.id).eq('payment', p).lt('created_at', orderCutoff);
     }
+    await sb.from('orders').delete().eq('inv_id', invData.id).eq('payment', 'later').eq('paid', true).lt('created_at', orderCutoff);
+
+    const requestCutoff = new Date(now - REQUESTS_RETENTION_DAYS * 86400000).toISOString();
+    await sb.from('public_requests').delete().eq('inv_id', invData.id).lt('created_at', requestCutoff);
+
     localStorage.setItem(key, String(now));
   } catch (e) { console.error('Auto-clean error:', e); }
 }
@@ -580,7 +586,7 @@ async function loadAll(id) {
     sb.from('customers').select('*').eq('inv_id', id).order('created_at'),
     sb.from('orders').select('*').eq('inv_id', id).order('created_at'),
     sb.from('logs').select('*').eq('inv_id', id).order('created_at', { ascending: false }).limit(1000),
-    sb.from('public_requests').select('*').eq('inv_id', id).order('created_at', { ascending: false }).limit(REQUESTS_MAX),
+    sb.from('public_requests').select('*').eq('inv_id', id).order('created_at', { ascending: false }).limit(1000),
     sb.from('stock_receipts').select('*').eq('inv_id', id).order('created_at', { ascending: false }).limit(500)
   ]);
   if (iR.error) throw new Error(iR.error.message);
@@ -843,7 +849,14 @@ async function payApply(cid) {
     const unpaid = (invData.orders || []).filter(o => o.customerId === cid && oD(o) > 0).sort((a, b) => new Date(a.time) - new Date(b.time));
     for (const o of unpaid) { if (rem <= 0) break; const owed = oD(o), pay = Math.min(rem, owed), np = +o.paidAmount + pay, fp = np >= o.total - .001; await sb.from('orders').update({ paid_amount: fp ? o.total : np, paid: fp }).eq('id', o.id); o.paidAmount = fp ? o.total : np; o.paid = fp; rem -= pay; }
     let cm = ''; if (rem > 0) { c.credit = (+c.credit || 0) + rem; await sb.from('customers').update({ credit: c.credit }).eq('id', c.id); cm = ' | رصيد: ' + mn(rem); }
-    await log('دفعة', c.name + ' | ' + mn(a) + cm); ul(); renderTab(); alert('✅');
+    await log('دفعة', c.name + ' | ' + mn(a) + cm);
+const cutoffDate = new Date(Date.now() - ORDER_RETENTION_DAYS * 86400000);
+const toDelete = invData.orders.filter(o => o.payment === 'later' && o.paid && o.customerId === cid && o.time && new Date(o.time) < cutoffDate);
+for (const o of toDelete) {
+  try { await sb.from('orders').delete().eq('id', o.id); } catch (e) {}
+}
+invData.orders = invData.orders.filter(o => !toDelete.some(d => d.id === o.id));
+ul(); renderTab(); alert('✅');
   } catch (e) { ul(); alert('خطأ: ' + e.message); }
 }
 
@@ -905,7 +918,23 @@ async function oSave() {
   else if (sl) { const c = invData.customers.find(x => x.id === sl); if (c) { cid = c.id; cn = c.name; } }
   const tt = items.reduce((s, i) => s + i.qty * i.price, 0), cst = items.reduce((s, i) => s + i.qty * i.cost, 0), pr = tt - cst;
   const pay = $('#oPay').value, nt = $('#oNote').value.trim(), oid = uid(); const isLater = pay === 'later';
-  if (isLater && unpaidDebtsCount() >= MAX_DEBTS) return alert('حد أقصى ديون');
+  if (isLater && unpaidDebtsCount() >= MAX_DEBTS) {
+  const settled = (invData.orders || []).filter(o => o.payment === 'later' && o.paid).sort((a, b) => new Date(a.time) - new Date(b.time));
+  if (settled.length) {
+    if (confirm('⚠️ لقد وصلت للحد الأقصى للديون (2000 طلب آجل).\n\nهل تريد حذف أقدم 10 ديون مسددة لتحرير مساحة؟')) {
+      ld();
+      const toDelete = settled.slice(0, 10);
+      for (const o of toDelete) {
+        try { await sb.from('orders').delete().eq('id', o.id); } catch (e) {}
+      }
+      invData.orders = invData.orders.filter(o => !toDelete.some(d => d.id === o.id));
+      ul(); renderTab();
+    } else { return; }
+  } else {
+    return alert('لا يمكن إضافة طلب آجل جديد.\nلا توجد ديون مسددة لحذفها. سدد بعض الديون أولاً.');
+  }
+  if (unpaidDebtsCount() >= MAX_DEBTS) return alert('لا يمكن الإضافة. الحد الأقصى 2000.');
+}
   closeModal(); ld();
   try {
     if (nC) { await sb.from('customers').insert({ id: nC.id, inv_id: invData.id, name: nC.name, phone: nC.phone, credit: 0, opening_debt: 0 }); invData.customers.push(nC); }
@@ -998,7 +1027,23 @@ async function reqDo(rid) {
   if (sl === '__new') { const nm = $('#prNn').value.trim(), ph = $('#prNp').value.trim(); if (!nm) return alert('الاسم مطلوب'); cid = uid(); cn = nm; nC = { id: cid, name: nm, phone: ph, openingDebt: 0 }; }
   else if (sl) { const c = invData.customers.find(x => x.id === sl); if (c) { cid = c.id; cn = c.name; } }
   const pay = $('#prPay').value || ''; const nt = $('#prNt').value.trim(), oid = uid();
-  if (pay === 'later' && unpaidDebtsCount() >= MAX_DEBTS) return alert('حد ديون');
+  if (pay === 'later' && unpaidDebtsCount() >= MAX_DEBTS) {
+  const settled = (invData.orders || []).filter(o => o.payment === 'later' && o.paid).sort((a, b) => new Date(a.time) - new Date(b.time));
+  if (settled.length) {
+    if (confirm('⚠️ لقد وصلت للحد الأقصى للديون (2000 طلب آجل).\n\nهل تريد حذف أقدم 10 ديون مسددة لتحرير مساحة؟')) {
+      ld();
+      const toDelete = settled.slice(0, 10);
+      for (const o of toDelete) {
+        try { await sb.from('orders').delete().eq('id', o.id); } catch (e) {}
+      }
+      invData.orders = invData.orders.filter(o => !toDelete.some(d => d.id === o.id));
+      ul(); renderTab();
+    } else { return; }
+  } else {
+    return alert('لا يمكن إضافة طلب آجل جديد.\nلا توجد ديون مسددة لحذفها. سدد بعض الديون أولاً.');
+  }
+  if (unpaidDebtsCount() >= MAX_DEBTS) return alert('لا يمكن الإضافة. الحد الأقصى 2000.');
+}
   closeModal(); ld();
   try {
     if (nC) { await sb.from('customers').insert({ id: nC.id, inv_id: invData.id, name: nC.name, phone: nC.phone, credit: 0, opening_debt: 0 }); invData.customers.push(nC); }
@@ -1039,7 +1084,7 @@ function hSet() {
     '<button class="b p" onclick="chgInvPass()" style="padding:8px 14px;font-weight:700">💾 حفظ كلمة السر</button>' +
     '</div>' +
     '<div class="cbx"><h4>🗑️ التنظيف التلقائي</h4>' +
-    '<p class="mut" style="margin-bottom:8px">السجلات تُحذف تلقائيًا بعد 6 أشهر (180 يومًا). طلبات الزبائن في الرابط تُقتصر على 1000 طلب. الديون المسددة تُحذف بعد المدة التي تحددها (بحد أقصى 180 يومًا).</p>' +
+    '<p class="mut" style="margin-bottom:8px">السجلات تُحذف بعد 180 يوم. الطلبات النقدية والبنكية تُحذف بعد 180 يوم. الطلبات الآجلة المسددة تُحذف بعد 180 يوم من تاريخها. سجل طلبات الزبائن يُحذف بعد 90 يوم. الطلبات الآجلة غير المسددة لا تُحذف (بحد أقصى 2000).</p>' +
     '<div class="f"><label class="chk-label"><input type="checkbox" id="autoDelSettled" ' + (invData.autoDelSettled ? 'checked' : '') + '> حذف الديون المسددة تلقائيًا</label></div>' +
     '<div class="f"><label>بعد كم يوم من السداد الكامل؟ (الحد الأقصى 180 يوم)</label><input type="number" id="settledDelDays" min="1" max="180" value="' + (invData.settledDelDays || 30) + '"></div>' +
     '<button class="b p" onclick="saveCleanSettings()" style="padding:8px 14px;font-weight:700">💾 حفظ إعدادات التنظيف</button>' +
