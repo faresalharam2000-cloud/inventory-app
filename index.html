@@ -629,6 +629,7 @@ function renderProd() {
     return '<tr><td><strong>' + esc(p.name) + '</strong></td><td>' + (p.category ? esc(p.category) : '—') + '</td><td>' + (tg || '—') + '</td><td>' + mn(p.qty) + '</td><td>' + (p.buyPrice ? mn(p.buyPrice) : '—') + '</td><td>' + (p.sellPrice ? mn(p.sellPrice) : '—') + '</td><td>' + (low ? '<span class="bd d">منخفض</span>' : '<span class="bd o">متوفر</span>') + '</td><td class="act"><button class="b sm" onclick="pAdj(\'' + p.id + '\')">±</button><button class="b sm" onclick="pOpen(\'' + p.id + '\')">تعديل</button><button class="b sm d" onclick="pDel(\'' + p.id + '\')">حذف</button></td></tr>';
   }).join('');
 }
+  
 function allTagsList() { return [...new Set((invData.products || []).flatMap(p => tagsOf(p)))].sort((a, b) => a.localeCompare(b, 'ar')); }
 function pOpen(id) {
   const p = id ? invData.products.find(x => x.id === id) : null;
@@ -1203,6 +1204,7 @@ window.renderLog = renderLog; window.oDel = oDel; window.closeModal = closeModal
 window.updDiff = updDiff; window.chgInvPass = chgInvPass; window.bulkAddRow = bulkAddRow; window.bulkAdd = bulkAdd;
 window.quickCorr = quickCorr; window.qckFilter = qckFilter; window.delInvData = delInvData; window.delInvAll = delInvAll;
 window.saveCleanSettings = saveCleanSettings; window.runAutoClean = runAutoClean;
+window.renderProd = renderProd;
 </script>
 </body>
 </html>
