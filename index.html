@@ -514,10 +514,12 @@ async function catLogin() {
     await loadMyReq(); renderCat(true);
   } catch (e) { ul(); cs.msg = e.message || 'خطأ'; renderCatAuth(); }
 }
+  window.catGoShop = function() { cs.view = 'shop'; cs.done = false; renderCat(true); };
+window.catGoMyReq = function() { cs.view = 'myrequests'; renderCat(true); };
 function catLogout() { cs.account = null; cs.myReq = []; cs.view = 'login'; localStorage.removeItem('cust_' + cs.token); renderCat(true); }
 function renderCatShop() {
   const inv = cs.inv, ps = cs.products; const pd = cs.myReq.filter(r => r.reply && !r.seen).length;
-  const tabs = '<div class="ct"><button class="on">🛒 التسوق</button><button onclick="cs.view=\'myrequests\';renderCat(true)">📋 طلباتي' + (pd ? '<span class="nb">' + pd + '</span>' : '') + '</button><button onclick="catLogout()">🚪 خروج</button></div>';
+  const tabs = '<div class="ct"><button class="on">🛒 التسوق</button><button onclick="catGoMyReq()">📋 طلباتي' + (pd ? '<span class="nb">' + pd + '</span>' : '') + '</button><button onclick="catLogout()">🚪 خروج</button></div>';
   if (!ps.length) { $('#catC').innerHTML = '<div class="ch"><div class="ic">🛒</div><h1>' + esc(inv.name) + '</h1><p>أهلاً ' + esc(cs.account.name) + '</p></div>' + tabs + '<div class="cc" style="text-align:center;padding:28px"><div style="font-size:34px">📭</div><h2>لا منتجات</h2></div>'; return; }
   const nv = $('#cNote') ? $('#cNote').value : ''; const sv = cs.search; const q = sv.trim().toLowerCase();
   const allTags = [...new Set(ps.flatMap(p => tagsOf(p)))].sort((a, b) => a.localeCompare(b, 'ar'));
@@ -534,7 +536,7 @@ function renderCatShop() {
 function catTagFilter(t) { cs.tagFilter = t; const nv = $('#cNote') ? $('#cNote').value : ''; renderCat(true); if ($('#cNote')) $('#cNote').value = nv; }
 function catSearch(v) { cs.search = v; const nv = $('#cNote') ? $('#cNote').value : ''; renderCat(true); if ($('#cNote')) $('#cNote').value = nv; const el = $('#cSearch'); if (el) { el.focus(); try { el.setSelectionRange(el.value.length, el.value.length); } catch (e) {} } }
 function renderMyReq() {
-  const tabs = '<div class="ct"><button onclick="cs.view=\'shop\';renderCat(true)">🛒 التسوق</button><button class="on">📋 طلباتي</button><button onclick="catLogout()">🚪 خروج</button></div>';
+  const tabs = '<div class="ct"><button onclick="catGoShop()">🛒 التسوق</button><button class="on">📋 طلباتي</button><button onclick="catLogout()">🚪 خروج</button></div>';
   let list = ''; if (!cs.myReq.length) list = '<div class="cc" style="text-align:center;padding:28px"><div style="font-size:34px">📭</div><h2>لا طلبات</h2></div>';
   else cs.myReq.forEach(r => {
     const sb2 = r.status === 'new' ? '<span class="bd w">بانتظار</span>' : r.status === 'replied' ? '<span class="bd i">تم الرد</span>' : r.status === 'processed' ? '<span class="bd o">تم التحويل</span>' : '<span class="bd i">مقروء</span>';
@@ -558,7 +560,7 @@ async function catSubmit() {
   try { await apiCall('catalog_submit_request', { token: cs.token, accountId: cs.account.id, items, note }); cs.done = true; cs.busy = false; cs.sel = {}; cs.search = ''; cs.tagFilter = ''; await loadMyReq(); renderCatOk(); }
   catch (e) { cs.busy = false; alert('فشل: ' + (e.message || '')); }
 }
-function renderCatOk() { const tabs = '<div class="ct"><button onclick="cs.view=\'shop\';cs.done=false;renderCat(true)">🛒 التسوق</button><button onclick="cs.view=\'myrequests\';cs.done=false;renderCat(true)">📋 طلباتي</button></div>'; $('#catC').innerHTML = tabs + '<div class="cc" style="text-align:center;padding:32px"><div style="font-size:46px;color:#16a34a;margin-bottom:10px">✅</div><h2>تم إرسال طلبك</h2><button class="b p" onclick="cs.view=\'myrequests\';cs.done=false;renderCat(true)">📋 طلباتي</button></div>'; }
+function renderCatOk() { const tabs = '<div class="ct"><button onclick="catGoShop()">🛒 التسوق</button><button onclick="catGoMyReq()">📋 طلباتي</button></div>'; $('#catC').innerHTML = tabs + '<div class="cc" style="text-align:center;padding:32px"><div style="font-size:46px;color:#16a34a;margin-bottom:10px">✅</div><h2>تم إرسال طلبك</h2><button class="b p" onclick="cs.view=\'myrequests\';cs.done=false;renderCat(true)">📋 طلباتي</button></div>'; }
 
 function aTab(w) { $('#tbL').classList.toggle('on', w === 'login'); $('#tbR').classList.toggle('on', w === 'register'); $('#lf').classList.toggle('h', w !== 'login'); $('#rf').classList.toggle('h', w !== 'register'); aMsg(''); }
 function aMsg(t) { $('#aMsg').textContent = t || ''; }
@@ -1268,7 +1270,8 @@ window.adminCreateInv = adminCreateInv; window.renderAdminList = renderAdminList
 window.copyText = copyText; window.adminToggle = adminToggle; window.adminExtend = adminExtend; window.adminDelete = adminDelete;
 window.adminExtendApply = adminExtendApply; window.adminChangePassApply = adminChangePassApply;
 window.catSetView = catSetView; window.catLogin = catLogin; window.catRegister = catRegister; window.catLogout = catLogout;
-window.catTog = catTog; window.catQty = catQty; window.catSubmit = catSubmit; window.catSearch = catSearch; window.catTagFilter = catTagFilter;
+window.catTog = catTog; window.catQty = catQty; window.catSubmit = catSubmit; window.catSearch = catSearch; window.catTagFilter = catTagFilter; window.catGoShop = window.catGoShop;
+window.catGoMyReq = window.catGoMyReq;
 window.pOpen = pOpen; window.pSave = pSave; window.pAdj = pAdj; window.pApply = pApply; window.pDel = pDel; window.pBulkOpen = pBulkOpen;
 window.tagAddChip = tagAddChip; window.qkOpen = qkOpen; window.qkAddRow = qkAddRow; window.qkSave = qkSave;
 window.qcOpen = qcOpen; window.qcSave = qcSave; window.tagRemoveChip = tagRemoveChip; window.renderTagChips = renderTagChips;
