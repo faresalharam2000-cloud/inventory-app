@@ -868,10 +868,32 @@ function oOpen() {
 function pickPay(el, val) { document.querySelectorAll('#payWrap .pay-opt').forEach(x => x.classList.remove('sel')); el.classList.add('sel'); const inp = $('#oPay'); if (inp) inp.value = val; }
 function oNewToggle() { $('#oNewBox').classList.toggle('h', $('#oC').value !== '__new'); }
 function oAddItem() { const d = document.createElement('div'); d.className = 'oi'; d.innerHTML = '<div class="ps"><input type="text" class="ps-s" placeholder="🔍 منتج..." onfocus="psOpen(this)" oninput="psFilter(this)"><input type="hidden" class="ps-i"><div class="pdr h"></div></div><input class="oi-q" type="number" min="0.01" value="1" oninput="oCalc()"><input class="oi-p" type="number" min="0" placeholder="السعر" oninput="oCalc()"><button class="b sm d" onclick="this.parentElement.remove();oCalc()">✕</button>'; $('#oItems').appendChild(d); }
-function psOpen(i) { const w = i.closest('.ps'); psDrop(w.querySelector('.pdr'), ''); w.querySelector('.pdr').classList.remove('h'); }
+                     document.addEventListener('click', function(e) {
+  if (!e.target.closest('.ps')) {
+    document.querySelectorAll('.pdr').forEach(d => d.classList.add('h'));
+  }
+});
+function psCloseAll() {
+  document.querySelectorAll('.pdr').forEach(d => d.classList.add('h'));
+}
+function psOpen(i) {
+  document.querySelectorAll('.pdr').forEach(d => d.classList.add('h'));
+  const w = i.closest('.ps');
+  psDrop(w.querySelector('.pdr'), '');
+  w.querySelector('.pdr').classList.remove('h');
+}
 function psFilter(i) { const w = i.closest('.ps'); psDrop(w.querySelector('.pdr'), i.value); w.querySelector('.pdr').classList.remove('h'); if (i.value.trim() === '') w.querySelector('.ps-i').value = ''; }
 function psDrop(drp, q) { q = (q || '').trim().toLowerCase(); const L = invData.products.filter(p => !q || p.name.toLowerCase().includes(q) || (p.category || '').toLowerCase().includes(q) || tagsOf(p).some(t => t.toLowerCase().includes(q))); if (!L.length) { drp.innerHTML = '<div class="pe">لا نتائج</div>'; return; } drp.innerHTML = L.slice(0, 60).map(p => { const tg = tagsOf(p); return '<div class="pit" onclick="psPick(this,\'' + p.id + '\',\'' + esc(p.name).replace(/'/g, "\\'") + '\',' + (p.sellPrice || 0) + ')"><span>' + esc(p.name) + (tg.length ? ' <span class="tag">' + esc(tg[0]) + '</span>' : '') + '</span><small>متوفر: ' + p.qty + '</small></div>'; }).join(''); }
-function psPick(el, id, nm, pr) { const w = el.closest('.ps'), r = w.closest('.oi'); w.querySelector('.ps-s').value = nm; w.querySelector('.ps-i').value = id; const pi = r.querySelector('.oi-p'); if (pi && !pi.value) pi.value = pr; w.querySelector('.pdr').classList.add('h'); oCalc(); }
+function psPick(el, id, nm, pr) {
+  const w = el.closest('.ps'), r = w.closest('.oi');
+  w.querySelector('.ps-s').value = nm;
+  w.querySelector('.ps-i').value = id;
+  const pi = r.querySelector('.oi-p');
+  if (pi && !pi.value) pi.value = pr;
+  document.querySelectorAll('.pdr').forEach(d => d.classList.add('h'));
+  if (typeof oCalc === 'function') oCalc();
+  if (typeof recCalc === 'function') recCalc();
+}
 function oCalc() { let t = 0; $$('#oItems .oi').forEach(r => { t += (+r.querySelector('.oi-q').value || 0) * (+r.querySelector('.oi-p').value || 0); }); const e = $('#oTotal'); if (e) e.textContent = mn(t); }
 async function oSave() {
   const rows = $$('#oItems .oi'); const items = [];
