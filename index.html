@@ -53,6 +53,7 @@ td{padding:7px 9px;border-bottom:1px solid #f1f5f9}
 .bd.d{background:#fef2f2;color:#dc2626}.bd.o{background:#f0fdf4;color:#16a34a}
 .bd.w{background:#fffbeb;color:#b45309}.bd.i{background:#eff6ff;color:#2563eb}
 .bd.p{background:#f5f3ff;color:#7c3aed}.bd.g{background:#f1f5f9;color:#64748b}
+.tag{display:inline-block;background:#e0e7ff;color:#4338ca;padding:1px 7px;border-radius:20px;font-size:10px;font-weight:600;margin:1px}
 .pw{font-family:monospace;background:#f1f5f9;padding:2px 7px;border-radius:4px;font-size:11.5px;border:1px solid #e2e8f0;cursor:pointer}
 .pw-hidden{filter:blur(4px);cursor:pointer}
 .ov{position:fixed;inset:0;background:rgba(15,23,42,.6);display:flex;align-items:center;justify-content:center;padding:12px;z-index:300;overflow-y:auto}
@@ -68,6 +69,7 @@ td{padding:7px 9px;border-bottom:1px solid #f1f5f9}
 .pit:hover{background:#eff6ff}
 .oi{display:grid;grid-template-columns:1fr 65px 85px 28px;gap:4px;margin-bottom:5px}
 .bkr{display:grid;grid-template-columns:1fr 100px 32px;gap:6px;margin-bottom:5px}
+.rkr{display:grid;grid-template-columns:1fr 80px 90px 32px;gap:5px;margin-bottom:5px}
 .tot{margin-top:7px;text-align:left;font-size:13px;padding:7px 10px;background:#f0f9ff;border-radius:6px;color:#2563eb;font-weight:600}
 .li{background:#fff;border:1px solid #e2e8f0;border-radius:7px;padding:7px 9px;margin-bottom:5px;font-size:12px}
 .cbx{background:#fff;border:1px solid #e2e8f0;border-radius:7px;padding:11px;margin-bottom:9px}
@@ -135,7 +137,7 @@ td{padding:7px 9px;border-bottom:1px solid #f1f5f9}
 .days-badge.danger{background:#fef2f2;color:#dc2626}
 .days-badge.none{background:#f1f5f9;color:#64748b}
 .chk-label{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:#334155;cursor:pointer}
-@media(max-width:600px){.g2{grid-template-columns:1fr}.pay-opts{grid-template-columns:1fr}.pp{flex-wrap:wrap}.pp .pn{min-width:100%}.oi{grid-template-columns:1fr 55px 75px 28px}.bkr{grid-template-columns:1fr 80px 32px}}
+@media(max-width:600px){.g2{grid-template-columns:1fr}.pay-opts{grid-template-columns:1fr}.pp{flex-wrap:wrap}.pp .pn{min-width:100%}.oi{grid-template-columns:1fr 55px 75px 28px}.bkr{grid-template-columns:1fr 80px 32px}.rkr{grid-template-columns:1fr 60px 80px 32px}}
 #pr{display:none}
 @media print{#authScreen,#appScreen,#ov,.ldr,#cat,#adminScreen{display:none!important}#pr{display:block!important;padding:14px}#pr table{width:100%;border-collapse:collapse;font-size:11.5px}#pr th,#pr td{border:1px solid #666;padding:5px 6px;text-align:right}}
 </style>
@@ -150,7 +152,7 @@ td{padding:7px 9px;border-bottom:1px solid #f1f5f9}
 <div id="aMsg" class="msg"></div></div></div>
 <div id="appScreen" class="h"><header><div class="br">📦 <span id="invT"></span></div><div style="display:flex;gap:6px;align-items:center"><span class="chp" id="uL"></span><button class="b sm" onclick="refresh()">🔄</button><button class="b sm" onclick="logout()">خروج</button></div></header>
 <div class="sts" id="statsB"></div>
-<nav class="nav" id="tabsN"><button data-tab="products" onclick="sw('products')">📦 المنتجات</button><button data-tab="customers" onclick="sw('customers')">👥 الزبائن</button><button data-tab="debts" onclick="sw('debts')">💳 الديون</button><button data-tab="orders" onclick="sw('orders')">🧾 الطلبات</button><button data-tab="requests" onclick="sw('requests')">📥 الواردة <span id="reqB" class="nb h">0</span></button><button data-tab="link" onclick="sw('link')">🔗 الرابط</button><button data-tab="alerts" onclick="sw('alerts')">🔔 النواقص <span id="alB" class="nb h">0</span></button><button data-tab="reports" onclick="sw('reports')">🖨️ التقارير</button><button data-tab="log" onclick="sw('log')">📋 السجل</button><button data-tab="settings" onclick="sw('settings')">⚙️ الإعدادات</button></nav>
+<nav class="nav" id="tabsN"><button data-tab="products" onclick="sw('products')">📦 المنتجات</button><button data-tab="receipts" onclick="sw('receipts')">📥 استلام</button><button data-tab="customers" onclick="sw('customers')">👥 الزبائن</button><button data-tab="debts" onclick="sw('debts')">💳 الديون</button><button data-tab="orders" onclick="sw('orders')">🧾 الطلبات</button><button data-tab="requests" onclick="sw('requests')">📩 الواردة <span id="reqB" class="nb h">0</span></button><button data-tab="link" onclick="sw('link')">🔗 الرابط</button><button data-tab="alerts" onclick="sw('alerts')">🔔 النواقص <span id="alB" class="nb h">0</span></button><button data-tab="reports" onclick="sw('reports')">🖨️ التقارير</button><button data-tab="log" onclick="sw('log')">📋 السجل</button><button data-tab="settings" onclick="sw('settings')">⚙️ الإعدادات</button></nav>
 <main id="tc"></main></div>
 <div id="adminScreen" class="h">
 <header><div class="br">🔧 لوحة الأدمن <span id="admName"></span></div><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><button class="b sm" onclick="adminPassModal()" style="background:rgba(255,255,255,.15);border-color:#fff;color:#fff">🔑 كلمة السر</button><button class="b sm" onclick="adminRefresh()" style="background:#fff;border-color:#fff;color:#1e40af">🔄</button><button class="b sm" onclick="adminLogout()" style="background:transparent;border-color:#fff;color:#fff">خروج</button></div></header>
@@ -171,7 +173,6 @@ td{padding:7px 9px;border-bottom:1px solid #f1f5f9}
 <div id="ldr" class="ldr h"><div class="sp"></div></div>
 <div id="pr"></div>
 <div id="bootMsg" style="display:none;position:fixed;inset:0;background:#fff;z-index:9999;padding:24px;font-family:Tahoma;direction:rtl;overflow:auto"></div>
-
 <script type="module">
 const boot = document.getElementById('bootMsg');
 function showBoot(html) { boot.innerHTML = html; boot.style.display = 'block'; }
@@ -194,8 +195,7 @@ async function apiCall(action, payload) {
   const t = getToken();
   if (t) headers['Authorization'] = 'Bearer ' + t;
   const r = await fetch('/api/db', { method: 'POST', headers, body: JSON.stringify({ action, payload }) });
-  let j;
-  try { j = await r.json(); } catch (e) { throw new Error('استجابة غير صحيحة من الخادم'); }
+  let j; try { j = await r.json(); } catch (e) { throw new Error('استجابة غير صحيحة من الخادم'); }
   if (!r.ok) throw new Error(j.error || 'خطأ في API');
   return j;
 }
@@ -204,8 +204,7 @@ async function apiSQL(text, params) {
   const t = getToken();
   if (t) headers['Authorization'] = 'Bearer ' + t;
   const r = await fetch('/api/db', { method: 'POST', headers, body: JSON.stringify({ sql: text, params: params || [] }) });
-  let j;
-  try { j = await r.json(); } catch (e) { throw new Error('استجابة غير صحيحة من الخادم'); }
+  let j; try { j = await r.json(); } catch (e) { throw new Error('استجابة غير صحيحة من الخادم'); }
   if (!r.ok) throw new Error(j.error || 'خطأ في الاستعلام');
   return j.data;
 }
@@ -303,10 +302,10 @@ function createSQLShim() {
 }
 const sb = createSQLShim();
 
-let session = null, invData = null, curTab = 'products', reqs = [];
+let session = null, invData = null, curTab = 'products', reqs = [], receipts = [];
 let adminSession = null, adminList = [], showPasswords = true;
 let catTimer = null;
-const cs = { token: null, inv: null, products: [], sel: {}, done: false, account: null, view: 'login', myReq: [], msg: '', search: '' };
+const cs = { token: null, inv: null, products: [], sel: {}, done: false, account: null, view: 'login', myReq: [], msg: '', search: '', tagFilter: '' };
 const cLF = { phone: '', password: '' }, cRF = { name: '', phone: '', password: '', password2: '' };
 const uid = () => crypto.randomUUID ? crypto.randomUUID() : 'id-' + Date.now() + '-' + Math.random().toString(36).slice(2, 9);
 const tk = () => Array.from(crypto.getRandomValues(new Uint8Array(16))).map(b => b.toString(16).padStart(2, '0')).join('');
@@ -317,17 +316,19 @@ const fT = t => t ? String(t).slice(0, 16).replace('T', ' ') : '';
 const dT = t => t ? String(t).slice(0, 10) : '—';
 const ld = () => $('#ldr').classList.remove('h');
 const ul = () => $('#ldr').classList.add('h');
-const mP = r => ({ id: r.id, name: r.name, qty: +r.qty || 0, minQty: +r.min_qty || 0, buyPrice: +r.buy_price || 0, sellPrice: +r.sell_price || 0, category: r.category || '' });
+const mP = r => ({ id: r.id, name: r.name, qty: +r.qty || 0, minQty: +r.min_qty || 0, buyPrice: +r.buy_price || 0, sellPrice: +r.sell_price || 0, category: r.category || '', tags: Array.isArray(r.tags) ? r.tags : [] });
 const mC = r => ({ id: r.id, name: r.name, phone: r.phone || '', openingDebt: +r.opening_debt || 0, credit: +r.credit || 0 });
 const mO = r => ({ id: r.id, customerId: r.customer_id, customerName: r.customer_name || '', items: Array.isArray(r.items) ? r.items : [], total: +r.total || 0, cost: +r.cost || 0, profit: +r.profit || 0, payment: r.payment || '', paidAmount: +r.paid_amount || 0, paid: !!r.paid, returns: Array.isArray(r.returns) ? r.returns : [], note: r.note || '', time: r.created_at, user: r.user_name || '' });
 const mL = r => ({ id: r.id, user: r.user_name || '', action: r.action || '', details: r.details || '', time: r.created_at });
 const mR = r => ({ id: r.id, customerId: r.customer_id, customerName: r.customer_name || '', customerPhone: r.customer_phone || '', items: Array.isArray(r.items) ? r.items : [], note: r.note || '', status: r.status || 'new', time: r.created_at, reply: r.reply || '', cfItems: Array.isArray(r.confirmed_items) ? r.confirmed_items : [], replyAt: r.reply_at, seen: !!r.customer_seen });
+const mRec = r => ({ id: r.id, supplierName: r.supplier_name || '', items: Array.isArray(r.items) ? r.items : [], totalCost: +r.total_cost || 0, note: r.note || '', user: r.user_name || '', time: r.created_at });
 const oP = o => +o.paidAmount || 0;
 const oD = o => o.payment !== 'later' ? 0 : Math.max(0, (+o.total || 0) - oP(o));
 const cOD = id => (invData.orders || []).filter(o => o.customerId === id).reduce((s, o) => s + oD(o), 0);
 const cOpD = id => { const c = invData.customers.find(x => x.id === id); return c ? +c.openingDebt || 0 : 0; };
 const cD = id => cOpD(id) + cOD(id);
 const PL = { cash: 'نقداً', bank: 'حساب بنكي', later: 'آجل', '': 'غير محدد' };
+const tagsOf = p => Array.isArray(p.tags) ? p.tags : [];
 function unpaidDebtsCount() { return (invData.orders || []).filter(o => o.payment === 'later' && oD(o) > 0.001).length; }
 function daysLeft(exp) { if (!exp) return null; return Math.ceil((new Date(exp) - new Date()) / 86400000); }
 function invStatus(inv) { if (inv.status === 'suspended') return 'suspended'; if (inv.expires_at && new Date(inv.expires_at) < new Date()) return 'expired'; return 'active'; }
@@ -447,7 +448,7 @@ async function showCatalog(token) {
   $('#authScreen').classList.add('h'); $('#appScreen').classList.add('h'); $('#adminScreen').classList.add('h'); $('#cat').classList.remove('h');
   $('#catC').innerHTML = '<div class="cc" style="text-align:center;padding:30px"><div style="font-size:34px">⏳</div></div>';
   if (catTimer) { clearInterval(catTimer); catTimer = null; }
-  cs.token = token; cs.sel = {}; cs.done = false; cs.account = null; cs.view = 'login'; cs.myReq = []; cs.msg = ''; cs.search = '';
+  cs.token = token; cs.sel = {}; cs.done = false; cs.account = null; cs.view = 'login'; cs.myReq = []; cs.msg = ''; cs.search = ''; cs.tagFilter = '';
   try {
     const res = await apiCall('catalog_init', { token });
     const inv = res.inv;
@@ -455,29 +456,13 @@ async function showCatalog(token) {
     const st = invStatus(inv);
     if (st !== 'active' || !inv.public_enabled) { $('#catC').innerHTML = '<div class="cc" style="text-align:center;padding:30px"><div style="font-size:34px">⏸️</div><h2>الطلبات مغلقة</h2></div>'; return; }
     cs.inv = inv;
-    try {
-      const ss = JSON.parse(localStorage.getItem('cust_' + token) || 'null');
-      if (ss && ss.id) { cs.account = { id: ss.id, name: ss.name, phone: ss.phone }; cs.view = 'shop'; await loadMyReq(); }
-    } catch (e) {}
+    try { const ss = JSON.parse(localStorage.getItem('cust_' + token) || 'null'); if (ss && ss.id) { cs.account = { id: ss.id, name: ss.name, phone: ss.phone }; cs.view = 'shop'; await loadMyReq(); } } catch (e) {}
     await loadCatP(); renderCat();
     catTimer = setInterval(async () => { if (document.hidden) return; await loadCatP(); if (!cs.account) return; await loadMyReq(); if (cs.view === 'shop' || cs.view === 'myrequests') { const nv = $('#cNote') ? $('#cNote').value : ''; const sv = cs.search; renderCat(true); if ($('#cNote')) $('#cNote').value = nv; if ($('#cSearch')) $('#cSearch').value = sv; } }, 15000);
   } catch (e) { $('#catC').innerHTML = '<div class="cc" style="text-align:center;padding:30px"><div style="font-size:34px">❌</div><h2>خطأ</h2></div>'; }
 }
-async function loadCatP() {
-  if (!cs.inv) return;
-  try {
-    const res = await apiCall('catalog_products', { token: cs.token });
-    const np = (res.products || []).map(mP);
-    const nids = new Set(np.map(p => p.id));
-    Object.keys(cs.sel).forEach(id => { if (!nids.has(id)) delete cs.sel[id]; });
-    cs.products = np;
-  } catch (e) {}
-}
-async function loadMyReq() {
-  if (!cs.account || !cs.inv) return;
-  try { const res = await apiCall('catalog_my_requests', { token: cs.token, accountId: cs.account.id }); cs.myReq = (res.requests || []).map(mR); }
-  catch (e) {}
-}
+async function loadCatP() { if (!cs.inv) return; try { const res = await apiCall('catalog_products', { token: cs.token }); const np = (res.products || []).map(mP); const nids = new Set(np.map(p => p.id)); Object.keys(cs.sel).forEach(id => { if (!nids.has(id)) delete cs.sel[id]; }); cs.products = np; } catch (e) {} }
+async function loadMyReq() { if (!cs.account || !cs.inv) return; try { const res = await apiCall('catalog_my_requests', { token: cs.token, accountId: cs.account.id }); cs.myReq = (res.requests || []).map(mR); } catch (e) {} }
 function renderCat(skip) { if (!skip) { cLF.phone = $('#cuPhone') ? $('#cuPhone').value : cLF.phone; cLF.password = $('#cuPass') ? $('#cuPass').value : cLF.password; cRF.name = $('#crName') ? $('#crName').value : cRF.name; cRF.phone = $('#crPhone') ? $('#crPhone').value : cRF.phone; cRF.password = $('#crPass') ? $('#crPass').value : cRF.password; cRF.password2 = $('#crPass2') ? $('#crPass2').value : cRF.password2; } if (!cs.account) { renderCatAuth(); return; } if (cs.view === 'myrequests') { renderMyReq(); return; } renderCatShop(); }
 function renderCatAuth() {
   const inv = cs.inv, isL = cs.view !== 'register'; let fh = '';
@@ -517,14 +502,18 @@ function renderCatShop() {
   const tabs = '<div class="ct"><button class="on">🛒 التسوق</button><button onclick="cs.view=\'myrequests\';renderCat(true)">📋 طلباتي' + (pd ? '<span class="nb">' + pd + '</span>' : '') + '</button><button onclick="catLogout()">🚪 خروج</button></div>';
   if (!ps.length) { $('#catC').innerHTML = '<div class="ch"><div class="ic">🛒</div><h1>' + esc(inv.name) + '</h1><p>أهلاً ' + esc(cs.account.name) + '</p></div>' + tabs + '<div class="cc" style="text-align:center;padding:28px"><div style="font-size:34px">📭</div><h2>لا منتجات</h2></div>'; return; }
   const nv = $('#cNote') ? $('#cNote').value : ''; const sv = cs.search; const q = sv.trim().toLowerCase();
-  const filtered = q ? ps.filter(p => p.name.toLowerCase().includes(q)) : ps;
+  const allTags = [...new Set(ps.flatMap(p => tagsOf(p)))].sort((a, b) => a.localeCompare(b, 'ar'));
+  let filtered = q ? ps.filter(p => p.name.toLowerCase().includes(q) || (p.category || '').toLowerCase().includes(q) || tagsOf(p).some(t => t.toLowerCase().includes(q))) : ps;
+  if (cs.tagFilter) filtered = filtered.filter(p => tagsOf(p).includes(cs.tagFilter));
   const groups = {}; filtered.forEach(p => { const cat = (p.category && p.category.trim()) || 'منتجات أخرى'; if (!groups[cat]) groups[cat] = []; groups[cat].push(p); });
   const cats = Object.keys(groups).sort((a, b) => { if (a === 'منتجات أخرى') return 1; if (b === 'منتجات أخرى') return -1; return a.localeCompare(b, 'ar'); });
   let ph = ''; if (!filtered.length) ph = '<div style="text-align:center;padding:18px;color:#64748b">لا نتائج</div>';
-  else cats.forEach(cat => { const list = groups[cat]; ph += '<div class="grp"><div class="grp-t">📂 ' + esc(cat) + ' (' + list.length + ')</div>'; list.forEach(p => { const s = !!cs.sel[p.id], qty = s ? cs.sel[p.id] : 1; ph += '<div class="pp ' + (s ? 'sel' : '') + '"><input type="checkbox" ' + (s ? 'checked' : '') + ' onchange="catTog(\'' + p.id + '\',this.checked)"><div class="pn">' + esc(p.name) + '</div><input type="number" class="pq" min="1" step="1" value="' + qty + '" ' + (s ? '' : 'disabled') + ' onchange="catQty(\'' + p.id + '\',this.value)"></div>'; }); ph += '</div>'; });
+  else cats.forEach(cat => { const list = groups[cat]; ph += '<div class="grp"><div class="grp-t">📂 ' + esc(cat) + ' (' + list.length + ')</div>'; list.forEach(p => { const s = !!cs.sel[p.id], qty = s ? cs.sel[p.id] : 1; const tg = tagsOf(p); ph += '<div class="pp ' + (s ? 'sel' : '') + '"><input type="checkbox" ' + (s ? 'checked' : '') + ' onchange="catTog(\'' + p.id + '\',this.checked)"><div class="pn">' + esc(p.name) + (tg.length ? ' ' + tg.map(t => '<span class="tag">' + esc(t) + '</span>').join('') : '') + '</div><input type="number" class="pq" min="1" step="1" value="' + qty + '" ' + (s ? '' : 'disabled') + ' onchange="catQty(\'' + p.id + '\',this.value)"></div>'; }); ph += '</div>'; });
   const n = Object.keys(cs.sel).length;
-  $('#catC').innerHTML = '<div class="ch"><div class="ic">🛒</div><h1>' + esc(inv.name) + '</h1><p>أهلاً ' + esc(cs.account.name) + '</p></div>' + tabs + '<div class="cc"><input id="cSearch" type="text" placeholder="🔍 ابحث..." value="' + esc(sv) + '" oninput="catSearch(this.value)" style="background:#f8fafc"></div><div class="cc">' + ph + '</div><div class="cc"><div class="f"><label>ملاحظة</label><input id="cNote" value="' + esc(nv) + '"></div><button class="cs" ' + (n === 0 ? 'disabled' : '') + ' onclick="catSubmit()">' + (n === 0 ? 'اختر منتجاً' : '📤 إرسال (' + n + ')') + '</button></div>';
+  const tagBar = allTags.length ? '<div class="cc" style="padding:8px"><div style="font-size:11px;font-weight:700;color:#64748b;margin-bottom:5px">تصفية بالتصنيف:</div><div style="display:flex;gap:4px;flex-wrap:wrap"><button class="b sm ' + (!cs.tagFilter ? 'p' : '') + '" onclick="catTagFilter(\'\')">الكل</button>' + allTags.map(t => '<button class="b sm ' + (cs.tagFilter === t ? 'p' : '') + '" onclick="catTagFilter(\'' + esc(t).replace(/'/g, "\\'") + '\')">' + esc(t) + '</button>').join('') + '</div></div>' : '';
+  $('#catC').innerHTML = '<div class="ch"><div class="ic">🛒</div><h1>' + esc(inv.name) + '</h1><p>أهلاً ' + esc(cs.account.name) + '</p></div>' + tabs + '<div class="cc"><input id="cSearch" type="text" placeholder="🔍 ابحث بالاسم أو القسم أو التصنيف..." value="' + esc(sv) + '" oninput="catSearch(this.value)" style="background:#f8fafc"></div>' + tagBar + '<div class="cc">' + ph + '</div><div class="cc"><div class="f"><label>ملاحظة</label><input id="cNote" value="' + esc(nv) + '"></div><button class="cs" ' + (n === 0 ? 'disabled' : '') + ' onclick="catSubmit()">' + (n === 0 ? 'اختر منتجاً' : '📤 إرسال (' + n + ')') + '</button></div>';
 }
+function catTagFilter(t) { cs.tagFilter = t; const nv = $('#cNote') ? $('#cNote').value : ''; renderCat(true); if ($('#cNote')) $('#cNote').value = nv; }
 function catSearch(v) { cs.search = v; const nv = $('#cNote') ? $('#cNote').value : ''; renderCat(true); if ($('#cNote')) $('#cNote').value = nv; const el = $('#cSearch'); if (el) { el.focus(); try { el.setSelectionRange(el.value.length, el.value.length); } catch (e) {} } }
 function renderMyReq() {
   const tabs = '<div class="ct"><button onclick="cs.view=\'shop\';renderCat(true)">🛒 التسوق</button><button class="on">📋 طلباتي</button><button onclick="catLogout()">🚪 خروج</button></div>';
@@ -548,7 +537,7 @@ async function catSubmit() {
   for (const pid of pids) { const p = cs.products.find(x => x.id === pid); if (!p) { alert('نفدت'); await loadCatP(); renderCat(true); return; } }
   const items = pids.map(id => { const p = cs.products.find(x => x.id === id); return { productId: id, name: p ? p.name : '', qty: cs.sel[id] }; }).filter(x => x.name);
   if (cs.busy) return; cs.busy = true;
-  try { await apiCall('catalog_submit_request', { token: cs.token, accountId: cs.account.id, items, note }); cs.done = true; cs.busy = false; cs.sel = {}; cs.search = ''; await loadMyReq(); renderCatOk(); }
+  try { await apiCall('catalog_submit_request', { token: cs.token, accountId: cs.account.id, items, note }); cs.done = true; cs.busy = false; cs.sel = {}; cs.search = ''; cs.tagFilter = ''; await loadMyReq(); renderCatOk(); }
   catch (e) { cs.busy = false; alert('فشل: ' + (e.message || '')); }
 }
 function renderCatOk() { const tabs = '<div class="ct"><button onclick="cs.view=\'shop\';cs.done=false;renderCat(true)">🛒 التسوق</button><button onclick="cs.view=\'myrequests\';cs.done=false;renderCat(true)">📋 طلباتي</button></div>'; $('#catC').innerHTML = tabs + '<div class="cc" style="text-align:center;padding:32px"><div style="font-size:46px;color:#16a34a;margin-bottom:10px">✅</div><h2>تم إرسال طلبك</h2><button class="b p" onclick="cs.view=\'myrequests\';cs.done=false;renderCat(true)">📋 طلباتي</button></div>'; }
@@ -573,22 +562,24 @@ async function doLogin() {
 async function doRegister() { aMsg('التسجيل متوقف'); }
 
 async function loadAll(id) {
-  const [iR, pR, cR, oR, lR, qR] = await Promise.all([
+  const [iR, pR, cR, oR, lR, qR, recR] = await Promise.all([
     sb.from('inventories').select('*').eq('id', id).single(),
     sb.from('products').select('*').eq('inv_id', id).order('created_at'),
     sb.from('customers').select('*').eq('inv_id', id).order('created_at'),
     sb.from('orders').select('*').eq('inv_id', id).order('created_at'),
     sb.from('logs').select('*').eq('inv_id', id).order('created_at', { ascending: false }).limit(1000),
-    sb.from('public_requests').select('*').eq('inv_id', id).order('created_at', { ascending: false }).limit(REQUESTS_MAX)
+    sb.from('public_requests').select('*').eq('inv_id', id).order('created_at', { ascending: false }).limit(REQUESTS_MAX),
+    sb.from('stock_receipts').select('*').eq('inv_id', id).order('created_at', { ascending: false }).limit(500)
   ]);
   if (iR.error) throw new Error(iR.error.message);
   const cm = Number(iR.data.cleanup_months);
   invData = { id: iR.data.id, name: iR.data.name, password: iR.data.password, ownerName: iR.data.owner_name || '', expiresAt: iR.data.expires_at || null, status: iR.data.status || 'active', members: Array.isArray(iR.data.members) ? iR.data.members : [], publicToken: iR.data.public_token || null, publicEnabled: !!iR.data.public_enabled, cleanupMonths: (isNaN(cm) || cm < 1) ? 1 : cm, autoDelSettled: !!iR.data.auto_del_settled, settledDelDays: +iR.data.settled_del_days || 30, products: (pR.data || []).map(mP), customers: (cR.data || []).map(mC), orders: (oR.data || []).map(mO), logs: (lR.data || []).map(mL) };
   reqs = (qR.data || []).map(mR);
+  receipts = (recR.data || []).map(mRec);
 }
 function enterApp() { $('#authScreen').classList.add('h'); $('#adminScreen').classList.add('h'); $('#appScreen').classList.remove('h'); $('#invT').textContent = session.invName; $('#uL').textContent = '👤 ' + session.user; sw('products'); if (window._sy) clearInterval(window._sy); window._sy = setInterval(() => { if (session && !document.hidden && $('#ov').classList.contains('h') && curTab !== 'settings') refresh(); }, 30000); }
 async function refresh() { if (!session) return; try { await loadAll(session.invId); renderTab(); } catch (e) {} }
-async function logout() { if (session) await log('خروج', session.user); if (window._sy) { clearInterval(window._sy); window._sy = null; } session = null; invData = null; reqs = []; localStorage.removeItem(SK); clearToken(); $('#appScreen').classList.add('h'); $('#authScreen').classList.remove('h'); $('#lP').value = ''; aMsg(''); }
+async function logout() { if (session) await log('خروج', session.user); if (window._sy) { clearInterval(window._sy); window._sy = null; } session = null; invData = null; reqs = []; receipts = []; localStorage.removeItem(SK); clearToken(); $('#appScreen').classList.add('h'); $('#authScreen').classList.remove('h'); $('#lP').value = ''; aMsg(''); }
 async function restore() {
   try {
     const s = JSON.parse(localStorage.getItem(SK));
@@ -598,7 +589,7 @@ async function restore() {
 }
 
 function sw(t) { curTab = t; $$('#tabsN button').forEach(b => b.classList.toggle('on', b.dataset.tab === t)); renderTab(); }
-function renderTab() { const c = $('#tc'); if (!session || !invData) return; if (curTab === 'products') { c.innerHTML = hProd(); renderProd(); } else if (curTab === 'customers') c.innerHTML = hCust(); else if (curTab === 'debts') c.innerHTML = hDebt(); else if (curTab === 'orders') c.innerHTML = hOrd(); else if (curTab === 'requests') c.innerHTML = hReq(); else if (curTab === 'link') c.innerHTML = hLink(); else if (curTab === 'alerts') c.innerHTML = hAlerts(); else if (curTab === 'reports') c.innerHTML = hReports(); else if (curTab === 'log') c.innerHTML = hLog(); else if (curTab === 'settings') c.innerHTML = hSet(); stats(); badges(); }
+function renderTab() { const c = $('#tc'); if (!session || !invData) return; if (curTab === 'products') { c.innerHTML = hProd(); renderProd(); } else if (curTab === 'receipts') c.innerHTML = hReceipts(); else if (curTab === 'customers') c.innerHTML = hCust(); else if (curTab === 'debts') c.innerHTML = hDebt(); else if (curTab === 'orders') c.innerHTML = hOrd(); else if (curTab === 'requests') c.innerHTML = hReq(); else if (curTab === 'link') c.innerHTML = hLink(); else if (curTab === 'alerts') c.innerHTML = hAlerts(); else if (curTab === 'reports') c.innerHTML = hReports(); else if (curTab === 'log') c.innerHTML = hLog(); else if (curTab === 'settings') c.innerHTML = hSet(); stats(); badges(); }
 function stats() {
   const p = invData.products || [], o = invData.orders || [];
   const tq = p.reduce((s, x) => s + (+x.qty || 0), 0); const sv = p.reduce((s, x) => s + (+x.qty || 0) * (+x.buyPrice || 0), 0);
@@ -607,23 +598,187 @@ function stats() {
   $('#statsB').innerHTML = '<div class="st"><div class="l">المنتجات</div><div class="v b">' + p.length + '/1000</div></div><div class="st"><div class="l">القطع</div><div class="v">' + mn(tq) + '</div></div><div class="st"><div class="l">قيمة</div><div class="v">' + mn(sv) + '</div></div><div class="st"><div class="l">المبيعات</div><div class="v g">' + mn(sa) + '</div></div><div class="st"><div class="l">الربح</div><div class="v g">' + mn(pf) + '</div></div><div class="st"><div class="l">الديون</div><div class="v r">' + unpaid + '/1000</div></div>' + (dl !== null ? '<div class="st"><div class="l">متبقي</div><div class="v ' + (dl <= 3 ? 'r' : dl <= 7 ? 'y' : 'g') + '">' + dl + ' يوم</div></div>' : '');
 }
 function badges() { const lc = (invData.products || []).filter(p => (+p.qty || 0) <= (+p.minQty || 0)).length; const ab = $('#alB'); if (lc > 0) { ab.textContent = lc; ab.classList.remove('h'); } else ab.classList.add('h'); const nr = reqs.filter(r => r.status === 'new').length; const rb = $('#reqB'); if (nr > 0) { rb.textContent = nr; rb.classList.remove('h'); } else rb.classList.add('h'); }
-
-function hProd() { return '<div class="tb3"><button class="b p" onclick="pOpen()">+ منتج</button><button class="b" onclick="printInv()">🖨️</button><button class="b" onclick="printLow()">🔔</button><input class="srch" id="pS" placeholder="🔍..." oninput="renderProd()"></div><div class="tbr"><table><thead><tr><th>المنتج</th><th>القسم</th><th>الكمية</th><th>شراء</th><th>بيع</th><th>حالة</th><th>إجراءات</th></tr></thead><tbody id="pR"></tbody></table></div>'; }
-function renderProd() { const q = ($('#pS') ? $('#pS').value : '').trim().toLowerCase(); const L = (invData.products || []).filter(p => !q || p.name.toLowerCase().includes(q)); const tb = $('#pR'); if (!tb) return; if (!L.length) { tb.innerHTML = '<tr><td colspan="7" class="emp">لا منتجات</td></tr>'; return; } tb.innerHTML = L.map(p => { const low = (+p.qty || 0) <= (+p.minQty || 0); return '<tr><td><strong>' + esc(p.name) + '</strong></td><td>' + (p.category ? esc(p.category) : '—') + '</td><td>' + mn(p.qty) + '</td><td>' + (p.buyPrice ? mn(p.buyPrice) : '—') + '</td><td>' + (p.sellPrice ? mn(p.sellPrice) : '—') + '</td><td>' + (low ? '<span class="bd d">منخفض</span>' : '<span class="bd o">متوفر</span>') + '</td><td class="act"><button class="b sm" onclick="pAdj(\'' + p.id + '\')">±</button><button class="b sm" onclick="pOpen(\'' + p.id + '\')">تعديل</button><button class="b sm d" onclick="pDel(\'' + p.id + '\')">حذف</button></td></tr>'; }).join(''); }
-function pOpen(id) { const p = id ? invData.products.find(x => x.id === id) : null; if (!id && invData.products.length >= MAX_PRODUCTS) return alert('الحد الأقصى 1000'); const cats = [...new Set((invData.products || []).map(x => x.category).filter(x => x))]; const dl = cats.map(c => '<option value="' + esc(c) + '">').join(''); const b = '<div class="f"><label>الاسم *</label><input id="pNm" value="' + (p ? esc(p.name) : '') + '"></div><div class="f"><label>القسم</label><input id="pCat" list="cl" value="' + (p ? esc(p.category || '') : '') + '"><datalist id="cl">' + dl + '</datalist></div><div class="g2"><div class="f"><label>الكمية</label><input id="pQ" type="number" min="0" value="' + (p ? p.qty : 0) + '"></div><div class="f"><label>حد التنبيه</label><input id="pM" type="number" min="0" value="' + (p ? (p.minQty || 0) : 0) + '"></div></div><div class="g2"><div class="f"><label>شراء</label><input id="pB" type="number" min="0" value="' + (p && p.buyPrice ? p.buyPrice : '') + '"></div><div class="f"><label>بيع</label><input id="pSl" type="number" min="0" value="' + (p && p.sellPrice ? p.sellPrice : '') + '"></div></div>'; openModal(p ? 'تعديل' : 'إضافة منتج', b, '<button class="b" onclick="closeModal()">إلغاء</button><button class="b p" onclick="pSave(\'' + (id || '') + '\')">حفظ</button>'); }
+  function hProd() { return '<div class="tb3"><button class="b p" onclick="pOpen()">+ منتج</button><button class="b s" onclick="pBulkOpen()">📦 إضافة دفعة</button><button class="b" onclick="printInv()">🖨️</button><button class="b" onclick="printLow()">🔔</button><input class="srch" id="pS" placeholder="🔍 ابحث بالاسم أو القسم أو التصنيف..." oninput="renderProd()"></div><div class="tbr"><table><thead><tr><th>المنتج</th><th>القسم</th><th>التصنيفات</th><th>الكمية</th><th>شراء</th><th>بيع</th><th>حالة</th><th>إجراءات</th></tr></thead><tbody id="pR"></tbody></table></div>'; }
+function renderProd() {
+  const q = ($('#pS') ? $('#pS').value : '').trim().toLowerCase();
+  const L = (invData.products || []).filter(p => {
+    if (!q) return true;
+    const inName = p.name.toLowerCase().includes(q);
+    const inCat = (p.category || '').toLowerCase().includes(q);
+    const inTags = tagsOf(p).some(t => t.toLowerCase().includes(q));
+    return inName || inCat || inTags;
+  });
+  const tb = $('#pR'); if (!tb) return;
+  if (!L.length) { tb.innerHTML = '<tr><td colspan="8" class="emp">لا منتجات</td></tr>'; return; }
+  tb.innerHTML = L.map(p => {
+    const low = (+p.qty || 0) <= (+p.minQty || 0);
+    const tg = tagsOf(p).map(t => '<span class="tag">' + esc(t) + '</span>').join(' ');
+    return '<tr><td><strong>' + esc(p.name) + '</strong></td><td>' + (p.category ? esc(p.category) : '—') + '</td><td>' + (tg || '—') + '</td><td>' + mn(p.qty) + '</td><td>' + (p.buyPrice ? mn(p.buyPrice) : '—') + '</td><td>' + (p.sellPrice ? mn(p.sellPrice) : '—') + '</td><td>' + (low ? '<span class="bd d">منخفض</span>' : '<span class="bd o">متوفر</span>') + '</td><td class="act"><button class="b sm" onclick="pAdj(\'' + p.id + '\')">±</button><button class="b sm" onclick="pOpen(\'' + p.id + '\')">تعديل</button><button class="b sm d" onclick="pDel(\'' + p.id + '\')">حذف</button></td></tr>';
+  }).join('');
+}
+function allTagsList() { return [...new Set((invData.products || []).flatMap(p => tagsOf(p)))].sort((a, b) => a.localeCompare(b, 'ar')); }
+function pOpen(id) {
+  const p = id ? invData.products.find(x => x.id === id) : null;
+  if (!id && invData.products.length >= MAX_PRODUCTS) return alert('الحد الأقصى 1000');
+  const cats = [...new Set((invData.products || []).map(x => x.category).filter(x => x))];
+  const allTags = allTagsList();
+  const dl = cats.map(c => '<option value="' + esc(c) + '">').join('');
+  const tdl = allTags.map(t => '<option value="' + esc(t) + '">').join('');
+  const curTags = p ? tagsOf(p).join(', ') : '';
+  const b = '<div class="f"><label>الاسم *</label><input id="pNm" value="' + (p ? esc(p.name) : '') + '"></div><div class="f"><label>القسم</label><input id="pCat" list="cl" value="' + (p ? esc(p.category || '') : '') + '"><datalist id="cl">' + dl + '</datalist></div><div class="f"><label>التصنيفات (اكتب واضغط Enter — يمكن أكثر من واحد)</label><input id="pTags" list="tl" value="' + esc(curTags) + '" placeholder="ربل، حديد، خشب..."><datalist id="tl">' + tdl + '</datalist><div id="pTagsChips" style="margin-top:5px"></div></div><div class="g2"><div class="f"><label>الكمية</label><input id="pQ" type="number" min="0" value="' + (p ? p.qty : 0) + '"></div><div class="f"><label>حد التنبيه</label><input id="pM" type="number" min="0" value="' + (p ? (p.minQty || 0) : 0) + '"></div></div><div class="g2"><div class="f"><label>شراء</label><input id="pB" type="number" min="0" value="' + (p && p.buyPrice ? p.buyPrice : '') + '"></div><div class="f"><label>بيع</label><input id="pSl" type="number" min="0" value="' + (p && p.sellPrice ? p.sellPrice : '') + '"></div></div>';
+  openModal(p ? 'تعديل' : 'إضافة منتج', b, '<button class="b" onclick="closeModal()">إلغاء</button><button class="b p" onclick="pSave(\'' + (id || '') + '\')">حفظ</button>');
+  setTimeout(() => { const inp = $('#pTags'); if (inp) inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); tagAddChip(inp.value.trim()); inp.value = ''; } }); renderTagChips(); }, 50);
+}
+let _currentTags = [];
+function parseTagsInput(v) { return v.split(/[,،]/).map(s => s.trim()).filter(s => s); }
+function tagAddChip(t) { if (!t) return; if (!_currentTags.includes(t)) _currentTags.push(t); renderTagChips(); }
+function tagRemoveChip(i) { _currentTags.splice(i, 1); renderTagChips(); }
+function renderTagChips() {
+  const el = $('#pTagsChips'); if (!el) return;
+  const inp = $('#pTags'); if (inp) { const cur = parseTagsInput(inp.value); cur.forEach(t => { if (!_currentTags.includes(t)) _currentTags.push(t); }); inp.value = ''; }
+  el.innerHTML = _currentTags.map((t, i) => '<span class="tag" style="cursor:pointer" onclick="tagRemoveChip(' + i + ')">' + esc(t) + ' ✕</span>').join(' ');
+}
 async function pSave(id) {
-  const n = $('#pNm').value.trim(); if (!n) return alert('الاسم مطلوب'); if (!id && invData.products.length >= MAX_PRODUCTS) return alert('حد أقصى');
-  const cat = $('#pCat').value.trim(); const q = +$('#pQ').value || 0, m = +$('#pM').value || 0, b = $('#pB').value === '' ? 0 : +$('#pB').value || 0, s = $('#pSl').value === '' ? 0 : +$('#pSl').value || 0;
-  closeModal(); ld();
+  const n = $('#pNm').value.trim(); if (!n) return alert('الاسم مطلوب');
+  if (!id && invData.products.length >= MAX_PRODUCTS) return alert('حد أقصى');
+  const cat = $('#pCat').value.trim();
+  const tagsInp = $('#pTags'); const typedTags = tagsInp ? parseTagsInput(tagsInp.value) : [];
+  const tags = [...new Set([..._currentTags, ...typedTags])];
+  const q = +$('#pQ').value || 0, m = +$('#pM').value || 0;
+  const b = $('#pB').value === '' ? 0 : +$('#pB').value || 0;
+  const s = $('#pSl').value === '' ? 0 : +$('#pSl').value || 0;
+  closeModal(); _currentTags = [];
+  ld();
   try {
-    if (id) { const r = await sb.from('products').update({ name: n, category: cat || null, qty: q, min_qty: m, buy_price: b, sell_price: s }).eq('id', id); if (r.error) throw new Error(r.error.message); const p = invData.products.find(x => x.id === id); Object.assign(p, { name: n, category: cat, qty: q, minQty: m, buyPrice: b, sellPrice: s }); await log('تعديل منتج', n); }
-    else { const nid = uid(); const r = await sb.from('products').insert({ id: nid, inv_id: invData.id, name: n, category: cat || null, qty: q, min_qty: m, buy_price: b, sell_price: s }); if (r.error) throw new Error(r.error.message); invData.products.push({ id: nid, name: n, category: cat, qty: q, minQty: m, buyPrice: b, sellPrice: s }); await log('إضافة منتج', n); }
+    if (id) {
+      const r = await sb.from('products').update({ name: n, category: cat || null, qty: q, min_qty: m, buy_price: b, sell_price: s, tags }).eq('id', id);
+      if (r.error) throw new Error(r.error.message);
+      const p = invData.products.find(x => x.id === id);
+      Object.assign(p, { name: n, category: cat, qty: q, minQty: m, buyPrice: b, sellPrice: s, tags });
+      await log('تعديل منتج', n);
+    } else {
+      const nid = uid();
+      const r = await sb.from('products').insert({ id: nid, inv_id: invData.id, name: n, category: cat || null, qty: q, min_qty: m, buy_price: b, sell_price: s, tags });
+      if (r.error) throw new Error(r.error.message);
+      invData.products.push({ id: nid, name: n, category: cat, qty: q, minQty: m, buyPrice: b, sellPrice: s, tags });
+      await log('إضافة منتج', n);
+    }
     ul(); renderTab();
   } catch (e) { ul(); alert('خطأ: ' + e.message); }
+}
+function pBulkOpen() {
+  const allTags = allTagsList();
+  const tdl = allTags.map(t => '<option value="' + esc(t) + '">').join('');
+  const b = '<div class="f"><label>القسم المشترك (اختياري)</label><input id="bkCat" placeholder="اتركه فارغًا أو اكتب قسمًا"></div><div class="f"><label>التصنيفات المشتركة (اختياري)</label><input id="bkTags" list="bktl" placeholder="ربل، حديد..."><datalist id="bktl">' + tdl + '</datalist></div><p class="mut" style="margin:8px 0">أضف صفوف المنتجات (الاسم + الكمية):</p><div id="bulkRows"><div class="bkr"><input type="text" class="bulk-name" placeholder="اسم المنتج"><input type="number" class="bulk-qty" placeholder="الكمية" min="0"><button class="b sm d" onclick="this.parentElement.remove()" type="button">✕</button></div></div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px"><button class="b sm" onclick="bulkAddRow()" type="button">+ صف</button></div>';
+  openModal('📦 إضافة دفعة', b, '<button class="b" onclick="closeModal()">إلغاء</button><button class="b p" onclick="bulkAdd()">📥 إضافة الكل</button>');
+}
+function bulkAddRow() {
+  const d = document.createElement('div');
+  d.className = 'bkr';
+  d.innerHTML = '<input type="text" class="bulk-name" placeholder="اسم المنتج"><input type="number" class="bulk-qty" placeholder="الكمية" min="0"><button class="b sm d" onclick="this.parentElement.remove()" type="button">✕</button>';
+  $('#bulkRows').appendChild(d);
+}
+async function bulkAdd() {
+  const cat = ($('#bkCat') ? $('#bkCat').value : '').trim();
+  const tagsVal = ($('#bkTags') ? $('#bkTags').value : '').trim();
+  const tags = parseTagsInput(tagsVal);
+  const rows = document.querySelectorAll('#bulkRows .bkr');
+  const items = [];
+  rows.forEach(r => {
+    const nameEl = r.querySelector('.bulk-name'); const qtyEl = r.querySelector('.bulk-qty');
+    const name = nameEl ? nameEl.value.trim() : ''; const qty = qtyEl ? +qtyEl.value || 0 : 0;
+    if (!name) return;
+    items.push({ name, qty });
+  });
+  if (!items.length) return alert('أضف منتجات');
+  if (invData.products.length + items.length > MAX_PRODUCTS) return alert('سيتجاوز الحد الأقصى 1000');
+  closeModal(); ld();
+  try {
+    for (const it of items) {
+      const nid = uid();
+      const r = await sb.from('products').insert({ id: nid, inv_id: invData.id, name: it.name, category: cat || null, qty: it.qty, min_qty: 0, buy_price: 0, sell_price: 0, tags });
+      if (r.error) throw new Error(r.error.message);
+      invData.products.push({ id: nid, name: it.name, category: cat, qty: it.qty, minQty: 0, buyPrice: 0, sellPrice: 0, tags });
+    }
+    await log('إضافة دفعة', items.length + ' منتج');
+    ul(); alert('✅ تم إضافة ' + items.length + ' منتج'); renderTab();
+  } catch (e) { ul(); alert('خطأ: ' + (e.message || e)); }
 }
 function pAdj(id) { const p = invData.products.find(x => x.id === id); if (!p) return; const b = '<p class="mut" style="margin-bottom:9px">' + esc(p.name) + ' — ' + mn(p.qty) + '</p><div class="f"><label>نوع</label><select id="aT"><option value="add">إضافة</option><option value="sub">خصم</option><option value="set">تعيين</option></select></div><div class="f"><label>الكمية</label><input id="aQ" type="number" min="0" value="1"></div><div class="f"><label>ملاحظة</label><input id="aN"></div>'; openModal('تعديل الكمية', b, '<button class="b" onclick="closeModal()">إلغاء</button><button class="b p" onclick="pApply(\'' + id + '\')">تنفيذ</button>'); }
 async function pApply(id) { const p = invData.products.find(x => x.id === id); if (!p) return; const t = $('#aT').value, a = +$('#aQ').value || 0, bef = +p.qty; const nq = t === 'add' ? bef + a : t === 'sub' ? Math.max(0, bef - a) : a; closeModal(); ld(); try { const r = await sb.from('products').update({ qty: nq }).eq('id', id); if (r.error) throw new Error(r.error.message); p.qty = nq; await log('تعديل كمية', p.name); ul(); renderTab(); } catch (e) { ul(); alert('خطأ'); } }
 async function pDel(id) { const p = invData.products.find(x => x.id === id); if (!p) return; if (!confirm('حذف "' + p.name + '"؟')) return; ld(); try { const r = await sb.from('products').delete().eq('id', id); if (r.error) throw new Error(r.error.message); invData.products = invData.products.filter(x => x.id !== id); await log('حذف منتج', p.name); ul(); renderTab(); } catch (e) { ul(); alert('خطأ'); } }
+
+function hReceipts() {
+  let rows = '';
+  if (receipts.length) {
+    receipts.forEach(r => {
+      const itemsTxt = r.items.map(i => esc(i.name) + ' × ' + i.qty).join('، ');
+      rows += '<tr><td style="font-size:11px;color:#64748b">' + fT(r.time) + '</td><td><strong>' + (r.supplierName ? esc(r.supplierName) : '—') + '</strong></td><td style="max-width:250px;font-size:11.5px">' + (itemsTxt || '—') + '</td><td>' + mn(r.totalCost) + '</td><td>' + esc(r.user || '—') + '</td><td class="act"><button class="b sm" onclick="recView(\'' + r.id + '\')">عرض</button><button class="b sm d" onclick="recDel(\'' + r.id + '\')">حذف</button></td></tr>';
+    });
+  } else rows = '<tr><td colspan="6" class="emp">لا عمليات استلام</td></tr>';
+  return '<div class="tb3"><button class="b p" onclick="recOpen()">+ استلام بضاعة</button></div><div class="tbr"><table><thead><tr><th>التاريخ</th><th>المُرسل</th><th>المنتجات</th><th>التكلفة</th><th>المستخدم</th><th>إجراءات</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
+}
+function recOpen() {
+  if (!invData.products.length) return alert('أضف منتجات أولاً');
+  const b = '<div class="f"><label>اسم المُرسل / المورد *</label><input id="rcSup" placeholder="اسم من أرسل البضاعة"></div><div class="sec">المنتجات المستلمة</div><div id="rcItems"></div><button class="b sm" onclick="recAddItem()">+ صنف</button><div class="tot">إجمالي التكلفة: <strong id="rcTotal">0</strong></div><div class="f" style="margin-top:10px"><label>ملاحظة</label><input id="rcNote"></div>';
+  openModal('📥 استلام بضاعة', b, '<button class="b" onclick="closeModal()">إلغاء</button><button class="b s" onclick="recSave()">✅ حفظ الاستلام</button>');
+  recAddItem();
+}
+function recAddItem() {
+  const d = document.createElement('div');
+  d.className = 'rkr';
+  d.innerHTML = '<div class="ps"><input type="text" class="ps-s" placeholder="🔍 منتج..." onfocus="psOpen(this)" oninput="psFilter(this)"><input type="hidden" class="ps-i"><div class="pdr h"></div></div><input class="rc-q" type="number" min="0.01" value="1" placeholder="الكمية" oninput="recCalc()"><input class="rc-p" type="number" min="0" placeholder="سعر الشراء" oninput="recCalc()"><button class="b sm d" onclick="this.parentElement.remove();recCalc()">✕</button>';
+  $('#rcItems').appendChild(d);
+}
+function recCalc() { let t = 0; $$('#rcItems .rkr').forEach(r => { t += (+r.querySelector('.rc-q').value || 0) * (+r.querySelector('.rc-p').value || 0); }); const e = $('#rcTotal'); if (e) e.textContent = mn(t); }
+async function recSave() {
+  const sup = ($('#rcSup') ? $('#rcSup').value : '').trim();
+  if (!sup) return alert('اكتب اسم المُرسل');
+  const rows = $$('#rcItems .rkr'); const items = [];
+  for (const r of rows) {
+    const pid = r.querySelector('.ps-i').value; const q = +r.querySelector('.rc-q').value || 0; const pr = +r.querySelector('.rc-p').value || 0;
+    if (!pid || q <= 0) continue;
+    const p = invData.products.find(x => x.id === pid);
+    if (!p) continue;
+    items.push({ productId: p.id, name: p.name, qty: q, price: pr, cost: q * pr });
+  }
+  if (!items.length) return alert('أضف صنفًا واحدًا على الأقل');
+  const note = ($('#rcNote') ? $('#rcNote').value : '').trim();
+  const totalCost = items.reduce((s, i) => s + i.cost, 0);
+  closeModal(); ld();
+  try {
+    for (const it of items) {
+      const p = invData.products.find(x => x.id === it.productId);
+      if (!p) continue;
+      const nq = +p.qty + it.qty;
+      const upd = { qty: nq };
+      if (it.price > 0) upd.buy_price = it.price;
+      const r = await sb.from('products').update(upd).eq('id', p.id);
+      if (r.error) throw new Error(r.error.message);
+      p.qty = nq;
+      if (it.price > 0) p.buyPrice = it.price;
+    }
+    const nid = uid();
+    const r = await sb.from('stock_receipts').insert({ id: nid, inv_id: invData.id, supplier_name: sup, items, total_cost: totalCost, note, user_name: session.user }).select().single();
+    if (r.error) throw new Error(r.error.message);
+    receipts.unshift(mRec(r.data));
+    await log('استلام بضاعة', sup + ' | ' + items.length + ' صنف | ' + mn(totalCost));
+    ul(); alert('✅ تم تسجيل الاستلام وإضافته للمخزون'); renderTab();
+  } catch (e) { ul(); alert('خطأ: ' + (e.message || e)); }
+}
+function recView(id) {
+  const r = receipts.find(x => x.id === id); if (!r) return;
+  let rows = r.items.map(i => '<div class="itm"><span>• ' + esc(i.name) + ' × ' + i.qty + '</span><span>' + mn(i.price) + ' ← ' + mn(i.cost) + '</span></div>').join('');
+  const b = '<div class="cbx" style="background:#f0fdf4"><div><strong>📦 ' + esc(r.supplierName) + '</strong></div><div class="mut">' + fT(r.time) + ' | بواسطة: ' + esc(r.user || '—') + '</div></div><div class="sec">المنتجات</div>' + rows + '<div class="tot" style="background:#ecfdf5;color:#16a34a">إجمالي التكلفة: ' + mn(r.totalCost) + '</div>' + (r.note ? '<div class="f" style="margin-top:9px"><label>ملاحظة</label><div class="mut">' + esc(r.note) + '</div></div>' : '');
+  openModal('📥 تفاصيل استلام', b, '<button class="b" onclick="closeModal()">إغلاق</button>');
+}
+async function recDel(id) {
+  const r = receipts.find(x => x.id === id); if (!r) return;
+  if (!confirm('حذف عملية الاستلام؟\n⚠️ لن يتم خصم الكميات من المخزون تلقائيًا.')) return;
+  ld();
+  try { const rr = await sb.from('stock_receipts').delete().eq('id', id); if (rr.error) throw new Error(rr.error.message); receipts = receipts.filter(x => x.id !== id); await log('حذف استلام', r.supplierName); ul(); renderTab(); }
+  catch (e) { ul(); alert('خطأ: ' + (e.message || e)); }
+}
 
 function hCust() {
   const L = invData.customers || []; let rows = '';
@@ -689,7 +844,7 @@ function oNewToggle() { $('#oNewBox').classList.toggle('h', $('#oC').value !== '
 function oAddItem() { const d = document.createElement('div'); d.className = 'oi'; d.innerHTML = '<div class="ps"><input type="text" class="ps-s" placeholder="🔍 منتج..." onfocus="psOpen(this)" oninput="psFilter(this)"><input type="hidden" class="ps-i"><div class="pdr h"></div></div><input class="oi-q" type="number" min="0.01" value="1" oninput="oCalc()"><input class="oi-p" type="number" min="0" placeholder="السعر" oninput="oCalc()"><button class="b sm d" onclick="this.parentElement.remove();oCalc()">✕</button>'; $('#oItems').appendChild(d); }
 function psOpen(i) { const w = i.closest('.ps'); psDrop(w.querySelector('.pdr'), ''); w.querySelector('.pdr').classList.remove('h'); }
 function psFilter(i) { const w = i.closest('.ps'); psDrop(w.querySelector('.pdr'), i.value); w.querySelector('.pdr').classList.remove('h'); if (i.value.trim() === '') w.querySelector('.ps-i').value = ''; }
-function psDrop(drp, q) { q = (q || '').trim().toLowerCase(); const L = invData.products.filter(p => !q || p.name.toLowerCase().includes(q)); if (!L.length) { drp.innerHTML = '<div class="pe">لا نتائج</div>'; return; } drp.innerHTML = L.slice(0, 60).map(p => '<div class="pit" onclick="psPick(this,\'' + p.id + '\',\'' + esc(p.name).replace(/'/g, "\\'") + '\',' + (p.sellPrice || 0) + ')"><span>' + esc(p.name) + '</span><small>متوفر: ' + p.qty + '</small></div>').join(''); }
+function psDrop(drp, q) { q = (q || '').trim().toLowerCase(); const L = invData.products.filter(p => !q || p.name.toLowerCase().includes(q) || (p.category || '').toLowerCase().includes(q) || tagsOf(p).some(t => t.toLowerCase().includes(q))); if (!L.length) { drp.innerHTML = '<div class="pe">لا نتائج</div>'; return; } drp.innerHTML = L.slice(0, 60).map(p => { const tg = tagsOf(p); return '<div class="pit" onclick="psPick(this,\'' + p.id + '\',\'' + esc(p.name).replace(/'/g, "\\'") + '\',' + (p.sellPrice || 0) + ')"><span>' + esc(p.name) + (tg.length ? ' <span class="tag">' + esc(tg[0]) + '</span>' : '') + '</span><small>متوفر: ' + p.qty + '</small></div>'; }).join(''); }
 function psPick(el, id, nm, pr) { const w = el.closest('.ps'), r = w.closest('.oi'); w.querySelector('.ps-s').value = nm; w.querySelector('.ps-i').value = id; const pi = r.querySelector('.oi-p'); if (pi && !pi.value) pi.value = pr; w.querySelector('.pdr').classList.add('h'); oCalc(); }
 function oCalc() { let t = 0; $$('#oItems .oi').forEach(r => { t += (+r.querySelector('.oi-q').value || 0) * (+r.querySelector('.oi-p').value || 0); }); const e = $('#oTotal'); if (e) e.textContent = mn(t); }
 async function oSave() {
@@ -747,7 +902,7 @@ function hReq() {
     rows += '<div class="rc ' + cl + '"><div style="display:flex;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap"><div><div style="font-weight:700;font-size:13px">' + esc(r.customerName) + ' ' + sb2 + '</div><div style="color:#64748b;font-size:11px;direction:ltr">📞 ' + esc(r.customerPhone) + '</div></div><div style="color:#64748b;font-size:10.5px">' + fT(r.time) + '</div></div><div class="ri">' + ih + '</div>' + (r.note ? '<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:5px 8px;font-size:11px;margin-top:5px;color:#92400e">📝 ' + esc(r.note) + '</div>' : '') + rh + '<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:7px"><button class="b p sm" onclick="reqReply(\'' + r.id + '\')">✉️ ' + ((r.reply) ? 'تعديل' : 'الرد') + '</button>' + (r.status !== 'processed' ? '<button class="b s sm" onclick="reqProcess(\'' + r.id + '\')">✅ تحويل</button>' : '') + '<button class="b d sm" onclick="reqDel(\'' + r.id + '\')">حذف</button></div></div>';
   });
   else rows = '<div class="cbx" style="text-align:center;color:#64748b;padding:28px"><div style="font-size:34px">📭</div>لا طلبات واردة</div>';
-  return '<div class="cbx" style="background:#eff6ff;border-color:#bfdbfe"><div style="font-size:13px;font-weight:700;color:#1e40af">📥 الواردة</div><div class="mut" style="margin-top:3px">جديدة: <strong style="color:#dc2626">' + nc + '</strong> | إجمالي: ' + L.length + '</div></div>' + rows;
+  return '<div class="cbx" style="background:#eff6ff;border-color:#bfdbfe"><div style="font-size:13px;font-weight:700;color:#1e40af">📩 الواردة</div><div class="mut" style="margin-top:3px">جديدة: <strong style="color:#dc2626">' + nc + '</strong> | إجمالي: ' + L.length + '</div></div>' + rows;
 }
 async function reqDel(id) { if (!confirm('حذف؟')) return; try { await sb.from('public_requests').delete().eq('id', id); reqs = reqs.filter(x => x.id !== id); await log('حذف طلب', ''); renderTab(); } catch (e) { alert('خطأ'); } }
 function reqReply(rid) {
@@ -815,11 +970,11 @@ async function genTok() { ld(); try { const t = tk(); const r = await sb.from('i
 async function tglLink(e) { ld(); try { const r = await sb.from('inventories').update({ public_enabled: e }).eq('id', invData.id); if (r.error) throw new Error(r.error.message); invData.publicEnabled = e; await log(e ? 'تفعيل' : 'إيقاف', ''); ul(); renderTab(); } catch (er) { ul(); alert('خطأ'); } }
 function copyUrl() { const u = location.origin + location.pathname + '#catalog=' + invData.publicToken; if (navigator.clipboard) navigator.clipboard.writeText(u).then(() => alert('✅')); }
 
-function hAlerts() { const L = (invData.products || []).filter(p => (+p.qty || 0) <= (+p.minQty || 0)); if (!L.length) return '<div class="cbx" style="text-align:center;color:#16a34a;font-weight:600">✅ لا نواقص</div>'; let rows = ''; L.forEach(p => { const out = (+p.qty || 0) <= 0; rows += '<tr><td><strong>' + esc(p.name) + '</strong></td><td>' + mn(p.qty) + '</td><td>' + mn(p.minQty || 0) + '</td><td>' + (out ? '<span class="bd d">نفدت</span>' : '<span class="bd w">قاربت</span>') + '</td><td class="act"><button class="b sm" onclick="pAdj(\'' + p.id + '\')">إضافة</button></td></tr>'; }); return '<div class="tb3"><button class="b p" onclick="printLow()">🖨️</button></div><div class="tbr"><table><thead><tr><th>المنتج</th><th>الكمية</th><th>حد</th><th>حالة</th><th>إجراء</th></tr></thead><tbody>' + rows + '</tbody></table></div>'; }
+function hAlerts() { const L = (invData.products || []).filter(p => (+p.qty || 0) <= (+p.minQty || 0)); if (!L.length) return '<div class="cbx" style="text-align:center;color:#16a34a;font-weight:600">✅ لا نواقص</div>'; let rows = ''; L.forEach(p => { const out = (+p.qty || 0) <= 0; const tg = tagsOf(p).map(t => '<span class="tag">' + esc(t) + '</span>').join(' '); rows += '<tr><td><strong>' + esc(p.name) + '</strong></td><td>' + (tg || '—') + '</td><td>' + mn(p.qty) + '</td><td>' + mn(p.minQty || 0) + '</td><td>' + (out ? '<span class="bd d">نفدت</span>' : '<span class="bd w">قاربت</span>') + '</td><td class="act"><button class="b sm" onclick="pAdj(\'' + p.id + '\')">إضافة</button></td></tr>'; }); return '<div class="tb3"><button class="b p" onclick="printLow()">🖨️</button></div><div class="tbr"><table><thead><tr><th>المنتج</th><th>التصنيفات</th><th>الكمية</th><th>حد</th><th>حالة</th><th>إجراء</th></tr></thead><tbody>' + rows + '</tbody></table></div>'; }
 function hReports() { return '<div class="cbx"><h4 style="margin-bottom:5px">📋 الجرد</h4><button class="b p" onclick="printInv()">🖨️</button></div><div class="cbx"><h4 style="margin-bottom:5px">🔔 النواقص</h4><button class="b p" onclick="printLow()">🖨️</button></div>'; }
 function prHead(t) { return '<h1>' + esc(t) + '</h1><div style="color:#666;font-size:11.5px;margin-bottom:14px;border-bottom:2px solid #2563eb;padding-bottom:7px">المخزون: <strong>' + esc(session.invName) + '</strong> | ' + nS() + '</div>'; }
-function printInv() { const p = (invData.products || []).slice().sort((a, b) => (a.category || '').localeCompare(b.category || '', 'ar') || a.name.localeCompare(b.name, 'ar')); let rows = ''; p.forEach((x, i) => { rows += '<tr><td>' + (i + 1) + '</td><td>' + esc(x.name) + '</td><td>' + esc(x.category || '—') + '</td><td>' + mn(x.qty) + '</td><td>' + (x.buyPrice ? mn(x.buyPrice) : '—') + '</td><td>' + (x.sellPrice ? mn(x.sellPrice) : '—') + '</td></tr>'; }); doPr(prHead('تقرير الجرد') + '<table><thead><tr><th>#</th><th>المنتج</th><th>القسم</th><th>الكمية</th><th>شراء</th><th>بيع</th></tr></thead><tbody>' + (rows || '<tr><td colspan="6" style="text-align:center">لا توجد</td></tr>') + '</tbody></table>'); }
-function printLow() { const L = (invData.products || []).filter(p => (+p.qty || 0) <= (+p.minQty || 0)); let rows = ''; L.forEach((p, i) => { const out = (+p.qty || 0) <= 0; rows += '<tr><td>' + (i + 1) + '</td><td>' + esc(p.name) + '</td><td>' + mn(p.qty) + '</td><td>' + mn(p.minQty || 0) + '</td><td>' + (out ? 'نفدت' : 'تحتاج طلب') + '</td></tr>'; }); doPr(prHead('النواقص') + '<table><thead><tr><th>#</th><th>المنتج</th><th>الكمية</th><th>الحد</th><th>الحالة</th></tr></thead><tbody>' + (rows || '<tr><td colspan="5" style="text-align:center">لا نواقص</td></tr>') + '</tbody></table>'); }
+function printInv() { const p = (invData.products || []).slice().sort((a, b) => (a.category || '').localeCompare(b.category || '', 'ar') || a.name.localeCompare(b.name, 'ar')); let rows = ''; p.forEach((x, i) => { const tg = tagsOf(x).join('، '); rows += '<tr><td>' + (i + 1) + '</td><td>' + esc(x.name) + '</td><td>' + esc(x.category || '—') + '</td><td>' + esc(tg || '—') + '</td><td>' + mn(x.qty) + '</td><td>' + (x.buyPrice ? mn(x.buyPrice) : '—') + '</td><td>' + (x.sellPrice ? mn(x.sellPrice) : '—') + '</td></tr>'; }); doPr(prHead('تقرير الجرد') + '<table><thead><tr><th>#</th><th>المنتج</th><th>القسم</th><th>التصنيفات</th><th>الكمية</th><th>شراء</th><th>بيع</th></tr></thead><tbody>' + (rows || '<tr><td colspan="7" style="text-align:center">لا توجد</td></tr>') + '</tbody></table>'); }
+function printLow() { const L = (invData.products || []).filter(p => (+p.qty || 0) <= (+p.minQty || 0)); let rows = ''; L.forEach((p, i) => { const out = (+p.qty || 0) <= 0; const tg = tagsOf(p).join('، '); rows += '<tr><td>' + (i + 1) + '</td><td>' + esc(p.name) + '</td><td>' + esc(tg || '—') + '</td><td>' + mn(p.qty) + '</td><td>' + mn(p.minQty || 0) + '</td><td>' + (out ? 'نفدت' : 'تحتاج طلب') + '</td></tr>'; }); doPr(prHead('النواقص') + '<table><thead><tr><th>#</th><th>المنتج</th><th>التصنيفات</th><th>الكمية</th><th>الحد</th><th>الحالة</th></tr></thead><tbody>' + (rows || '<tr><td colspan="6" style="text-align:center">لا نواقص</td></tr>') + '</tbody></table>'); }
 function printCust(cid) { const c = invData.customers.find(x => x.id === cid); if (!c) return; const ords = (invData.orders || []).filter(o => o.customerId === cid); const tp = ords.reduce((s, o) => s + (+o.total || 0), 0); const tpaid = ords.reduce((s, o) => s + oP(o), 0); const op = +c.openingDebt || 0; const od = ords.reduce((s, o) => s + oD(o), 0); let rows = ''; ords.forEach(o => { const it = o.items.map(i => i.name + '×' + i.qty).join('، '); rows += '<tr><td>' + fT(o.time) + '</td><td>' + esc(it) + '</td><td>' + mn(o.total) + '</td><td>' + mn(oP(o)) + '</td></tr>'; }); doPr(prHead('كشف حساب: ' + esc(c.name)) + '<div style="margin:10px 0;padding:8px;background:#f0f9ff;border-radius:6px">المشتريات: ' + mn(tp) + ' | المدفوع: ' + mn(tpaid) + ' | دين سابق: ' + mn(op) + ' | دين طلبات: ' + mn(od) + ' | المتبقي: ' + mn(op + od) + '</div><table><thead><tr><th>التاريخ</th><th>الأصناف</th><th>الإجمالي</th><th>مدفوع</th></tr></thead><tbody>' + (rows || '<tr><td colspan="4" style="text-align:center">لا طلبات</td></tr>') + '</tbody></table>'); }
 function doPr(h) { $('#pr').innerHTML = h; setTimeout(() => window.print(), 250); }
 
@@ -831,7 +986,8 @@ function hSet() {
   let qckRows = '';
   if (prods.length) {
     prods.forEach(p => {
-      qckRows += '<tr data-name="' + esc(p.name).toLowerCase() + '"><td><strong>' + esc(p.name) + '</strong></td><td>' + mn(p.qty) + '</td><td><input type="number" min="0" class="qck-input" data-pid="' + p.id + '" data-cur="' + p.qty + '" placeholder="' + p.qty + '" style="width:90px;padding:4px 6px;text-align:center"></td></tr>';
+      const tg = tagsOf(p).join(', ');
+      qckRows += '<tr data-name="' + esc(p.name).toLowerCase() + '" data-cat="' + esc((p.category || '').toLowerCase()) + '" data-tags="' + esc(tg.toLowerCase()) + '"><td><strong>' + esc(p.name) + '</strong></td><td>' + mn(p.qty) + '</td><td><input type="number" min="0" class="qck-input" data-pid="' + p.id + '" data-cur="' + p.qty + '" placeholder="' + p.qty + '" style="width:90px;padding:4px 6px;text-align:center"></td></tr>';
     });
   } else {
     qckRows = '<tr><td colspan="3" class="emp">لا منتجات</td></tr>';
@@ -848,14 +1004,9 @@ function hSet() {
     '<div class="f"><label>بعد كم يوم من السداد الكامل؟ (الحد الأقصى 180 يوم)</label><input type="number" id="settledDelDays" min="1" max="180" value="' + (invData.settledDelDays || 30) + '"></div>' +
     '<button class="b p" onclick="saveCleanSettings()" style="padding:8px 14px;font-weight:700">💾 حفظ إعدادات التنظيف</button>' +
     '</div>' +
-    '<div class="cbx"><h4>📦 إضافة منتجات دفعة واحدة</h4>' +
-    '<p class="mut" style="margin-bottom:8px">اكتب اسم المنتج والكمية في كل صف، ثم اضغط "إضافة الكل"</p>' +
-    '<div id="bulkRows"><div class="bkr"><input type="text" class="bulk-name" placeholder="اسم المنتج"><input type="number" class="bulk-qty" placeholder="الكمية" min="0"><button class="b sm d" onclick="this.parentElement.remove()" type="button">✕</button></div></div>' +
-    '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px"><button class="b sm" onclick="bulkAddRow()" type="button">+ صف</button><button class="b p" onclick="bulkAdd()" type="button">📥 إضافة الكل</button></div>' +
-    '</div>' +
     '<div class="cbx"><h4>🔧 تصحيح سريع للعداد</h4>' +
-    '<p class="mut" style="margin-bottom:8px">عدّل الكميات مباشرة في العمود الأخير. اترك الحقل فارغًا إذا لم ترد التعديل. اضغط "حفظ التصحيحات" في الأسفل.</p>' +
-    '<input type="text" id="qckSearch" placeholder="🔍 ابحث عن منتج..." oninput="qckFilter(this.value)" style="margin-bottom:8px;background:#f8fafc">' +
+    '<p class="mut" style="margin-bottom:8px">عدّل الكميات مباشرة في العمود الأخير. اترك الحقل فارغًا إذا لم ترد التعديل.</p>' +
+    '<input type="text" id="qckSearch" placeholder="🔍 ابحث بالاسم أو القسم أو التصنيف..." oninput="qckFilter(this.value)" style="margin-bottom:8px;background:#f8fafc">' +
     '<div class="tbr"><table><thead><tr><th>المنتج</th><th>الكمية الحالية</th><th>الكمية الجديدة</th></tr></thead><tbody id="qckTbody">' + qckRows + '</tbody></table></div>' +
     '<button class="b p" onclick="quickCorr()" style="margin-top:9px;padding:8px 14px;font-weight:700">💾 حفظ التصحيحات</button>' +
     '</div>' +
@@ -866,7 +1017,7 @@ function hSet() {
     '<button class="b d" onclick="delInvData()" style="padding:8px 14px;font-weight:700">🗑️ حذف كل البيانات</button>' +
     '<button class="b d" onclick="delInvAll()" style="padding:8px 14px;font-weight:700">💥 حذف المخزون بالكامل</button>' +
     '</div></div>' +
-    '<div class="cbx"><h4>📊 معلومات</h4><p class="mut" style="margin-top:6px">قاعدة البيانات: Neon (PostgreSQL)</p><p class="mut">المنتجات: ' + prods.length + '</p><p class="mut">الزبائن: ' + (invData.customers || []).length + '</p><p class="mut">الطلبات: ' + (invData.orders || []).length + '</p></div>';
+    '<div class="cbx"><h4>📊 معلومات</h4><p class="mut" style="margin-top:6px">قاعدة البيانات: Neon (PostgreSQL)</p><p class="mut">المنتجات: ' + prods.length + '</p><p class="mut">الزبائن: ' + (invData.customers || []).length + '</p><p class="mut">الطلبات: ' + (invData.orders || []).length + '</p><p class="mut">الاستلامات: ' + receipts.length + '</p></div>';
 }
 
 async function saveCleanSettings() {
@@ -884,9 +1035,7 @@ async function saveCleanSettings() {
   } catch (e) { ul(); alert('خطأ: ' + (e.message || e)); }
 }
 async function chgInvPass() {
-  const oldP = $('#oldInvPass').value;
-  const newP = $('#newInvPass').value;
-  const newP2 = $('#newInvPass2').value;
+  const oldP = $('#oldInvPass').value; const newP = $('#newInvPass').value; const newP2 = $('#newInvPass2').value;
   if (!oldP || !newP || !newP2) return alert('املأ الحقول');
   if (newP.length < 4) return alert('4+ أحرف');
   if (newP !== newP2) return alert('غير متطابقتين');
@@ -900,45 +1049,12 @@ async function chgInvPass() {
     ul(); alert('✅ تم تغيير كلمة السر'); renderTab();
   } catch (e) { ul(); alert('خطأ: ' + (e.message || e)); }
 }
-function bulkAddRow() {
-  const d = document.createElement('div');
-  d.className = 'bkr';
-  d.innerHTML = '<input type="text" class="bulk-name" placeholder="اسم المنتج"><input type="number" class="bulk-qty" placeholder="الكمية" min="0"><button class="b sm d" onclick="this.parentElement.remove()" type="button">✕</button>';
-  $('#bulkRows').appendChild(d);
-}
-async function bulkAdd() {
-  const rows = document.querySelectorAll('#bulkRows .bkr');
-  const items = [];
-  rows.forEach(r => {
-    const nameEl = r.querySelector('.bulk-name');
-    const qtyEl = r.querySelector('.bulk-qty');
-    const name = nameEl ? nameEl.value.trim() : '';
-    const qty = qtyEl ? +qtyEl.value || 0 : 0;
-    if (!name) return;
-    items.push({ name, qty });
-  });
-  if (!items.length) return alert('أضف منتجات');
-  if (invData.products.length + items.length > MAX_PRODUCTS) return alert('سيتجاوز الحد الأقصى 1000');
-  ld();
-  try {
-    for (const it of items) {
-      const nid = uid();
-      const r = await sb.from('products').insert({ id: nid, inv_id: invData.id, name: it.name, category: null, qty: it.qty, min_qty: 0, buy_price: 0, sell_price: 0 });
-      if (r.error) throw new Error(r.error.message);
-      invData.products.push({ id: nid, name: it.name, category: '', qty: it.qty, minQty: 0, buyPrice: 0, sellPrice: 0 });
-    }
-    await log('إضافة دفعة', items.length + ' منتج');
-    ul(); alert('✅ تم إضافة ' + items.length + ' منتج'); renderTab();
-  } catch (e) { ul(); alert('خطأ: ' + (e.message || e)); }
-}
 function qckFilter(q) {
   q = (q || '').trim().toLowerCase();
-  const tbody = document.getElementById('qckTbody');
-  if (!tbody) return;
-  const rows = tbody.querySelectorAll('tr');
-  rows.forEach(tr => {
-    const name = tr.dataset.name || '';
-    if (!q || name.includes(q)) tr.style.display = '';
+  const tbody = document.getElementById('qckTbody'); if (!tbody) return;
+  tbody.querySelectorAll('tr').forEach(tr => {
+    const name = tr.dataset.name || ''; const cat = tr.dataset.cat || ''; const tags = tr.dataset.tags || '';
+    if (!q || name.includes(q) || cat.includes(q) || tags.includes(q)) tr.style.display = '';
     else tr.style.display = 'none';
   });
 }
@@ -946,40 +1062,27 @@ async function quickCorr() {
   const inputs = document.querySelectorAll('.qck-input');
   const changes = [];
   inputs.forEach(inp => {
-    const v = inp.value.trim();
-    if (v === '') return;
-    const q = +v;
-    if (isNaN(q) || q < 0) return;
-    const pid = inp.dataset.pid;
-    const cur = +inp.dataset.cur;
-    const p = invData.products.find(x => String(x.id) === String(pid));
-    if (!p) return;
+    const v = inp.value.trim(); if (v === '') return;
+    const q = +v; if (isNaN(q) || q < 0) return;
+    const pid = inp.dataset.pid; const cur = +inp.dataset.cur;
+    const p = invData.products.find(x => String(x.id) === String(pid)); if (!p) return;
     if (q === cur) return;
     changes.push({ p, q });
   });
-  if (!changes.length) return alert('لم يتم تعديل أي كمية.\nاكتب الكمية الجديدة في العمود الثالث ثم اضغط حفظ.');
+  if (!changes.length) return alert('لم يتم تعديل أي كمية.');
   if (!confirm('سيتم تحديث ' + changes.length + ' منتج. متابعة؟')) return;
   ld();
   let ok = 0;
   try {
-    for (const { p, q } of changes) {
-      const r = await sb.from('products').update({ qty: q }).eq('id', p.id);
-      if (r.error) throw new Error(r.error.message);
-      p.qty = q;
-      ok++;
-    }
+    for (const { p, q } of changes) { const r = await sb.from('products').update({ qty: q }).eq('id', p.id); if (r.error) throw new Error(r.error.message); p.qty = q; ok++; }
     await log('تصحيح عداد', ok + ' منتج');
     ul(); alert('✅ تم تحديث ' + ok + ' منتج'); renderTab();
-  } catch (e) {
-    ul();
-    alert('تم تحديث ' + ok + ' من ' + changes.length + '\nخطأ: ' + (e.message || e));
-    renderTab();
-  }
+  } catch (e) { ul(); alert('تم تحديث ' + ok + ' من ' + changes.length + '\nخطأ: ' + (e.message || e)); renderTab(); }
 }
 async function delInvData() {
-  if (!confirm('⚠️ حذف كل البيانات (منتجات، زبائن، طلبات، سجلات)؟\nسيبقى حساب المخزون موجودًا لكن فارغًا.')) return;
-  if (!confirm('تأكيد أخير: هل نسخت بياناتك احتياطيًا؟')) return;
-  const typed = prompt('اكتب كلمة "حذف" بالضبط للتأكيد:');
+  if (!confirm('⚠️ حذف كل البيانات؟')) return;
+  if (!confirm('تأكيد أخير: هل نسخت بياناتك؟')) return;
+  const typed = prompt('اكتب كلمة "حذف" للتأكيد:');
   if (typed !== 'حذف') return alert('تم الإلغاء');
   ld();
   try {
@@ -989,23 +1092,19 @@ async function delInvData() {
     await sb.from('customers').delete().eq('inv_id', invData.id);
     await sb.from('products').delete().eq('inv_id', invData.id);
     await sb.from('customer_accounts').delete().eq('inv_id', invData.id);
-    invData.products = []; invData.customers = []; invData.orders = []; invData.logs = []; reqs = [];
+    await sb.from('stock_receipts').delete().eq('inv_id', invData.id);
+    invData.products = []; invData.customers = []; invData.orders = []; invData.logs = []; reqs = []; receipts = [];
     ul(); alert('✅ تم حذف كل البيانات'); renderTab();
   } catch (e) { ul(); alert('خطأ: ' + (e.message || e)); }
 }
 async function delInvAll() {
-  if (!confirm('💥 حذف المخزون بالكامل (بما فيه الحساب)؟')) return;
-  if (!confirm('تأكيد أخير: سيتم تسجيل خروجك ولا يمكن استرجاع أي شيء.')) return;
+  if (!confirm('💥 حذف المخزون بالكامل؟')) return;
+  if (!confirm('تأكيد أخير: سيتم تسجيل خروجك.')) return;
   const typed = prompt('اكتب اسم المخزون بالضبط للتأكيد:');
   if (typed !== invData.name) return alert('الاسم غير مطابق. تم الإلغاء');
   ld();
-  try {
-    await sb.from('inventories').delete().eq('id', invData.id);
-    ul();
-    session = null; invData = null; reqs = [];
-    localStorage.removeItem(SK); clearToken();
-    location.reload();
-  } catch (e) { ul(); alert('خطأ: ' + (e.message || e)); }
+  try { await sb.from('inventories').delete().eq('id', invData.id); ul(); session = null; invData = null; reqs = []; receipts = []; localStorage.removeItem(SK); clearToken(); location.reload(); }
+  catch (e) { ul(); alert('خطأ: ' + (e.message || e)); }
 }
 
 function openModal(t, b, f) { $('#mT').textContent = t; $('#mB').innerHTML = b; $('#mF').innerHTML = f; $('#ov').classList.remove('h'); }
@@ -1020,8 +1119,10 @@ window.adminCreateInv = adminCreateInv; window.renderAdminList = renderAdminList
 window.copyText = copyText; window.adminToggle = adminToggle; window.adminExtend = adminExtend; window.adminDelete = adminDelete;
 window.adminExtendApply = adminExtendApply; window.adminChangePassApply = adminChangePassApply;
 window.catSetView = catSetView; window.catLogin = catLogin; window.catRegister = catRegister; window.catLogout = catLogout;
-window.catTog = catTog; window.catQty = catQty; window.catSubmit = catSubmit; window.catSearch = catSearch;
-window.pOpen = pOpen; window.pSave = pSave; window.pAdj = pAdj; window.pApply = pApply; window.pDel = pDel;
+window.catTog = catTog; window.catQty = catQty; window.catSubmit = catSubmit; window.catSearch = catSearch; window.catTagFilter = catTagFilter;
+window.pOpen = pOpen; window.pSave = pSave; window.pAdj = pAdj; window.pApply = pApply; window.pDel = pDel; window.pBulkOpen = pBulkOpen;
+window.tagAddChip = tagAddChip; window.tagRemoveChip = tagRemoveChip; window.renderTagChips = renderTagChips;
+window.recOpen = recOpen; window.recAddItem = recAddItem; window.recSave = recSave; window.recView = recView; window.recDel = recDel; window.recCalc = recCalc;
 window.payOpen = payOpen; window.payApply = payApply; window.printCust = printCust; window.printInv = printInv; window.printLow = printLow;
 window.cOpen = cOpen; window.cSave = cSave; window.cDel = cDel; window.oOpen = oOpen; window.oAddItem = oAddItem;
 window.pickPay = pickPay; window.oNewToggle = oNewToggle; window.oSave = oSave; window.reqReply = reqReply;
