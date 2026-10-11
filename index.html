@@ -590,7 +590,19 @@ async function loadAll(id) {
   reqs = (qR.data || []).map(mR);
   receipts = (recR.data || []).map(mRec);
 }
-function enterApp() { $('#authScreen').classList.add('h'); $('#adminScreen').classList.add('h'); $('#appScreen').classList.remove('h'); $('#invT').textContent = session.invName; $('#uL').textContent = '👤 ' + session.user; sw('products'); if (window._sy) clearInterval(window._sy); window._sy = setInterval(() => { if (session && !document.hidden && $('#ov').classList.contains('h') && curTab !== 'settings') refresh(); }, 30000); }
+function enterApp() { $('#authScreen').classList.add('h'); $('#adminScreen').classList.add('h'); $('#appScreen').classList.remove('h'); $('#invT').textContent = session.invName; $('#uL').textContent = '👤 ' + session.user; sw('products'); if (window._sy) clearInterval(window._sy); window._sy = setInterval(() => {
+  if (!session || document.hidden) return;
+  if (!$('#ov').classList.contains('h')) return;
+  if (curTab === 'settings') return;
+  const ae = document.activeElement;
+  if (ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA' || ae.tagName === 'SELECT' || ae.isContentEditable)) return;
+  const pS = $('#pS'); const pSVal = pS ? pS.value : '';
+  const logS = $('#logS'); const logSVal = logS ? logS.value : '';
+  refresh().then(() => {
+    const p2 = $('#pS'); if (p2 && pSVal) { p2.value = pSVal; renderProd(); }
+    const l2 = $('#logS'); if (l2 && logSVal) { l2.value = logSVal; renderLog(); }
+  });
+}, 30000);
 async function refresh() { if (!session) return; try { await loadAll(session.invId); renderTab(); } catch (e) {} }
 async function logout() { if (session) await log('خروج', session.user); if (window._sy) { clearInterval(window._sy); window._sy = null; } session = null; invData = null; reqs = []; receipts = []; localStorage.removeItem(SK); clearToken(); $('#appScreen').classList.add('h'); $('#authScreen').classList.remove('h'); $('#lP').value = ''; aMsg(''); }
 async function restore() {
