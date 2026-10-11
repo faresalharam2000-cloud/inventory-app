@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>المخزون</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Tahoma,sans-serif;background:#f1f5f9;line-height:1.5;font-size:13px}
+.h{display:none!important}
+button{cursor:pointer;font-family:inherit}
+input,select,textarea{font-family:inherit;padding:7px 9px;border:1px solid #e2e8f0;border-radius:6px;font-size:13px;width:100%;outline:none;background:#fff}
+input[type=checkbox]{width:auto;padding:0}
+.b{border:1px solid #e2e8f0;background:#fff;padding:6px 11px;border-radius:6px;font-size:12.5px}
+.b.p{background:#2563eb;border-color:#2563eb;color:#fff}
+.b.s{background:#16a34a;border-color:#16a34a;color:#fff}
+.b.d{background:#fff;border-color:#fecaca;color:#dc2626}
+.b.w{background:#fff;border-color:#fde68a;color:#b45309}
+.b.sm{padding:3px 7px;font-size:11.5px}
+.f{margin-bottom:9px}
+.f label{display:block;font-size:12px;font-weight:600;margin-bottom:3px;color:#334155}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.scr{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px}
+.aut{background:linear-gradient(135deg,#1e3a8a,#2563eb,#0ea5e9)}
+.crd{background:#fff;border-radius:12px;padding:22px;width:100%;max-width:380px;box-shadow:0 20px 50px rgba(0,0,0,.25)}
+.crd h1{font-size:18px;text-align:center;margin:5px 0 14px}
+.tb2{display:flex;background:#f1f5f9;border-radius:7px;padding:4px;margin-bottom:14px}
+.tb2 button{flex:1;border:0;background:transparent;padding:6px;border-radius:5px;font-weight:600;color:#64748b;font-size:12.5px}
+.tb2 button.on{background:#fff;color:#2563eb}
+.msg{margin-top:9px;text-align:center;font-size:12.5px;min-height:16px;color:#dc2626}
+header{background:#fff;border-bottom:1px solid #e2e8f0;padding:9px 14px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:7px}
+.br{font-weight:700;font-size:13.5px}
+.chp{background:#eff6ff;color:#2563eb;padding:3px 9px;border-radius:20px;font-weight:600;font-size:11.5px}
+.sts{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:6px;padding:8px 14px 0}
+.st{background:#fff;border:1px solid #e2e8f0;border-radius:7px;padding:7px 9px}
+.st .l{font-size:10px;color:#64748b;font-weight:600}
+.st .v{font-size:14px;font-weight:700;margin-top:1px}
+.v.g{color:#16a34a}.v.r{color:#dc2626}.v.b{color:#2563eb}.v.y{color:#b45309}
+.nav{display:flex;gap:3px;padding:8px 14px 0;flex-wrap:wrap}
+.nav>button{border:1px solid transparent;background:transparent;padding:5px 10px;border-radius:6px;font-size:12px;font-weight:600;color:#64748b}
+.nav>button.on{background:#2563eb;color:#fff}
+.nb{background:#dc2626;color:#fff;border-radius:20px;font-size:10px;padding:1px 5px;font-weight:700}
+main{padding:8px 14px 60px;max-width:1200px;margin:0 auto}
+.tb3{display:flex;gap:7px;margin-bottom:9px;flex-wrap:wrap;align-items:center}
+.srch{flex:1;min-width:160px}
+.tbr{background:#fff;border:1px solid #e2e8f0;border-radius:7px;overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px;min-width:480px}
+th{background:#f8fafc;text-align:right;padding:7px 9px;font-size:10.5px;color:#64748b;font-weight:700;border-bottom:1px solid #e2e8f0;white-space:nowrap}
+td{padding:7px 9px;border-bottom:1px solid #f1f5f9}
+.act{display:flex;gap:3px;flex-wrap:wrap}
+.emp{text-align:center;color:#64748b;padding:18px!important}
+.bd{padding:2px 7px;border-radius:20px;font-size:10.5px;font-weight:700;display:inline-block}
+.bd.d{background:#fef2f2;color:#dc2626}.bd.o{background:#f0fdf4;color:#16a34a}
+.bd.w{background:#fffbeb;color:#b45309}.bd.i{background:#eff6ff;color:#2563eb}
+.bd.p{background:#f5f3ff;color:#7c3aed}.bd.g{background:#f1f5f9;color:#64748b}
+.pw{font-family:monospace;background:#f1f5f9;padding:2px 7px;border-radius:4px;font-size:11.5px;border:1px solid #e2e8f0;cursor:pointer}
+.pw-hidden{filter:blur(4px);cursor:pointer}
+.ov{position:fixed;inset:0;background:rgba(15,23,42,.6);display:flex;align-items:center;justify-content:center;padding:12px;z-index:300;overflow-y:auto}
+.md{background:#fff;border-radius:11px;width:100%;max-width:550px;margin:auto;max-height:92vh;display:flex;flex-direction:column}
+.mh{display:flex;justify-content:space-between;align-items:center;padding:11px 14px;border-bottom:1px solid #e2e8f0}
+.mh h3{font-size:14px}.mh button{border:0;background:transparent;font-size:18px;color:#64748b}
+.mb{padding:12px;overflow-y:auto}.mf{padding:9px 14px;border-top:1px solid #e2e8f0;display:flex;gap:5px;flex-wrap:wrap}
+.sec{font-size:11px;font-weight:700;color:#64748b;margin:10px 0 6px}
+.mut{color:#64748b;font-size:11.5px}
+.ps{position:relative}
+.pdr{position:absolute;top:100%;right:0;left:0;background:#fff;border:1px solid #e2e8f0;border-radius:6px;box-shadow:0 10px 25px rgba(0,0,0,.15);max-height:200px;overflow-y:auto;z-index:400;margin-top:3px}
+.pit{padding:6px 9px;cursor:pointer;font-size:12px;display:flex;justify-content:space-between;gap:8px;border-bottom:1px solid #f1f5f9}
+.pit:hover{background:#eff6ff}
+.oi{display:grid;grid-template-columns:1fr 65px 85px 28px;gap:4px;margin-bottom:5px}
+.bkr{display:grid;grid-template-columns:1fr 100px 32px;gap:6px;margin-bottom:5px}
+.tot{margin-top:7px;text-align:left;font-size:13px;padding:7px 10px;background:#f0f9ff;border-radius:6px;color:#2563eb;font-weight:600}
+.li{background:#fff;border:1px solid #e2e8f0;border-radius:7px;padding:7px 9px;margin-bottom:5px;font-size:12px}
+.cbx{background:#fff;border:1px solid #e2e8f0;border-radius:7px;padding:11px;margin-bottom:9px}
+.rr{display:grid;grid-template-columns:1fr 65px 75px 65px;gap:5px;align-items:center;padding:5px 0;border-bottom:1px solid #f1f5f9;font-size:11.5px}
+.pb{background:#f0fdf4;border:1px solid #bbf7d0;padding:9px;border-radius:7px;margin-bottom:9px}
+.pb .amt{font-size:18px;font-weight:800;color:#16a34a;display:block;margin-top:2px}
+.pb.due{background:#fef2f2;border-color:#fecaca}
+.pb.due .amt{color:#dc2626}
+.ldr{position:fixed;inset:0;background:rgba(255,255,255,.7);display:flex;align-items:center;justify-content:center;z-index:600}
+.sp{width:36px;height:36px;border:4px solid #e2e8f0;border-top-color:#2563eb;border-radius:50%;animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+#cat{min-height:100vh;background:linear-gradient(135deg,#f0f9ff,#e0f2fe);padding:12px}
+.cw{max-width:760px;margin:0 auto}
+.cc{background:#fff;border-radius:11px;padding:12px;box-shadow:0 4px 20px rgba(0,0,0,.06);margin-bottom:9px}
+.ch{background:#fff;border-radius:11px;padding:16px;box-shadow:0 4px 20px rgba(0,0,0,.06);margin-bottom:9px;text-align:center}
+.ch .ic{font-size:32px}
+.ct{display:flex;gap:3px;margin-bottom:9px;background:#fff;padding:4px;border-radius:10px}
+.ct button{flex:1;border:0;background:transparent;padding:7px;border-radius:6px;font-weight:700;color:#64748b;font-size:12.5px}
+.ct button.on{background:#2563eb;color:#fff}
+.pp{display:flex;align-items:center;gap:7px;padding:7px;border:1px solid #e2e8f0;border-radius:7px;margin-bottom:4px}
+.pp.sel{background:#eff6ff;border-color:#2563eb}
+.pp .pn{flex:1;font-weight:600;font-size:12.5px}
+.pp .pq{width:65px;padding:4px;text-align:center}
+.pp input[type=checkbox]{width:17px;height:17px;accent-color:#2563eb}
+.cs{background:#2563eb;color:#fff;border:0;padding:10px;border-radius:9px;font-size:13.5px;font-weight:700;width:100%}
+.cs:disabled{opacity:.5}
+.grp{margin-bottom:12px}
+.grp-t{font-size:12.5px;font-weight:700;color:#1e40af;margin-bottom:6px;padding-bottom:5px;border-bottom:2px solid #dbeafe}
+.rc{background:#fff;border-radius:9px;padding:11px;margin-bottom:7px;box-shadow:0 4px 20px rgba(0,0,0,.06);border-inline-start:4px solid #2563eb}
+.rc.new{border-inline-start-color:#f59e0b}
+.rc.replied{border-inline-start-color:#2563eb;background:#f8fbff}
+.rc.processed{border-inline-start-color:#16a34a;opacity:.85}
+.ri{background:#f8fafc;border-radius:6px;padding:7px 9px;margin:5px 0;font-size:11.5px}
+.rp{background:#eff6ff;border:1px solid #bfdbfe;border-radius:7px;padding:9px;margin-top:7px;font-size:12px}
+.itm{display:flex;justify-content:space-between;gap:7px;padding:3px 0;border-bottom:1px solid #f1f5f9;font-size:11.5px;flex-wrap:wrap}
+.itm .ord{color:#64748b}
+.itm .snt{color:#16a34a;font-weight:700}
+.itm .snt.partial{color:#d97706}
+.itm .snt.none{color:#dc2626}
+.lu2{background:#fff;border:1px solid #bfdbfe;border-radius:6px;padding:7px 9px;font-size:11px;font-family:monospace;word-break:break-all;margin-bottom:7px;direction:ltr;text-align:left}
+.lkb{background:linear-gradient(135deg,#eff6ff,#dbeafe);border:1px solid #bfdbfe;border-radius:9px;padding:11px;margin-bottom:9px}
+.ls{display:inline-flex;gap:5px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;margin-bottom:7px}
+.ls.on{background:#f0fdf4;color:#16a34a}.ls.off{background:#fef2f2;color:#dc2626}
+.pay-opts{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:5px}
+.pay-opt{border:2px solid #e2e8f0;background:#fff;border-radius:9px;padding:10px 6px;text-align:center;cursor:pointer}
+.pay-opt.sel{border-color:#2563eb;background:#eff6ff}
+.pay-opt .ic{font-size:20px;margin-bottom:3px}
+.pay-opt .lbl{font-size:11.5px;font-weight:700;color:#334155}
+.pay-opt.sel .lbl{color:#2563eb}
+.warn-box{background:#fef3c7;border:1px solid #fbbf24;border-radius:7px;padding:9px;margin-bottom:9px;font-size:12px;color:#78350e}
+#adminScreen{min-height:100vh;background:#f1f5f9}
+#adminScreen header{background:linear-gradient(135deg,#1e3a8a,#2563eb);color:#fff}
+#adminScreen header .br{color:#fff}
+.adm-panel{background:#fff;border-radius:9px;padding:14px;margin-bottom:12px;border:1px solid #e2e8f0}
+.adm-panel h3{font-size:14.5px;color:#1e40af;margin-bottom:10px}
+.adm-panel.create{background:linear-gradient(135deg,#eff6ff,#dbeafe);border-color:#60a5fa}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:12px}
+.stat-card{background:#fff;border:1px solid #e2e8f0;border-radius:9px;padding:11px 13px}
+.stat-card .sl{font-size:10.5px;color:#64748b;font-weight:600}
+.stat-card .sv{font-size:20px;font-weight:800;margin-top:2px}
+.sv.g{color:#16a34a}.sv.r{color:#dc2626}.sv.b{color:#2563eb}.sv.y{color:#b45309}
+.days-badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700}
+.days-badge.ok{background:#f0fdf4;color:#16a34a}
+.days-badge.warn{background:#fffbeb;color:#b45309}
+.days-badge.danger{background:#fef2f2;color:#dc2626}
+.days-badge.none{background:#f1f5f9;color:#64748b}
+.chk-label{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:#334155;cursor:pointer}
+@media(max-width:600px){.g2{grid-template-columns:1fr}.pay-opts{grid-template-columns:1fr}.pp{flex-wrap:wrap}.pp .pn{min-width:100%}.oi{grid-template-columns:1fr 55px 75px 28px}.bkr{grid-template-columns:1fr 80px 32px}}
+#pr{display:none}
+@media print{#authScreen,#appScreen,#ov,.ldr,#cat,#adminScreen{display:none!important}#pr{display:block!important;padding:14px}#pr table{width:100%;border-collapse:collapse;font-size:11.5px}#pr th,#pr td{border:1px solid #666;padding:5px 6px;text-align:right}}
+</style>
+</head>
+<body>
+<div id="cat" class="h"><div class="cw" id="catC"></div></div>
+<div id="authScreen" class="scr aut"><div class="crd">
+<div style="font-size:34px;text-align:center">📦</div><h1>نظام المخزون</h1>
+<div class="tb2 h"><button class="on" id="tbL" onclick="aTab('login')">دخول</button><button id="tbR" onclick="aTab('register')">إنشاء</button></div>
+<div id="lf"><div class="f"><label>اسمك</label><input id="lU"></div><div class="f"><label>اسم المخزون</label><input id="lI" placeholder="__admin__ للأدمن"></div><div class="f"><label>كلمة السر</label><input id="lP" type="password"></div><button class="b p" style="width:100%;padding:10px;margin-top:5px" id="lBtn" onclick="doLogin()">دخول</button></div>
+<div id="rf" class="h"><div class="f"><label>اسمك</label><input id="rU"></div><div class="f"><label>اسم المخزون</label><input id="rI"></div><div class="f"><label>كلمة السر</label><input id="rP" type="password"></div><div class="f"><label>تأكيد</label><input id="rP2" type="password"></div><button class="b p" style="width:100%;padding:10px;margin-top:5px" id="rBtn" onclick="doRegister()">إنشاء</button></div>
+<div id="aMsg" class="msg"></div></div></div>
+<div id="appScreen" class="h"><header><div class="br">📦 <span id="invT"></span></div><div style="display:flex;gap:6px;align-items:center"><span class="chp" id="uL"></span><button class="b sm" onclick="refresh()">🔄</button><button class="b sm" onclick="logout()">خروج</button></div></header>
+<div class="sts" id="statsB"></div>
+<nav class="nav" id="tabsN"><button data-tab="products" onclick="sw('products')">📦 المنتجات</button><button data-tab="customers" onclick="sw('customers')">👥 الزبائن</button><button data-tab="debts" onclick="sw('debts')">💳 الديون</button><button data-tab="orders" onclick="sw('orders')">🧾 الطلبات</button><button data-tab="requests" onclick="sw('requests')">📥 الواردة <span id="reqB" class="nb h">0</span></button><button data-tab="link" onclick="sw('link')">🔗 الرابط</button><button data-tab="alerts" onclick="sw('alerts')">🔔 النواقص <span id="alB" class="nb h">0</span></button><button data-tab="reports" onclick="sw('reports')">🖨️ التقارير</button><button data-tab="log" onclick="sw('log')">📋 السجل</button><button data-tab="settings" onclick="sw('settings')">⚙️ الإعدادات</button></nav>
+<main id="tc"></main></div>
+<div id="adminScreen" class="h">
+<header><div class="br">🔧 لوحة الأدمن <span id="admName"></span></div><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><button class="b sm" onclick="adminPassModal()" style="background:rgba(255,255,255,.15);border-color:#fff;color:#fff">🔑 كلمة السر</button><button class="b sm" onclick="adminRefresh()" style="background:#fff;border-color:#fff;color:#1e40af">🔄</button><button class="b sm" onclick="adminLogout()" style="background:transparent;border-color:#fff;color:#fff">خروج</button></div></header>
+<main>
+<div class="stats-grid" id="admStats"></div>
+<div class="adm-panel create">
+<h3>➕ إنشاء مخزون جديد</h3>
+<div class="g2"><div class="f"><label>اسم المالك</label><input id="newOwner"></div><div class="f"><label>اسم المخزون</label><input id="newInvName"></div></div>
+<div class="g2"><div class="f"><label>كلمة السر</label><input id="newInvPass" type="password"></div><div class="f"><label>المدة بالأيام</label><input id="newInvDays" type="number" value="30" min="1"></div></div>
+<button class="b p" onclick="adminCreateInv()" style="padding:9px 16px;font-weight:700">🚀 إنشاء</button>
+</div>
+<div class="adm-panel">
+<h3>📋 قائمة المخازن</h3>
+<div class="tb3"><input class="srch" id="admSearch" placeholder="🔍 بحث..." oninput="renderAdminList()"><button class="b" onclick="togglePasswords()" id="pwToggleBtn">🙈 إخفاء كلمات السر</button></div>
+<div class="tbr"><table><thead><tr><th>#</th><th>المخزون</th><th>المالك</th><th>كلمة السر</th><th>إنشاء</th><th>انتهاء</th><th>المتبقي</th><th>الحالة</th><th>إجراءات</th></tr></thead><tbody id="admRows"></tbody></table></div>
+</div></main></div>
+<div id="ov" class="ov h"><div class="md"><div class="mh"><h3 id="mT"></h3><button onclick="closeModal()">✕</button></div><div class="mb" id="mB"></div><div class="mf" id="mF"></div></div></div>
+<div id="ldr" class="ldr h"><div class="sp"></div></div>
+<div id="pr"></div>
+<div id="bootMsg" style="display:none;position:fixed;inset:0;background:#fff;z-index:9999;padding:24px;font-family:Tahoma;direction:rtl;overflow:auto"></div>
+
+<script type="module">
+const boot = document.getElementById('bootMsg');
+function showBoot(html) { boot.innerHTML = html; boot.style.display = 'block'; }
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const SK_TOKEN = 'jwt_token_v1';
+const SK = 'inv_v21';
+const ADMIN_CONFIG = '__admin__config__';
+const MAX_PRODUCTS = 1000;
+const MAX_DEBTS = 1000;
+const LOG_RETENTION_DAYS = 180;
+const REQUESTS_MAX = 1000;
+const SETTLED_MAX_DAYS = 180;
+const getToken = () => localStorage.getItem(SK_TOKEN) || '';
+const setToken = (t) => localStorage.setItem(SK_TOKEN, t);
+const clearToken = () => localStorage.removeItem(SK_TOKEN);
+
+async function apiCall(action, payload) {
+  const headers = { 'Content-Type': 'application/json' };
+  const t = getToken();
+  if (t) headers['Authorization'] = 'Bearer ' + t;
+  const r = await fetch('/api/db', { method: 'POST', headers, body: JSON.stringify({ action, payload }) });
+  let j;
+  try { j = await r.json(); } catch (e) { throw new Error('استجابة غير صحيحة من الخادم'); }
+  if (!r.ok) throw new Error(j.error || 'خطأ في API');
+  return j;
+}
+async function apiSQL(text, params) {
+  const headers = { 'Content-Type': 'application/json' };
+  const t = getToken();
+  if (t) headers['Authorization'] = 'Bearer ' + t;
+  const r = await fetch('/api/db', { method: 'POST', headers, body: JSON.stringify({ sql: text, params: params || [] }) });
+  let j;
+  try { j = await r.json(); } catch (e) { throw new Error('استجابة غير صحيحة من الخادم'); }
+  if (!r.ok) throw new Error(j.error || 'خطأ في الاستعلام');
+  return j.data;
+}
+
+function createSQLShim() {
+  function serialize(v) { if (v === null || v === undefined) return null; if (Array.isArray(v) || (typeof v === 'object')) return JSON.stringify(v); return v; }
+  function deserializeRow(row) {
+    if (!row || typeof row !== 'object') return row;
+    const out = {};
+    for (const k in row) {
+      const v = row[k];
+      if (typeof v === 'string' && v.length > 1 && (v[0] === '[' || v[0] === '{')) {
+        try { out[k] = JSON.parse(v); } catch (e) { out[k] = v; }
+      } else out[k] = v;
+    }
+    return out;
+  }
+  class QB {
+    constructor(table) { this.table = table; this.filters = []; this.orderBy = null; this.limitN = null; this.singleMode = null; this.mode = 'select'; this.selectCols = '*'; this.insertData = null; this.updateData = null; this.returning = false; }
+    select(c = '*') { if (this.mode === 'insert' || this.mode === 'update') this.returning = true; else { this.mode = 'select'; this.selectCols = c; } return this; }
+    insert(d) { this.mode = 'insert'; this.insertData = Array.isArray(d) ? d : [d]; return this; }
+    update(d) { this.mode = 'update'; this.updateData = d; return this; }
+    delete() { this.mode = 'delete'; return this; }
+    eq(c, v) { this.filters.push({ op: '=', c, v }); return this; }
+    neq(c, v) { this.filters.push({ op: '<>', c, v }); return this; }
+    gt(c, v) { this.filters.push({ op: '>', c, v }); return this; }
+    gte(c, v) { this.filters.push({ op: '>=', c, v }); return this; }
+    lt(c, v) { this.filters.push({ op: '<', c, v }); return this; }
+    lte(c, v) { this.filters.push({ op: '<=', c, v }); return this; }
+    not(c, op, v) { const m = { eq: '=', neq: '<>', gt: '>', gte: '>=', lt: '<', lte: '<=' }; this.filters.push({ negated: true, op: m[op] || '=', c, v }); return this; }
+    order(c, o) { this.orderBy = { c, asc: !o || o.ascending !== false }; return this; }
+    limit(n) { this.limitN = n; return this; }
+    single() { this.singleMode = 'single'; return this; }
+    maybeSingle() { this.singleMode = 'maybeSingle'; return this; }
+    _q(id) { return '"' + String(id).replace(/"/g, '""') + '"'; }
+    _where(p) {
+      if (!this.filters.length) return '';
+      return ' WHERE ' + this.filters.map(f => {
+        p.push(serialize(f.v));
+        const cl = this._q(f.c) + ' ' + f.op + ' $' + p.length;
+        return f.negated ? 'NOT (' + cl + ')' : cl;
+      }).join(' AND ');
+    }
+    _build() {
+      const p = [], tq = this._q(this.table);
+      if (this.mode === 'select') {
+        let s = 'SELECT ' + this.selectCols + ' FROM ' + tq + this._where(p);
+        if (this.orderBy) s += ' ORDER BY ' + this._q(this.orderBy.c) + (this.orderBy.asc ? ' ASC' : ' DESC');
+        if (this.limitN) s += ' LIMIT ' + this.limitN;
+        return { text: s, params: p };
+      }
+      if (this.mode === 'insert') {
+        const cols = Object.keys(this.insertData[0]);
+        const valSql = this.insertData.map(row => '(' + cols.map(c => { p.push(serialize(row[c])); return '$' + p.length; }).join(', ') + ')').join(', ');
+        let s = 'INSERT INTO ' + tq + ' (' + cols.map(c => this._q(c)).join(', ') + ') VALUES ' + valSql;
+        if (this.returning) s += ' RETURNING *';
+        return { text: s, params: p };
+      }
+      if (this.mode === 'update') {
+        const setSql = Object.keys(this.updateData).map(k => { p.push(serialize(this.updateData[k])); return this._q(k) + ' = $' + p.length; }).join(', ');
+        let s = 'UPDATE ' + tq + ' SET ' + setSql + this._where(p);
+        if (this.returning) s += ' RETURNING *';
+        return { text: s, params: p };
+      }
+      if (this.mode === 'delete') {
+        let s = 'DELETE FROM ' + tq + this._where(p);
+        if (this.returning) s += ' RETURNING *';
+        return { text: s, params: p };
+      }
+      throw new Error('unknown mode');
+    }
+    async _run() {
+      try {
+        const { text, params } = this._build();
+        let rows = await apiSQL(text, params);
+        if (!Array.isArray(rows)) rows = rows ? [rows] : [];
+        rows = rows.map(deserializeRow);
+        let data = rows, error = null;
+        if (this.singleMode === 'single') {
+          if (data.length === 0) { error = { code: 'PGRST116', message: 'no rows' }; data = null; }
+          else if (data.length > 1) { error = { code: 'PGRST116', message: 'multiple rows' }; data = null; }
+          else data = data[0];
+        } else if (this.singleMode === 'maybeSingle') {
+          data = data.length ? data[0] : null;
+        }
+        return { data, error };
+      } catch (e) {
+        console.error('SQL Error:', e);
+        return { data: null, error: { message: e.message } };
+      }
+    }
+    then(res, rej) { return this._run().then(res, rej); }
+  }
+  return { from(t) { return new QB(t); } };
+}
+const sb = createSQLShim();
+
+let session = null, invData = null, curTab = 'products', reqs = [];
+let adminSession = null, adminList = [], showPasswords = true;
+let catTimer = null;
+const cs = { token: null, inv: null, products: [], sel: {}, done: false, account: null, view: 'login', myReq: [], msg: '', search: '' };
+const cLF = { phone: '', password: '' }, cRF = { name: '', phone: '', password: '', password2: '' };
+const uid = () => crypto.randomUUID ? crypto.randomUUID() : 'id-' + Date.now() + '-' + Math.random().toString(36).slice(2, 9);
+const tk = () => Array.from(crypto.getRandomValues(new Uint8Array(16))).map(b => b.toString(16).padStart(2, '0')).join('');
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+const mn = n => (Number(n) || 0).toLocaleString('en-US', { maximumFractionDigits: 2 });
+const nS = () => { const d = new Date(), p = x => String(x).padStart(2, '0'); return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes()); };
+const fT = t => t ? String(t).slice(0, 16).replace('T', ' ') : '';
+const dT = t => t ? String(t).slice(0, 10) : '—';
+const ld = () => $('#ldr').classList.remove('h');
+const ul = () => $('#ldr').classList.add('h');
+const mP = r => ({ id: r.id, name: r.name, qty: +r.qty || 0, minQty: +r.min_qty || 0, buyPrice: +r.buy_price || 0, sellPrice: +r.sell_price || 0, category: r.category || '' });
+const mC = r => ({ id: r.id, name: r.name, phone: r.phone || '', openingDebt: +r.opening_debt || 0, credit: +r.credit || 0 });
+const mO = r => ({ id: r.id, customerId: r.customer_id, customerName: r.customer_name || '', items: Array.isArray(r.items) ? r.items : [], total: +r.total || 0, cost: +r.cost || 0, profit: +r.profit || 0, payment: r.payment || '', paidAmount: +r.paid_amount || 0, paid: !!r.paid, returns: Array.isArray(r.returns) ? r.returns : [], note: r.note || '', time: r.created_at, user: r.user_name || '' });
+const mL = r => ({ id: r.id, user: r.user_name || '', action: r.action || '', details: r.details || '', time: r.created_at });
+const mR = r => ({ id: r.id, customerId: r.customer_id, customerName: r.customer_name || '', customerPhone: r.customer_phone || '', items: Array.isArray(r.items) ? r.items : [], note: r.note || '', status: r.status || 'new', time: r.created_at, reply: r.reply || '', cfItems: Array.isArray(r.confirmed_items) ? r.confirmed_items : [], replyAt: r.reply_at, seen: !!r.customer_seen });
+const oP = o => +o.paidAmount || 0;
+const oD = o => o.payment !== 'later' ? 0 : Math.max(0, (+o.total || 0) - oP(o));
+const cOD = id => (invData.orders || []).filter(o => o.customerId === id).reduce((s, o) => s + oD(o), 0);
+const cOpD = id => { const c = invData.customers.find(x => x.id === id); return c ? +c.openingDebt || 0 : 0; };
+const cD = id => cOpD(id) + cOD(id);
+const PL = { cash: 'نقداً', bank: 'حساب بنكي', later: 'آجل', '': 'غير محدد' };
+function unpaidDebtsCount() { return (invData.orders || []).filter(o => o.payment === 'later' && oD(o) > 0.001).length; }
+function daysLeft(exp) { if (!exp) return null; return Math.ceil((new Date(exp) - new Date()) / 86400000); }
+function invStatus(inv) { if (inv.status === 'suspended') return 'suspended'; if (inv.expires_at && new Date(inv.expires_at) < new Date()) return 'expired'; return 'active'; }
+async function log(a, d) { if (!invData) return; try { const r = await sb.from('logs').insert({ inv_id: invData.id, user_name: session.user, action: a, details: d || '' }).select().single(); if (!r.error && r.data) { invData.logs.unshift(mL(r.data)); if (invData.logs.length > 1000) invData.logs.length = 1000; } } catch (e) {} }
+async function router() { const m = (location.hash || '').match(/catalog=([a-f0-9]+)/i); if (m) { await showCatalog(m[1]); return true; } return false; }
+
+async function runAutoClean() {
+  if (!invData) return;
+  const key = 'autoclean_' + invData.id;
+  const lastRun = Number(localStorage.getItem(key) || 0);
+  const now = Date.now();
+  if (now - lastRun < 24 * 60 * 60 * 1000) return;
+  try {
+    const logCutoff = new Date(now - LOG_RETENTION_DAYS * 86400000).toISOString();
+    await sb.from('logs').delete().eq('inv_id', invData.id).lt('created_at', logCutoff);
+    if (invData.autoDelSettled) {
+      const days = Math.min(invData.settledDelDays || 30, SETTLED_MAX_DAYS);
+      const settleCutoff = new Date(now - days * 86400000).toISOString();
+      await sb.from('orders').delete().eq('inv_id', invData.id).eq('payment', 'later').eq('paid', true).lt('created_at', settleCutoff);
+    }
+    localStorage.setItem(key, String(now));
+  } catch (e) { console.error('Auto-clean error:', e); }
+}
+
+async function adminLoadAll() { const res = await apiCall('admin_op', { op: 'list' }); adminList = res.data || []; }
+async function adminLogin(user) {
+  adminSession = { user };
+  await adminLoadAll();
+  $('#authScreen').classList.add('h'); $('#appScreen').classList.add('h'); $('#cat').classList.add('h');
+  $('#adminScreen').classList.remove('h'); $('#admName').textContent = '👤 ' + user;
+  renderAdmin();
+}
+function adminLogout() { adminSession = null; adminList = []; clearToken(); $('#adminScreen').classList.add('h'); $('#authScreen').classList.remove('h'); $('#lP').value = ''; aMsg(''); }
+async function adminRefresh() { ld(); try { await adminLoadAll(); renderAdmin(); ul(); } catch (e) { ul(); alert('خطأ: ' + (e.message || e)); } }
+function togglePasswords() { showPasswords = !showPasswords; const btn = $('#pwToggleBtn'); if (btn) btn.textContent = showPasswords ? '🙈 إخفاء' : '👁️ إظهار'; renderAdminList(); }
+function renderAdmin() { const total = adminList.length; const active = adminList.filter(i => invStatus(i) === 'active').length; const suspended = adminList.filter(i => invStatus(i) === 'suspended').length; const expired = adminList.filter(i => invStatus(i) === 'expired').length; $('#admStats').innerHTML = '<div class="stat-card"><div class="sl">إجمالي</div><div class="sv b">' + total + '</div></div><div class="stat-card"><div class="sl">نشطة</div><div class="sv g">' + active + '</div></div><div class="stat-card"><div class="sl">موقوفة</div><div class="sv r">' + suspended + '</div></div><div class="stat-card"><div class="sl">منتهية</div><div class="sv y">' + expired + '</div></div>'; renderAdminList(); }
+function renderAdminList() {
+  const q = ($('#admSearch') ? $('#admSearch').value : '').trim().toLowerCase();
+  let L = adminList.slice(); if (q) L = L.filter(x => (x.name || '').toLowerCase().includes(q) || (x.owner_name || '').toLowerCase().includes(q));
+  const tb = $('#admRows'); if (!tb) return;
+  if (!L.length) { tb.innerHTML = '<tr><td colspan="9" class="emp">لا توجد مخازن</td></tr>'; return; }
+  let html = '';
+  L.forEach((inv, i) => {
+    const st = invStatus(inv); const dLeft = daysLeft(inv.expires_at);
+    let stBadge, dayBadge;
+    if (st === 'active') { stBadge = '<span class="bd o">🟢 نشط</span>'; if (dLeft === null) dayBadge = '<span class="days-badge none">—</span>'; else if (dLeft <= 3) dayBadge = '<span class="days-badge danger">' + dLeft + ' يوم</span>'; else if (dLeft <= 7) dayBadge = '<span class="days-badge warn">' + dLeft + ' يوم</span>'; else dayBadge = '<span class="days-badge ok">' + dLeft + ' يوم</span>'; }
+    else if (st === 'suspended') { stBadge = '<span class="bd d">⏸️ موقوف</span>'; dayBadge = dLeft !== null ? '<span class="days-badge none">' + dLeft + ' يوم</span>' : '<span class="days-badge none">—</span>'; }
+    else { stBadge = '<span class="bd w">⌛ منتهي</span>'; dayBadge = '<span class="days-badge danger">0 يوم</span>'; }
+    const pw = inv.password || '—';
+    const pwHtml = showPasswords ? '<span class="pw" onclick="copyText(\'' + esc(pw).replace(/'/g, "\\'") + '\')">' + esc(pw) + '</span>' : '<span class="pw pw-hidden" onclick="togglePasswords()">●●●●●●</span>';
+    html += '<tr><td>' + (i + 1) + '</td><td><strong>' + esc(inv.name) + '</strong></td><td>' + esc(inv.owner_name || '—') + '</td><td>' + pwHtml + '</td><td style="font-size:11px;color:#64748b">' + dT(inv.created_at) + '</td><td style="font-size:11px;color:#64748b">' + dT(inv.expires_at) + '</td><td>' + dayBadge + '</td><td>' + stBadge + '</td><td class="act"><button class="b sm ' + (st === 'active' ? 'w' : 's') + '" onclick="adminToggle(\'' + inv.id + '\')">' + (st === 'active' ? '⏸️' : '▶️') + '</button><button class="b sm p" onclick="adminExtend(\'' + inv.id + '\')">➕</button><button class="b sm d" onclick="adminDelete(\'' + inv.id + '\')">🗑️</button></td></tr>';
+  });
+  tb.innerHTML = html;
+}
+function copyText(t) { if (navigator.clipboard) navigator.clipboard.writeText(t).then(() => { const btn = event.target; const old = btn.textContent; btn.textContent = '✅'; setTimeout(() => { btn.textContent = old; }, 800); }); }
+async function adminCreateInv() {
+  const owner = ($('#newOwner') ? $('#newOwner').value : '').trim(); const name = ($('#newInvName') ? $('#newInvName').value : '').trim();
+  const pass = ($('#newInvPass') ? $('#newInvPass').value : ''); const days = +($('#newInvDays') ? $('#newInvDays').value : 30);
+  if (!name) return alert('اكتب اسم المخزون'); if (!pass || pass.length < 4) return alert('كلمة السر 4+ أحرف'); if (!days || days < 1) return alert('المدة مطلوبة');
+  ld();
+  try {
+    await apiCall('admin_op', { op: 'createInv', data: { name, password: pass, ownerName: owner, days } });
+    $('#newOwner').value = ''; $('#newInvName').value = ''; $('#newInvPass').value = ''; $('#newInvDays').value = 30;
+    await adminLoadAll(); renderAdmin(); ul();
+    alert('✅ تم إنشاء المخزون "' + name + '"\nكلمة السر: ' + pass + '\nلمدة ' + days + ' يوم');
+  } catch (e) { ul(); alert('خطأ: ' + (e.message || e)); }
+}
+async function adminToggle(id) {
+  const inv = adminList.find(x => x.id === id); if (!inv) return;
+  const st = invStatus(inv); const ns = st === 'active' ? 'suspended' : 'active';
+  if (ns === 'suspended' && !confirm('إيقاف "' + inv.name + '"؟')) return;
+  if (ns === 'active' && !confirm('تفعيل "' + inv.name + '"؟')) return;
+  ld();
+  try {
+    const data = { id, status: ns };
+    if (ns === 'active' && (!inv.expires_at || new Date(inv.expires_at) < new Date())) { const exp = new Date(); exp.setDate(exp.getDate() + 30); data.expiresAt = exp.toISOString(); }
+    await apiCall('admin_op', { op: 'toggle', data });
+    await adminLoadAll(); renderAdmin(); ul();
+  } catch (e) { ul(); alert('خطأ: ' + (e.message || e)); }
+}
+function adminExtend(id) {
+  const inv = adminList.find(x => x.id === id); if (!inv) return;
+  const b = '<p class="mut" style="margin-bottom:9px">تمديد: <strong>' + esc(inv.name) + '</strong></p><p class="mut" style="margin-bottom:9px">الانتهاء الحالي: <strong>' + dT(inv.expires_at) + '</strong></p><div class="f"><label>المدة الإضافية (أيام)</label><input id="extDays" type="number" min="1" value="30"></div><div class="f"><label>أو تاريخ انتهاء محدد</label><input id="extDate" type="date"></div>';
+  openModal('➕ تمديد', b, '<button class="b" onclick="closeModal()">إلغاء</button><button class="b p" onclick="adminExtendApply(\'' + id + '\')">حفظ</button>');
+}
+async function adminExtendApply(id) {
+  const days = +($('#extDays') ? $('#extDays').value : 30); const dateStr = ($('#extDate') ? $('#extDate').value : '');
+  let exp; if (dateStr) { exp = new Date(dateStr); exp.setHours(23, 59, 59); } else { exp = new Date(); exp.setDate(exp.getDate() + days); }
+  closeModal(); ld();
+  try { await apiCall('admin_op', { op: 'extend', data: { id, expiresAt: exp.toISOString() } }); await adminLoadAll(); renderAdmin(); ul(); alert('✅ حتى ' + dT(exp.toISOString())); }
+  catch (e) { ul(); alert('خطأ: ' + (e.message || e)); }
+}
+async function adminDelete(id) {
+  const inv = adminList.find(x => x.id === id); if (!inv) return;
+  if (!confirm('⚠️ حذف "' + inv.name + '"؟\nسيُحذف كل شيء نهائياً!')) return;
+  if (!confirm('تأكيد أخير؟')) return;
+  ld();
+  try { await apiCall('admin_op', { op: 'delete', data: { id } }); await adminLoadAll(); renderAdmin(); ul(); alert('✅ تم الحذف'); }
+  catch (e) { ul(); alert('خطأ: ' + (e.message || e)); }
+}
+function adminPassModal() { openModal('🔑 تغيير كلمة سر الأدمن', '<div class="f"><label>كلمة السر الحالية</label><input id="admOldPass" type="password"></div><div class="f"><label>الجديدة</label><input id="admNewPass" type="password" placeholder="4+ أحرف"></div><div class="f"><label>تأكيد الجديدة</label><input id="admNewPass2" type="password"></div>', '<button class="b" onclick="closeModal()">إلغاء</button><button class="b p" onclick="adminChangePassApply()">💾 حفظ</button>'); }
+async function adminChangePassApply() {
+  const oldP = $('#admOldPass').value; const newP = $('#admNewPass').value; const newP2 = $('#admNewPass2').value;
+  if (!oldP || !newP || !newP2) return alert('املأ الحقول'); if (newP.length < 4) return alert('4+ أحرف'); if (newP !== newP2) return alert('غير متطابقتين');
+  ld();
+  try {
+    const savedToken = getToken();
+    const res = await fetch('/api/db', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'login', payload: { user: 'admin', invName: '__admin__', password: oldP } }) });
+    if (!res.ok) { ul(); return alert('❌ كلمة السر الحالية خطأ'); }
+    setToken(savedToken);
+    await apiCall('admin_op', { op: 'setAdminPass', data: { password: newP } });
+    closeModal(); ul(); alert('✅ تم التغيير');
+  } catch (e) { ul(); alert('خطأ: ' + (e.message || e)); }
+}
+
+async function showCatalog(token) {
+  $('#authScreen').classList.add('h'); $('#appScreen').classList.add('h'); $('#adminScreen').classList.add('h'); $('#cat').classList.remove('h');
+  $('#catC').innerHTML = '<div class="cc" style="text-align:center;padding:30px"><div style="font-size:34px">⏳</div></div>';
+  if (catTimer) { clearInterval(catTimer); catTimer = null; }
+  cs.token = token; cs.sel = {}; cs.done = false; cs.account = null; cs.view = 'login'; cs.myReq = []; cs.msg = ''; cs.search = '';
+  try {
+    const res = await apiCall('catalog_init', { token });
+    const inv = res.inv;
+    if (!inv) { $('#catC').innerHTML = '<div class="cc" style="text-align:center;padding:30px"><div style="font-size:34px">❌</div><h2>الرابط غير صحيح</h2></div>'; return; }
+    const st = invStatus(inv);
+    if (st !== 'active' || !inv.public_enabled) { $('#catC').innerHTML = '<div class="cc" style="text-align:center;padding:30px"><div style="font-size:34px">⏸️</div><h2>الطلبات مغلقة</h2></div>'; return; }
+    cs.inv = inv;
+    try {
+      const ss = JSON.parse(localStorage.getItem('cust_' + token) || 'null');
+      if (ss && ss.id) { cs.account = { id: ss.id, name: ss.name, phone: ss.phone }; cs.view = 'shop'; await loadMyReq(); }
+    } catch (e) {}
+    await loadCatP(); renderCat();
+    catTimer = setInterval(async () => { if (document.hidden) return; await loadCatP(); if (!cs.account) return; await loadMyReq(); if (cs.view === 'shop' || cs.view === 'myrequests') { const nv = $('#cNote') ? $('#cNote').value : ''; const sv = cs.search; renderCat(true); if ($('#cNote')) $('#cNote').value = nv; if ($('#cSearch')) $('#cSearch').value = sv; } }, 15000);
+  } catch (e) { $('#catC').innerHTML = '<div class="cc" style="text-align:center;padding:30px"><div style="font-size:34px">❌</div><h2>خطأ</h2></div>'; }
+}
+async function loadCatP() {
+  if (!cs.inv) return;
+  try {
+    const res = await apiCall('catalog_products', { token: cs.token });
+    const np = (res.products || []).map(mP);
+    const nids = new Set(np.map(p => p.id));
+    Object.keys(cs.sel).forEach(id => { if (!nids.has(id)) delete cs.sel[id]; });
+    cs.products = np;
+  } catch (e) {}
+}
+async function loadMyReq() {
+  if (!cs.account || !cs.inv) return;
+  try { const res = await apiCall('catalog_my_requests', { token: cs.token, accountId: cs.account.id }); cs.myReq = (res.requests || []).map(mR); }
+  catch (e) {}
+}
+function renderCat(skip) { if (!skip) { cLF.phone = $('#cuPhone') ? $('#cuPhone').value : cLF.phone; cLF.password = $('#cuPass') ? $('#cuPass').value : cLF.password; cRF.name = $('#crName') ? $('#crName').value : cRF.name; cRF.phone = $('#crPhone') ? $('#crPhone').value : cRF.phone; cRF.password = $('#crPass') ? $('#crPass').value : cRF.password; cRF.password2 = $('#crPass2') ? $('#crPass2').value : cRF.password2; } if (!cs.account) { renderCatAuth(); return; } if (cs.view === 'myrequests') { renderMyReq(); return; } renderCatShop(); }
+function renderCatAuth() {
+  const inv = cs.inv, isL = cs.view !== 'register'; let fh = '';
+  if (isL) fh = '<div class="f"><label>رقم الهاتف</label><input id="cuPhone" type="tel" style="direction:ltr;text-align:right" value="' + esc(cLF.phone) + '"></div><div class="f"><label>كلمة السر</label><input id="cuPass" type="password" value="' + esc(cLF.password) + '"></div><button class="cs" onclick="catLogin()">🔓 دخول</button>';
+  else fh = '<div class="f"><label>الاسم</label><input id="crName" value="' + esc(cRF.name) + '"></div><div class="f"><label>رقم الهاتف</label><input id="crPhone" type="tel" style="direction:ltr;text-align:right" value="' + esc(cRF.phone) + '"></div><div class="f"><label>كلمة السر</label><input id="crPass" type="password" value="' + esc(cRF.password) + '"></div><div class="f"><label>تأكيد</label><input id="crPass2" type="password" value="' + esc(cRF.password2) + '"></div><button class="cs" onclick="catRegister()">✅ إنشاء</button>';
+  $('#catC').innerHTML = '<div class="ch"><div class="ic">🛒</div><h1>' + esc(inv.name) + '</h1><p>سجّل دخولك</p></div><div class="ct"><button class="' + (isL ? 'on' : '') + '" onclick="catSetView(\'login\')">🔓 دخول</button><button class="' + (!isL ? 'on' : '') + '" onclick="catSetView(\'register\')">📝 حساب</button></div><div class="cc">' + fh + '</div>' + (cs.msg ? '<div class="cc" style="background:#fef2f2;color:#dc2626;font-size:12px;border-color:#fecaca">' + esc(cs.msg) + '</div>' : '');
+}
+function catSetView(v) { cLF.phone = $('#cuPhone') ? $('#cuPhone').value : cLF.phone; cLF.password = $('#cuPass') ? $('#cuPass').value : cLF.password; cRF.name = $('#crName') ? $('#crName').value : cRF.name; cRF.phone = $('#crPhone') ? $('#crPhone').value : cRF.phone; cRF.password = $('#crPass') ? $('#crPass').value : cRF.password; cRF.password2 = $('#crPass2') ? $('#crPass2').value : cRF.password2; cs.view = v; cs.msg = ''; renderCatAuth(); }
+async function catRegister() {
+  const name = ($('#crName') ? $('#crName').value : '').trim(); const phone = ($('#crPhone') ? $('#crPhone').value : '').trim();
+  const pass = ($('#crPass') ? $('#crPass').value : ''); const pass2 = ($('#crPass2') ? $('#crPass2').value : '');
+  if (!name || !phone || !pass) { cs.msg = 'املأ الحقول'; return renderCatAuth(); }
+  if (pass.length < 4) { cs.msg = '4+ أحرف'; return renderCatAuth(); }
+  if (pass !== pass2) { cs.msg = 'غير متطابقتين'; return renderCatAuth(); }
+  ld();
+  try {
+    const res = await apiCall('catalog_register', { token: cs.token, name, phone, password: pass });
+    cs.account = { id: res.account.id, name: res.account.name, phone: res.account.phone };
+    localStorage.setItem('cust_' + cs.token, JSON.stringify(cs.account)); cs.view = 'shop'; cs.msg = ''; cLF.phone = ''; cLF.password = ''; cRF = { name: '', phone: '', password: '', password2: '' };
+    await loadMyReq(); ul(); renderCat(true);
+  } catch (e) { ul(); cs.msg = e.message || 'خطأ'; renderCatAuth(); }
+}
+async function catLogin() {
+  const phone = ($('#cuPhone') ? $('#cuPhone').value : '').trim(); const pass = ($('#cuPass') ? $('#cuPass').value : '');
+  if (!phone || !pass) { cs.msg = 'أدخل البيانات'; return renderCatAuth(); }
+  ld();
+  try {
+    const res = await apiCall('catalog_login', { token: cs.token, phone, password: pass }); ul();
+    cs.account = { id: res.account.id, name: res.account.name, phone: res.account.phone };
+    localStorage.setItem('cust_' + cs.token, JSON.stringify(cs.account)); cs.view = 'shop'; cs.msg = ''; cLF.phone = ''; cLF.password = '';
+    await loadMyReq(); renderCat(true);
+  } catch (e) { ul(); cs.msg = e.message || 'خطأ'; renderCatAuth(); }
+}
+function catLogout() { cs.account = null; cs.myReq = []; cs.view = 'login'; localStorage.removeItem('cust_' + cs.token); renderCat(true); }
+function renderCatShop() {
+  const inv = cs.inv, ps = cs.products; const pd = cs.myReq.filter(r => r.reply && !r.seen).length;
+  const tabs = '<div class="ct"><button class="on">🛒 التسوق</button><button onclick="cs.view=\'myrequests\';renderCat(true)">📋 طلباتي' + (pd ? '<span class="nb">' + pd + '</span>' : '') + '</button><button onclick="catLogout()">🚪 خروج</button></div>';
+  if (!ps.length) { $('#catC').innerHTML = '<div class="ch"><div class="ic">🛒</div><h1>' + esc(inv.name) + '</h1><p>أهلاً ' + esc(cs.account.name) + '</p></div>' + tabs + '<div class="cc" style="text-align:center;padding:28px"><div style="font-size:34px">📭</div><h2>لا منتجات</h2></div>'; return; }
+  const nv = $('#cNote') ? $('#cNote').value : ''; const sv = cs.search; const q = sv.trim().toLowerCase();
+  const filtered = q ? ps.filter(p => p.name.toLowerCase().includes(q)) : ps;
+  const groups = {}; filtered.forEach(p => { const cat = (p.category && p.category.trim()) || 'منتجات أخرى'; if (!groups[cat]) groups[cat] = []; groups[cat].push(p); });
+  const cats = Object.keys(groups).sort((a, b) => { if (a === 'منتجات أخرى') return 1; if (b === 'منتجات أخرى') return -1; return a.localeCompare(b, 'ar'); });
+  let ph = ''; if (!filtered.length) ph = '<div style="text-align:center;padding:18px;color:#64748b">لا نتائج</div>';
+  else cats.forEach(cat => { const list = groups[cat]; ph += '<div class="grp"><div class="grp-t">📂 ' + esc(cat) + ' (' + list.length + ')</div>'; list.forEach(p => { const s = !!cs.sel[p.id], qty = s ? cs.sel[p.id] : 1; ph += '<div class="pp ' + (s ? 'sel' : '') + '"><input type="checkbox" ' + (s ? 'checked' : '') + ' onchange="catTog(\'' + p.id + '\',this.checked)"><div class="pn">' + esc(p.name) + '</div><input type="number" class="pq" min="1" step="1" value="' + qty + '" ' + (s ? '' : 'disabled') + ' onchange="catQty(\'' + p.id + '\',this.value)"></div>'; }); ph += '</div>'; });
+  const n = Object.keys(cs.sel).length;
+  $('#catC').innerHTML = '<div class="ch"><div class="ic">🛒</div><h1>' + esc(inv.name) + '</h1><p>أهلاً ' + esc(cs.account.name) + '</p></div>' + tabs + '<div class="cc"><input id="cSearch" type="text" placeholder="🔍 ابحث..." value="' + esc(sv) + '" oninput="catSearch(this.value)" style="background:#f8fafc"></div><div class="cc">' + ph + '</div><div class="cc"><div class="f"><label>ملاحظة</label><input id="cNote" value="' + esc(nv) + '"></div><button class="cs" ' + (n === 0 ? 'disabled' : '') + ' onclick="catSubmit()">' + (n === 0 ? 'اختر منتجاً' : '📤 إرسال (' + n + ')') + '</button></div>';
+}
+function catSearch(v) { cs.search = v; const nv = $('#cNote') ? $('#cNote').value : ''; renderCat(true); if ($('#cNote')) $('#cNote').value = nv; const el = $('#cSearch'); if (el) { el.focus(); try { el.setSelectionRange(el.value.length, el.value.length); } catch (e) {} } }
+function renderMyReq() {
+  const tabs = '<div class="ct"><button onclick="cs.view=\'shop\';renderCat(true)">🛒 التسوق</button><button class="on">📋 طلباتي</button><button onclick="catLogout()">🚪 خروج</button></div>';
+  let list = ''; if (!cs.myReq.length) list = '<div class="cc" style="text-align:center;padding:28px"><div style="font-size:34px">📭</div><h2>لا طلبات</h2></div>';
+  else cs.myReq.forEach(r => {
+    const sb2 = r.status === 'new' ? '<span class="bd w">بانتظار</span>' : r.status === 'replied' ? '<span class="bd i">تم الرد</span>' : r.status === 'processed' ? '<span class="bd o">تم التحويل</span>' : '<span class="bd i">مقروء</span>';
+    let ih = ''; if (r.cfItems && r.cfItems.length) ih = r.items.map(it => { const cf = r.cfItems.find(c => c.productId === it.productId); const sent = cf ? (cf.sentQty !== undefined ? cf.sentQty : cf.qty) : 0; const cls = sent === 0 ? 'none' : (sent < it.qty ? 'partial' : ''); return '<div class="itm"><span>• ' + esc(it.name) + '</span><span><span class="ord">طلبت: ' + it.qty + '</span> → <span class="snt ' + cls + '">سيُرسل: ' + sent + '</span></span></div>'; }).join('');
+    else ih = r.items.map(i => '<div>• ' + esc(i.name) + ' × ' + i.qty + '</div>').join('');
+    const rp = r.reply ? '<div class="rp"><strong>📩 رد:</strong>' + esc(r.reply) + '</div>' : '';
+    const cl = r.status === 'new' ? 'new' : r.status === 'replied' ? 'replied' : r.status === 'processed' ? 'processed' : '';
+    list += '<div class="rc ' + cl + '"><div style="display:flex;justify-content:space-between;margin-bottom:7px;flex-wrap:wrap"><div style="font-size:11px;color:#64748b">' + fT(r.time) + '</div>' + sb2 + '</div><div class="ri">' + ih + '</div>' + (r.note ? '<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:5px 8px;font-size:11px;margin-top:5px;color:#92400e">📝 ' + esc(r.note) + '</div>' : '') + rp + '</div>';
+  });
+  $('#catC').innerHTML = '<div class="ch"><div class="ic">📋</div><h1>طلباتي</h1></div>' + tabs + list; setTimeout(markSeen, 800);
+}
+async function markSeen() { if (!cs.account) return; const un = cs.myReq.filter(r => r.reply && !r.seen); for (const r of un) { try { await apiCall('catalog_mark_seen', { token: cs.token, requestId: r.id }); r.seen = true; } catch (e) {} } }
+function catTog(id, c) { if (c) cs.sel[id] = 1; else delete cs.sel[id]; renderCat(true); }
+function catQty(id, v) { cs.sel[id] = Math.max(1, parseInt(v) || 1); renderCat(true); }
+async function catSubmit() {
+  const note = ($('#cNote') ? $('#cNote').value : '').trim(); const pids = Object.keys(cs.sel);
+  if (!pids.length) return alert('اختر منتجاً');
+  for (const pid of pids) { const p = cs.products.find(x => x.id === pid); if (!p) { alert('نفدت'); await loadCatP(); renderCat(true); return; } }
+  const items = pids.map(id => { const p = cs.products.find(x => x.id === id); return { productId: id, name: p ? p.name : '', qty: cs.sel[id] }; }).filter(x => x.name);
+  if (cs.busy) return; cs.busy = true;
+  try { await apiCall('catalog_submit_request', { token: cs.token, accountId: cs.account.id, items, note }); cs.done = true; cs.busy = false; cs.sel = {}; cs.search = ''; await loadMyReq(); renderCatOk(); }
+  catch (e) { cs.busy = false; alert('فشل: ' + (e.message || '')); }
+}
+function renderCatOk() { const tabs = '<div class="ct"><button onclick="cs.view=\'shop\';cs.done=false;renderCat(true)">🛒 التسوق</button><button onclick="cs.view=\'myrequests\';cs.done=false;renderCat(true)">📋 طلباتي</button></div>'; $('#catC').innerHTML = tabs + '<div class="cc" style="text-align:center;padding:32px"><div style="font-size:46px;color:#16a34a;margin-bottom:10px">✅</div><h2>تم إرسال طلبك</h2><button class="b p" onclick="cs.view=\'myrequests\';cs.done=false;renderCat(true)">📋 طلباتي</button></div>'; }
+
+function aTab(w) { $('#tbL').classList.toggle('on', w === 'login'); $('#tbR').classList.toggle('on', w === 'register'); $('#lf').classList.toggle('h', w !== 'login'); $('#rf').classList.toggle('h', w !== 'register'); aMsg(''); }
+function aMsg(t) { $('#aMsg').textContent = t || ''; }
+async function doLogin() {
+  const u = $('#lU').value.trim(), i = $('#lI').value.trim(), p = $('#lP').value;
+  if (!u || !i || !p) return aMsg('املأ الحقول');
+  $('#lBtn').disabled = true; ld();
+  try {
+    const res = await apiCall('login', { user: u, invName: i, password: p });
+    setToken(res.token);
+    if (res.role === 'admin') { await adminLogin(res.user); ul(); $('#lBtn').disabled = false; return; }
+    session = { invId: res.invId, invName: res.invName, user: res.user };
+    localStorage.setItem(SK, JSON.stringify(session));
+    await loadAll(res.invId); await log('دخول', u);
+    await runAutoClean();
+    ul(); $('#lBtn').disabled = false; enterApp();
+  } catch (e) { ul(); $('#lBtn').disabled = false; aMsg(e.message || 'خطأ'); }
+}
+async function doRegister() { aMsg('التسجيل متوقف'); }
+
+async function loadAll(id) {
+  const [iR, pR, cR, oR, lR, qR] = await Promise.all([
+    sb.from('inventories').select('*').eq('id', id).single(),
+    sb.from('products').select('*').eq('inv_id', id).order('created_at'),
+    sb.from('customers').select('*').eq('inv_id', id).order('created_at'),
+    sb.from('orders').select('*').eq('inv_id', id).order('created_at'),
+    sb.from('logs').select('*').eq('inv_id', id).order('created_at', { ascending: false }).limit(1000),
+    sb.from('public_requests').select('*').eq('inv_id', id).order('created_at', { ascending: false }).limit(REQUESTS_MAX)
+  ]);
+  if (iR.error) throw new Error(iR.error.message);
+  const cm = Number(iR.data.cleanup_months);
+  invData = { id: iR.data.id, name: iR.data.name, password: iR.data.password, ownerName: iR.data.owner_name || '', expiresAt: iR.data.expires_at || null, status: iR.data.status || 'active', members: Array.isArray(iR.data.members) ? iR.data.members : [], publicToken: iR.data.public_token || null, publicEnabled: !!iR.data.public_enabled, cleanupMonths: (isNaN(cm) || cm < 1) ? 1 : cm, autoDelSettled: !!iR.data.auto_del_settled, settledDelDays: +iR.data.settled_del_days || 30, products: (pR.data || []).map(mP), customers: (cR.data || []).map(mC), orders: (oR.data || []).map(mO), logs: (lR.data || []).map(mL) };
+  reqs = (qR.data || []).map(mR);
+}
+function enterApp() { $('#authScreen').classList.add('h'); $('#adminScreen').classList.add('h'); $('#appScreen').classList.remove('h'); $('#invT').textContent = session.invName; $('#uL').textContent = '👤 ' + session.user; sw('products'); if (window._sy) clearInterval(window._sy); window._sy = setInterval(() => { if (session && !document.hidden && $('#ov').classList.contains('h') && curTab !== 'settings') refresh(); }, 30000); }
+async function refresh() { if (!session) return; try { await loadAll(session.invId); renderTab(); } catch (e) {} }
+async function logout() { if (session) await log('خروج', session.user); if (window._sy) { clearInterval(window._sy); window._sy = null; } session = null; invData = null; reqs = []; localStorage.removeItem(SK); clearToken(); $('#appScreen').classList.add('h'); $('#authScreen').classList.remove('h'); $('#lP').value = ''; aMsg(''); }
+async function restore() {
+  try {
+    const s = JSON.parse(localStorage.getItem(SK));
+    const t = getToken();
+    if (s && s.invId && t) { ld(); const r = await sb.from('inventories').select('*').eq('id', s.invId).maybeSingle(); if (!r.error && r.data) { const st = invStatus(r.data); if (st !== 'active') { ul(); return; } session = { invId: r.data.id, invName: r.data.name, user: s.user }; await loadAll(r.data.id); await runAutoClean(); ul(); enterApp(); return; } ul(); }
+  } catch (e) { ul(); }
+}
+
+function sw(t) { curTab = t; $$('#tabsN button').forEach(b => b.classList.toggle('on', b.dataset.tab === t)); renderTab(); }
+function renderTab() { const c = $('#tc'); if (!session || !invData) return; if (curTab === 'products') { c.innerHTML = hProd(); renderProd(); } else if (curTab === 'customers') c.innerHTML = hCust(); else if (curTab === 'debts') c.innerHTML = hDebt(); else if (curTab === 'orders') c.innerHTML = hOrd(); else if (curTab === 'requests') c.innerHTML = hReq(); else if (curTab === 'link') c.innerHTML = hLink(); else if (curTab === 'alerts') c.innerHTML = hAlerts(); else if (curTab === 'reports') c.innerHTML = hReports(); else if (curTab === 'log') c.innerHTML = hLog(); else if (curTab === 'settings') c.innerHTML = hSet(); stats(); badges(); }
+function stats() {
+  const p = invData.products || [], o = invData.orders || [];
+  const tq = p.reduce((s, x) => s + (+x.qty || 0), 0); const sv = p.reduce((s, x) => s + (+x.qty || 0) * (+x.buyPrice || 0), 0);
+  const sa = o.reduce((s, x) => s + (+x.total || 0), 0); const pf = o.reduce((s, x) => s + (+x.profit || 0), 0);
+  const unpaid = unpaidDebtsCount(); const dl = daysLeft(invData.expiresAt);
+  $('#statsB').innerHTML = '<div class="st"><div class="l">المنتجات</div><div class="v b">' + p.length + '/1000</div></div><div class="st"><div class="l">القطع</div><div class="v">' + mn(tq) + '</div></div><div class="st"><div class="l">قيمة</div><div class="v">' + mn(sv) + '</div></div><div class="st"><div class="l">المبيعات</div><div class="v g">' + mn(sa) + '</div></div><div class="st"><div class="l">الربح</div><div class="v g">' + mn(pf) + '</div></div><div class="st"><div class="l">الديون</div><div class="v r">' + unpaid + '/1000</div></div>' + (dl !== null ? '<div class="st"><div class="l">متبقي</div><div class="v ' + (dl <= 3 ? 'r' : dl <= 7 ? 'y' : 'g') + '">' + dl + ' يوم</div></div>' : '');
+}
+function badges() { const lc = (invData.products || []).filter(p => (+p.qty || 0) <= (+p.minQty || 0)).length; const ab = $('#alB'); if (lc > 0) { ab.textContent = lc; ab.classList.remove('h'); } else ab.classList.add('h'); const nr = reqs.filter(r => r.status === 'new').length; const rb = $('#reqB'); if (nr > 0) { rb.textContent = nr; rb.classList.remove('h'); } else rb.classList.add('h'); }
+
+function hProd() { return '<div class="tb3"><button class="b p" onclick="pOpen()">+ منتج</button><button class="b" onclick="printInv()">🖨️</button><button class="b" onclick="printLow()">🔔</button><input class="srch" id="pS" placeholder="🔍..." oninput="renderProd()"></div><div class="tbr"><table><thead><tr><th>المنتج</th><th>القسم</th><th>الكمية</th><th>شراء</th><th>بيع</th><th>حالة</th><th>إجراءات</th></tr></thead><tbody id="pR"></tbody></table></div>'; }
+function renderProd() { const q = ($('#pS') ? $('#pS').value : '').trim().toLowerCase(); const L = (invData.products || []).filter(p => !q || p.name.toLowerCase().includes(q)); const tb = $('#pR'); if (!tb) return; if (!L.length) { tb.innerHTML = '<tr><td colspan="7" class="emp">لا منتجات</td></tr>'; return; } tb.innerHTML = L.map(p => { const low = (+p.qty || 0) <= (+p.minQty || 0); return '<tr><td><strong>' + esc(p.name) + '</strong></td><td>' + (p.category ? esc(p.category) : '—') + '</td><td>' + mn(p.qty) + '</td><td>' + (p.buyPrice ? mn(p.buyPrice) : '—') + '</td><td>' + (p.sellPrice ? mn(p.sellPrice) : '—') + '</td><td>' + (low ? '<span class="bd d">منخفض</span>' : '<span class="bd o">متوفر</span>') + '</td><td class="act"><button class="b sm" onclick="pAdj(\'' + p.id + '\')">±</button><button class="b sm" onclick="pOpen(\'' + p.id + '\')">تعديل</button><button class="b sm d" onclick="pDel(\'' + p.id + '\')">حذف</button></td></tr>'; }).join(''); }
+function pOpen(id) { const p = id ? invData.products.find(x => x.id === id) : null; if (!id && invData.products.length >= MAX_PRODUCTS) return alert('الحد الأقصى 1000'); const cats = [...new Set((invData.products || []).map(x => x.category).filter(x => x))]; const dl = cats.map(c => '<option value="' + esc(c) + '">').join(''); const b = '<div class="f"><label>الاسم *</label><input id="pNm" value="' + (p ? esc(p.name) : '') + '"></div><div class="f"><label>القسم</label><input id="pCat" list="cl" value="' + (p ? esc(p.category || '') : '') + '"><datalist id="cl">' + dl + '</datalist></div><div class="g2"><div class="f"><label>الكمية</label><input id="pQ" type="number" min="0" value="' + (p ? p.qty : 0) + '"></div><div class="f"><label>حد التنبيه</label><input id="pM" type="number" min="0" value="' + (p ? (p.minQty || 0) : 0) + '"></div></div><div class="g2"><div class="f"><label>شراء</label><input id="pB" type="number" min="0" value="' + (p && p.buyPrice ? p.buyPrice : '') + '"></div><div class="f"><label>بيع</label><input id="pSl" type="number" min="0" value="' + (p && p.sellPrice ? p.sellPrice : '') + '"></div></div>'; openModal(p ? 'تعديل' : 'إضافة منتج', b, '<button class="b" onclick="closeModal()">إلغاء</button><button class="b p" onclick="pSave(\'' + (id || '') + '\')">حفظ</button>'); }
+async function pSave(id) {
+  const n = $('#pNm').value.trim(); if (!n) return alert('الاسم مطلوب'); if (!id && invData.products.length >= MAX_PRODUCTS) return alert('حد أقصى');
+  const cat = $('#pCat').value.trim(); const q = +$('#pQ').value || 0, m = +$('#pM').value || 0, b = $('#pB').value === '' ? 0 : +$('#pB').value || 0, s = $('#pSl').value === '' ? 0 : +$('#pSl').value || 0;
+  closeModal(); ld();
+  try {
+    if (id) { const r = await sb.from('products').update({ name: n, category: cat || null, qty: q, min_qty: m, buy_price: b, sell_price: s }).eq('id', id); if (r.error) throw new Error(r.error.message); const p = invData.products.find(x => x.id === id); Object.assign(p, { name: n, category: cat, qty: q, minQty: m, buyPrice: b, sellPrice: s }); await log('تعديل منتج', n); }
+    else { const nid = uid(); const r = await sb.from('products').insert({ id: nid, inv_id: invData.id, name: n, category: cat || null, qty: q, min_qty: m, buy_price: b, sell_price: s }); if (r.error) throw new Error(r.error.message); invData.products.push({ id: nid, name: n, category: cat, qty: q, minQty: m, buyPrice: b, sellPrice: s }); await log('إضافة منتج', n); }
+    ul(); renderTab();
+  } catch (e) { ul(); alert('خطأ: ' + e.message); }
+}
+function pAdj(id) { const p = invData.products.find(x => x.id === id); if (!p) return; const b = '<p class="mut" style="margin-bottom:9px">' + esc(p.name) + ' — ' + mn(p.qty) + '</p><div class="f"><label>نوع</label><select id="aT"><option value="add">إضافة</option><option value="sub">خصم</option><option value="set">تعيين</option></select></div><div class="f"><label>الكمية</label><input id="aQ" type="number" min="0" value="1"></div><div class="f"><label>ملاحظة</label><input id="aN"></div>'; openModal('تعديل الكمية', b, '<button class="b" onclick="closeModal()">إلغاء</button><button class="b p" onclick="pApply(\'' + id + '\')">تنفيذ</button>'); }
+async function pApply(id) { const p = invData.products.find(x => x.id === id); if (!p) return; const t = $('#aT').value, a = +$('#aQ').value || 0, bef = +p.qty; const nq = t === 'add' ? bef + a : t === 'sub' ? Math.max(0, bef - a) : a; closeModal(); ld(); try { const r = await sb.from('products').update({ qty: nq }).eq('id', id); if (r.error) throw new Error(r.error.message); p.qty = nq; await log('تعديل كمية', p.name); ul(); renderTab(); } catch (e) { ul(); alert('خطأ'); } }
+async function pDel(id) { const p = invData.products.find(x => x.id === id); if (!p) return; if (!confirm('حذف "' + p.name + '"؟')) return; ld(); try { const r = await sb.from('products').delete().eq('id', id); if (r.error) throw new Error(r.error.message); invData.products = invData.products.filter(x => x.id !== id); await log('حذف منتج', p.name); ul(); renderTab(); } catch (e) { ul(); alert('خطأ'); } }
+
+function hCust() {
+  const L = invData.customers || []; let rows = '';
+  if (L.length) L.forEach(c => { const o = (invData.orders || []).filter(x => x.customerId === c.id), t = o.reduce((s, x) => s + (+x.total || 0), 0), d = cD(c.id), op = +c.openingDebt || 0; rows += '<tr><td><strong>' + esc(c.name) + '</strong>' + (op > 0 ? ' <span class="bd w" style="font-size:9px">سابق</span>' : '') + '</td><td>' + (c.phone ? esc(c.phone) : '—') + '</td><td>' + o.length + '</td><td>' + mn(t) + '</td><td>' + (d > 0 ? '<span class="bd d">' + mn(d) + '</span>' : '<span class="bd o">لا يوجد</span>') + '</td><td class="act"><button class="b sm s" onclick="payOpen(\'' + c.id + '\')">💰</button><button class="b sm" onclick="printCust(\'' + c.id + '\')">🖨️</button><button class="b sm" onclick="cOpen(\'' + c.id + '\')">تعديل</button><button class="b sm d" onclick="cDel(\'' + c.id + '\')">حذف</button></td></tr>'; });
+  else rows = '<tr><td colspan="6" class="emp">لا زبائن</td></tr>';
+  return '<div class="tb3"><button class="b p" onclick="cOpen()">+ زبون</button></div><div class="tbr"><table><thead><tr><th>الاسم</th><th>الهاتف</th><th>الطلبات</th><th>المشتريات</th><th>الدين</th><th>إجراءات</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
+}
+function cOpen(id) { const c = id ? invData.customers.find(x => x.id === id) : null; const b = '<div class="f"><label>الاسم *</label><input id="cNm" value="' + (c ? esc(c.name) : '') + '"></div><div class="f"><label>الهاتف</label><input id="cPh" value="' + (c ? esc(c.phone || '') : '') + '"></div><div class="f"><label>دين سابق</label><input id="cOd" type="number" min="0" value="' + (c ? (c.openingDebt || 0) : 0) + '"></div>'; openModal(c ? 'تعديل' : 'إضافة زبون', b, '<button class="b" onclick="closeModal()">إلغاء</button><button class="b p" onclick="cSave(\'' + (id || '') + '\')">حفظ</button>'); }
+async function cSave(id) { const n = $('#cNm').value.trim(), ph = $('#cPh').value.trim(), od = +$('#cOd').value || 0; if (!n) return alert('الاسم مطلوب'); if (!id && od > 0 && unpaidDebtsCount() >= MAX_DEBTS) return alert('حد أقصى ديون'); closeModal(); ld(); try { if (id) { const c = invData.customers.find(x => x.id === id); const r = await sb.from('customers').update({ name: n, phone: ph, opening_debt: od }).eq('id', id); if (r.error) throw new Error(r.error.message); Object.assign(c, { name: n, phone: ph, openingDebt: od }); await log('تعديل زبون', n); } else { const nid = uid(); const r = await sb.from('customers').insert({ id: nid, inv_id: invData.id, name: n, phone: ph, credit: 0, opening_debt: od }); if (r.error) throw new Error(r.error.message); invData.customers.push({ id: nid, name: n, phone: ph, credit: 0, openingDebt: od }); await log('إضافة زبون', n); } ul(); renderTab(); } catch (e) { ul(); alert('خطأ: ' + e.message); } }
+async function cDel(id) { const c = invData.customers.find(x => x.id === id); if (!c) return; if (!confirm('حذف "' + c.name + '"؟')) return; ld(); try { const r = await sb.from('customers').delete().eq('id', id); if (r.error) throw new Error(r.error.message); invData.customers = invData.customers.filter(x => x.id !== id); await log('حذف زبون', c.name); ul(); renderTab(); } catch (e) { ul(); alert('خطأ'); } }
+
+function hDebt() {
+  const L = (invData.customers || []).map(c => ({ c, d: cD(c.id), op: +c.openingDebt || 0, od: cOD(c.id) })).filter(x => x.d > 0).sort((a, b) => b.d - a.d);
+  let rows = '', tO = 0, tD = 0;
+  if (L.length) L.forEach(x => { tO += x.op; tD += x.od; const np = []; if (x.op > 0) np.push('سابق: ' + mn(x.op)); if (x.od > 0) np.push('طلبات: ' + mn(x.od)); rows += '<tr><td><strong>' + esc(x.c.name) + '</strong></td><td>' + (x.c.phone ? esc(x.c.phone) : '—') + '</td><td style="font-size:11.5px;color:#64748b">' + np.join(' | ') + '</td><td><span class="bd d">' + mn(x.d) + '</span></td><td class="act"><button class="b sm s" onclick="payOpen(\'' + x.c.id + '\')">💰</button><button class="b sm" onclick="printCust(\'' + x.c.id + '\')">🖨️</button></td></tr>'; });
+  else rows = '<tr><td colspan="5" class="emp">🎉 لا ديون</td></tr>';
+  const tot = tO + tD; const unpaid = unpaidDebtsCount();
+  return '<div class="cbx" style="text-align:center;background:#fef2f2;border-color:#fecaca"><div class="mut">إجمالي الديون</div><div style="font-size:26px;font-weight:800;color:#dc2626;margin-top:2px">' + mn(tot) + '</div><div class="mut" style="font-size:11.5px;margin-top:4px">سابق: ' + mn(tO) + ' | طلبات: ' + mn(tD) + ' | عدد: ' + unpaid + '/1000</div></div>' + (unpaid >= MAX_DEBTS ? '<div class="warn-box">⚠️ حد أقصى</div>' : '') + '<div class="tbr"><table><thead><tr><th>الزبون</th><th>الهاتف</th><th>التفاصيل</th><th>المتبقي</th><th>إجراءات</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
+}
+function payOpen(cid) {
+  const c = invData.customers.find(x => x.id === cid); if (!c) return; const td = cD(cid); if (td <= 0) return alert('لا دين');
+  const op = +c.openingDebt || 0; const ords = (invData.orders || []).filter(o => o.customerId === cid && oD(o) > 0).sort((a, b) => new Date(a.time) - new Date(b.time));
+  let lst = ''; if (op > 0) lst += '<div class="rr" style="grid-template-columns:1fr 1fr 1fr"><div style="font-size:11px;color:#b45309;font-weight:700">دين سابق</div><div></div><div style="font-size:12px;font-weight:700;color:#dc2626">' + mn(op) + '</div></div>';
+  ords.forEach(o => { let it = o.items.map(i => i.name + '×' + i.qty).join('، '); if (it.length > 50) it = it.slice(0, 50) + '…'; lst += '<div class="rr" style="grid-template-columns:1fr 1fr 1fr"><div style="font-size:11px">' + fT(o.time) + '</div><div style="font-size:11px">' + esc(it) + '</div><div style="font-size:12px;font-weight:700;color:#dc2626">' + mn(oD(o)) + '</div></div>'; });
+  const b = '<div class="pb due"><div class="mut">إجمالي على ' + esc(c.name) + '</div><span class="amt">' + mn(td) + '</span></div><div style="max-height:170px;overflow-y:auto;background:#f8fafc;border-radius:6px;padding:6px">' + lst + '</div><div class="f" style="margin-top:10px"><label>المبلغ المدفوع</label><input id="payA" type="number" min="0" value="' + td + '"></div><div class="f"><label>ملاحظة</label><input id="payN"></div>';
+  openModal('💰 دفعة', b, '<button class="b" onclick="closeModal()">إلغاء</button><button class="b s" onclick="payApply(\'' + cid + '\')">✅</button>');
+}
+async function payApply(cid) {
+  const c = invData.customers.find(x => x.id === cid); if (!c) return; const a = +$('#payA').value || 0, nt = $('#payN').value.trim(); if (a <= 0) return alert('أدخل مبلغ');
+  const td = cD(cid); if (a > td + .001 && !confirm('المبلغ أكبر، سيُسجّل الفائض رصيداً دائناً؟')) return;
+  closeModal(); ld();
+  try {
+    let rem = a; const op = +c.openingDebt || 0;
+    if (op > 0 && rem > 0) { const po = Math.min(rem, op); c.openingDebt = op - po; rem -= po; await sb.from('customers').update({ opening_debt: c.openingDebt }).eq('id', c.id); }
+    const unpaid = (invData.orders || []).filter(o => o.customerId === cid && oD(o) > 0).sort((a, b) => new Date(a.time) - new Date(b.time));
+    for (const o of unpaid) { if (rem <= 0) break; const owed = oD(o), pay = Math.min(rem, owed), np = +o.paidAmount + pay, fp = np >= o.total - .001; await sb.from('orders').update({ paid_amount: fp ? o.total : np, paid: fp }).eq('id', o.id); o.paidAmount = fp ? o.total : np; o.paid = fp; rem -= pay; }
+    let cm = ''; if (rem > 0) { c.credit = (+c.credit || 0) + rem; await sb.from('customers').update({ credit: c.credit }).eq('id', c.id); cm = ' | رصيد: ' + mn(rem); }
+    await log('دفعة', c.name + ' | ' + mn(a) + cm); ul(); renderTab(); alert('✅');
+  } catch (e) { ul(); alert('خطأ: ' + e.message); }
+}
+
+function hOrd() {
+  const L = (invData.orders || []).slice().reverse(); let rows = '';
+  if (L.length) L.forEach(o => {
+    const it = o.items.map(i => esc(i.name) + ' ×' + i.qty).join('، '), pd = oP(o), dd = oD(o);
+    let pb;
+    if (o.payment === 'later') { if (dd <= 0) pb = '<span class="bd o">آجل مسدد</span>'; else if (pd > 0) pb = '<span class="bd w">آجل جزئي</span>'; else pb = '<span class="bd d">آجل</span>'; }
+    else pb = '<span class="bd i">' + (PL[o.payment] || '—') + '</span>';
+    const rt = (o.returns || []).length ? '<span class="bd p">مرتجع</span>' : '';
+    rows += '<tr><td style="font-size:11px;color:#64748b">' + fT(o.time) + '</td><td>' + (o.customerName ? esc(o.customerName) : '—') + '</td><td style="max-width:220px;font-size:11.5px">' + (it || '—') + '</td><td><strong>' + mn(o.total) + '</strong></td><td>' + (pd > 0 ? '<span style="color:#16a34a">' + mn(pd) + '</span>' : '—') + '</td><td>' + (dd > 0 ? '<span style="color:#dc2626;font-weight:700">' + mn(dd) + '</span>' : '—') + '</td><td>' + pb + ' ' + rt + '</td><td class="act">' + (o.payment === 'later' && dd > 0 && o.customerId ? '<button class="b sm s" onclick="payOpen(\'' + o.customerId + '\')">💰</button>' : '') + '<button class="b sm w" onclick="openReturnModal(\'' + o.id + '\')">↩️</button><button class="b sm d" onclick="oDel(\'' + o.id + '\')">حذف</button></td></tr>';
+  });
+  else rows = '<tr><td colspan="8" class="emp">لا طلبات</td></tr>';
+  return '<div class="tb3"><button class="b p" onclick="oOpen()">+ طلب</button></div><div class="tbr"><table><thead><tr><th>التاريخ</th><th>الزبون</th><th>الأصناف</th><th>الإجمالي</th><th>مدفوع</th><th>متبقي</th><th>الدفع</th><th>إجراءات</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
+}
+function oOpen() {
+  if (!invData.products.length) return alert('أضف منتجات');
+  const co = (invData.customers || []).map(c => '<option value="' + c.id + '">' + esc(c.name) + '</option>').join('');
+  const b = '<div class="f"><label>الزبون</label><select id="oC" onchange="oNewToggle()"><option value="">— بدون —</option>' + co + '<option value="__new">+ جديد</option></select></div><div id="oNewBox" class="h g2"><div class="f"><label>الاسم *</label><input id="oNn"></div><div class="f"><label>الهاتف</label><input id="oNp"></div></div><div class="sec">الأصناف</div><div id="oItems"></div><button class="b sm" onclick="oAddItem()">+ صنف</button><div class="tot">الإجمالي: <strong id="oTotal">0</strong></div><div class="sec">الدفع</div><div class="pay-opts" id="payWrap"><div class="pay-opt" onclick="pickPay(this,\'\')"><div class="ic">💵</div><div class="lbl">نقداً</div></div><div class="pay-opt" onclick="pickPay(this,\'bank\')"><div class="ic">🏦</div><div class="lbl">بنكي</div></div><div class="pay-opt" onclick="pickPay(this,\'later\')"><div class="ic">⏳</div><div class="lbl">آجل</div></div></div><input type="hidden" id="oPay" value=""><div class="f" style="margin-top:10px"><label>ملاحظة</label><input id="oNote"></div>';
+  openModal('طلب جديد', b, '<button class="b" onclick="closeModal()">إلغاء</button><button class="b p" onclick="oSave()">حفظ</button>'); oAddItem();
+}
+function pickPay(el, val) { document.querySelectorAll('#payWrap .pay-opt').forEach(x => x.classList.remove('sel')); el.classList.add('sel'); const inp = $('#oPay'); if (inp) inp.value = val; }
+function oNewToggle() { $('#oNewBox').classList.toggle('h', $('#oC').value !== '__new'); }
+function oAddItem() { const d = document.createElement('div'); d.className = 'oi'; d.innerHTML = '<div class="ps"><input type="text" class="ps-s" placeholder="🔍 منتج..." onfocus="psOpen(this)" oninput="psFilter(this)"><input type="hidden" class="ps-i"><div class="pdr h"></div></div><input class="oi-q" type="number" min="0.01" value="1" oninput="oCalc()"><input class="oi-p" type="number" min="0" placeholder="السعر" oninput="oCalc()"><button class="b sm d" onclick="this.parentElement.remove();oCalc()">✕</button>'; $('#oItems').appendChild(d); }
+function psOpen(i) { const w = i.closest('.ps'); psDrop(w.querySelector('.pdr'), ''); w.querySelector('.pdr').classList.remove('h'); }
+function psFilter(i) { const w = i.closest('.ps'); psDrop(w.querySelector('.pdr'), i.value); w.querySelector('.pdr').classList.remove('h'); if (i.value.trim() === '') w.querySelector('.ps-i').value = ''; }
+function psDrop(drp, q) { q = (q || '').trim().toLowerCase(); const L = invData.products.filter(p => !q || p.name.toLowerCase().includes(q)); if (!L.length) { drp.innerHTML = '<div class="pe">لا نتائج</div>'; return; } drp.innerHTML = L.slice(0, 60).map(p => '<div class="pit" onclick="psPick(this,\'' + p.id + '\',\'' + esc(p.name).replace(/'/g, "\\'") + '\',' + (p.sellPrice || 0) + ')"><span>' + esc(p.name) + '</span><small>متوفر: ' + p.qty + '</small></div>').join(''); }
+function psPick(el, id, nm, pr) { const w = el.closest('.ps'), r = w.closest('.oi'); w.querySelector('.ps-s').value = nm; w.querySelector('.ps-i').value = id; const pi = r.querySelector('.oi-p'); if (pi && !pi.value) pi.value = pr; w.querySelector('.pdr').classList.add('h'); oCalc(); }
+function oCalc() { let t = 0; $$('#oItems .oi').forEach(r => { t += (+r.querySelector('.oi-q').value || 0) * (+r.querySelector('.oi-p').value || 0); }); const e = $('#oTotal'); if (e) e.textContent = mn(t); }
+async function oSave() {
+  const rows = $$('#oItems .oi'); const items = [];
+  for (const r of rows) { const pid = r.querySelector('.ps-i').value, q = +r.querySelector('.oi-q').value || 0, pr = +r.querySelector('.oi-p').value || 0; if (!pid || q <= 0) continue; const p = invData.products.find(x => x.id === pid); if (!p) continue; if (q > +p.qty) return alert('الكمية أكبر من المتوفر'); items.push({ productId: p.id, name: p.name, qty: q, price: pr, cost: +p.buyPrice || 0 }); }
+  if (!items.length) return alert('أضف صنفاً');
+  let cid = null, cn = ''; const sl = $('#oC').value; let nC = null;
+  if (sl === '__new') { const n = $('#oNn').value.trim(); if (!n) return alert('اسم الزبون'); cid = uid(); cn = n; const ph = $('#oNp').value.trim(); nC = { id: cid, name: n, phone: ph, credit: 0, openingDebt: 0 }; }
+  else if (sl) { const c = invData.customers.find(x => x.id === sl); if (c) { cid = c.id; cn = c.name; } }
+  const tt = items.reduce((s, i) => s + i.qty * i.price, 0), cst = items.reduce((s, i) => s + i.qty * i.cost, 0), pr = tt - cst;
+  const pay = $('#oPay').value, nt = $('#oNote').value.trim(), oid = uid(); const isLater = pay === 'later';
+  if (isLater && unpaidDebtsCount() >= MAX_DEBTS) return alert('حد أقصى ديون');
+  closeModal(); ld();
+  try {
+    if (nC) { await sb.from('customers').insert({ id: nC.id, inv_id: invData.id, name: nC.name, phone: nC.phone, credit: 0, opening_debt: 0 }); invData.customers.push(nC); }
+    for (const it of items) { const p = invData.products.find(x => x.id === it.productId); if (!p) continue; const nq = +p.qty - it.qty; await sb.from('products').update({ qty: nq }).eq('id', p.id); p.qty = nq; }
+    const row = { id: oid, inv_id: invData.id, customer_id: cid, customer_name: cn, items, total: tt, cost: cst, profit: pr, payment: pay, paid_amount: isLater ? 0 : tt, paid: !isLater, returns: [], note: nt, user_name: session.user };
+    const r = await sb.from('orders').insert(row).select().single(); if (r.error) throw new Error(r.error.message);
+    invData.orders.push(mO(r.data)); await log('طلب جديد', (cn || 'بدون') + ' | ' + mn(tt)); ul(); renderTab();
+  } catch (e) { ul(); alert('خطأ: ' + e.message); }
+}
+function openReturnModal(oid) {
+  const o = invData.orders.find(x => String(x.id) === String(oid)); if (!o) return alert('لم يُعثر'); if (!o.items || !o.items.length) return alert('لا أصناف');
+  let rows = ''; o.items.forEach(function (it, j) { rows += '<div class="rr" data-idx="' + j + '"><div><strong>' + esc(it.name) + '</strong><div class="mut" style="font-size:10.5px">' + it.qty + ' × ' + mn(it.price) + '</div></div><input type="number" class="rq" min="0" max="' + it.qty + '" value="0" oninput="updateRetTot(\'' + oid + '\')"><input type="number" class="rp" value="' + it.price + '" readonly><div class="rt" style="text-align:left;font-weight:700">0</div></div>'; });
+  const b = '<div class="cbx" style="background:#fffbeb;border-color:#fde68a"><div style="font-size:12px">إجمالي: ' + mn(o.total) + ' | مدفوع: ' + mn(oP(o)) + ' | متبقي: ' + mn(oD(o)) + '</div></div><div>' + rows + '</div><div class="tot" style="background:#fef2f2;color:#dc2626;margin-top:10px">المُرجَع: <strong id="rT">0</strong></div><div class="f" style="margin-top:9px"><label>ملاحظة</label><input id="rN"></div>';
+  openModal('↩️ إرجاع', b, '<button class="b" onclick="closeModal()">إلغاء</button><button class="b w" onclick="applyReturn(\'' + oid + '\')">↩️ تنفيذ</button>'); updateRetTot(oid);
+}
+function updateRetTot(oid) { const o = invData.orders.find(x => String(x.id) === String(oid)); if (!o) return; let t = 0; document.querySelectorAll('.rr[data-idx]').forEach(r => { const i = +r.dataset.idx, it = o.items[i]; if (!it) return; const iq = +r.querySelector('.rq').value || 0, mq = +it.qty; const q = iq > mq ? mq : iq, a = q * (+it.price); t += a; r.querySelector('.rt').textContent = mn(a); }); const el = document.getElementById('rT'); if (el) el.textContent = mn(t); }
+async function applyReturn(oid) {
+  const o = invData.orders.find(x => String(x.id) === String(oid)); if (!o) return;
+  const rets = []; let rt = 0;
+  document.querySelectorAll('.rr[data-idx]').forEach(r => { const i = +r.dataset.idx, it = o.items[i]; if (!it) return; const q = Math.min(+r.querySelector('.rq').value || 0, +it.qty); if (q <= 0) return; const a = q * (+it.price); rt += a; rets.push({ productId: it.productId, name: it.name, qty: q, price: it.price, amount: a }); const p = invData.products.find(x => x.id === it.productId); if (p) p.qty = (+p.qty || 0) + q; it.qty = +it.qty - q; });
+  if (!rets.length) return alert('حدد كمية');
+  closeModal(); ld();
+  try {
+    for (const r of rets) { const p = invData.products.find(x => x.id === r.productId); if (p) await sb.from('products').update({ qty: p.qty }).eq('id', p.id); }
+    o.items = o.items.filter(x => +x.qty > 0); o.total = o.items.reduce((s, x) => s + x.qty * x.price, 0); o.cost = o.items.reduce((s, x) => s + x.qty * x.cost, 0); o.profit = o.total - o.cost;
+    if (!o.returns) o.returns = []; const nt = $('#rN') ? $('#rN').value.trim() : '';
+    o.returns.push({ id: uid(), time: nS(), user: session.user, items: rets, total: rt, note: nt });
+    let cm = '';
+    if (oP(o) > o.total + .001 && o.customerId) { const c = invData.customers.find(x => x.id === o.customerId); if (c) { const ex = oP(o) - o.total; c.credit = (+c.credit || 0) + ex; o.paidAmount = o.total; cm = ' | رصيد: ' + mn(ex); await sb.from('customers').update({ credit: c.credit }).eq('id', c.id); } }
+    await sb.from('orders').update({ items: o.items, total: o.total, cost: o.cost, profit: o.profit, returns: o.returns, paid_amount: o.paidAmount }).eq('id', o.id);
+    await log('إرجاع', mn(rt) + cm); ul(); renderTab(); alert('✅ ' + mn(rt));
+  } catch (e) { ul(); alert('خطأ: ' + e.message); }
+}
+async function oDel(id) { const o = invData.orders.find(x => x.id === id); if (!o) return; if (!confirm('حذف الطلب وإرجاع الكميات؟')) return; ld(); try { for (const it of o.items) { const p = invData.products.find(x => x.id === it.productId); if (p) { p.qty = (+p.qty || 0) + it.qty; await sb.from('products').update({ qty: p.qty }).eq('id', p.id); } } await sb.from('orders').delete().eq('id', id); invData.orders = invData.orders.filter(x => x.id !== id); await log('حذف طلب', ''); ul(); renderTab(); } catch (e) { ul(); alert('خطأ'); } }
+
+function hReq() {
+  const L = reqs.slice(); const nc = L.filter(r => r.status === 'new').length; let rows = '';
+  if (L.length) L.forEach(r => {
+    const ih = r.items.map(i => '<div>• <strong>' + esc(i.name) + '</strong> × ' + i.qty + '</div>').join('');
+    const sb2 = r.status === 'new' ? '<span class="bd w">جديد</span>' : r.status === 'replied' ? '<span class="bd i">تم الرد</span>' : r.status === 'processed' ? '<span class="bd o">معالجة</span>' : '<span class="bd g">مقروء</span>';
+    const cl = r.status === 'new' ? 'new' : r.status === 'replied' ? 'replied' : r.status === 'processed' ? 'processed' : '';
+    const rh = r.reply ? '<div class="rp"><strong>✉️ ردك:</strong>' + esc(r.reply) + '</div>' : '';
+    rows += '<div class="rc ' + cl + '"><div style="display:flex;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap"><div><div style="font-weight:700;font-size:13px">' + esc(r.customerName) + ' ' + sb2 + '</div><div style="color:#64748b;font-size:11px;direction:ltr">📞 ' + esc(r.customerPhone) + '</div></div><div style="color:#64748b;font-size:10.5px">' + fT(r.time) + '</div></div><div class="ri">' + ih + '</div>' + (r.note ? '<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:5px 8px;font-size:11px;margin-top:5px;color:#92400e">📝 ' + esc(r.note) + '</div>' : '') + rh + '<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:7px"><button class="b p sm" onclick="reqReply(\'' + r.id + '\')">✉️ ' + ((r.reply) ? 'تعديل' : 'الرد') + '</button>' + (r.status !== 'processed' ? '<button class="b s sm" onclick="reqProcess(\'' + r.id + '\')">✅ تحويل</button>' : '') + '<button class="b d sm" onclick="reqDel(\'' + r.id + '\')">حذف</button></div></div>';
+  });
+  else rows = '<div class="cbx" style="text-align:center;color:#64748b;padding:28px"><div style="font-size:34px">📭</div>لا طلبات واردة</div>';
+  return '<div class="cbx" style="background:#eff6ff;border-color:#bfdbfe"><div style="font-size:13px;font-weight:700;color:#1e40af">📥 الواردة</div><div class="mut" style="margin-top:3px">جديدة: <strong style="color:#dc2626">' + nc + '</strong> | إجمالي: ' + L.length + '</div></div>' + rows;
+}
+async function reqDel(id) { if (!confirm('حذف؟')) return; try { await sb.from('public_requests').delete().eq('id', id); reqs = reqs.filter(x => x.id !== id); await log('حذف طلب', ''); renderTab(); } catch (e) { alert('خطأ'); } }
+function reqReply(rid) {
+  const r = reqs.find(x => x.id === rid); if (!r) return;
+  const cfMap = {}; (r.cfItems || []).forEach(c => { cfMap[c.productId] = c; });
+  const hasCf = r.cfItems && r.cfItems.length; let itemsH = '';
+  r.items.forEach(it => { const cf = cfMap[it.productId]; const chk = hasCf ? (!!cf) : true; const sent = hasCf ? (cf ? (cf.sentQty !== undefined ? cf.sentQty : cf.qty) : 0) : it.qty; itemsH += '<div style="display:grid;grid-template-columns:auto 1fr 85px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid #f1f5f9;font-size:12px"><input type="checkbox" class="rp-item" ' + (chk ? 'checked' : '') + ' data-pid="' + it.productId + '" onchange="toggleCit(this)" style="width:17px;height:17px"><div><div style="font-weight:600">' + esc(it.name) + '</div><div style="font-size:10.5px;color:#64748b">طلب: ' + it.qty + '</div><div class="diff" data-pid="' + it.productId + '" style="font-size:10px;color:#d97706;font-weight:600"></div></div><input type="number" class="rp-qty" min="0" max="' + it.qty + '" value="' + sent + '" ' + (chk ? '' : 'disabled') + ' data-pid="' + it.productId + '" data-ord="' + it.qty + '" oninput="updDiff(this)" style="padding:5px;font-size:12px;text-align:center"></div>'; });
+  const b = '<div class="cbx" style="background:#f0fdf4"><div><strong>' + esc(r.customerName) + '</strong></div><div class="mut">📞 ' + esc(r.customerPhone) + ' | ' + fT(r.time) + '</div></div><div class="sec">☑️ الكميات المُرسلة</div><div>' + itemsH + '</div><div class="f" style="margin-top:10px"><label>✉️ رسالة</label><textarea id="repMsg" rows="3" style="padding:7px;border:1px solid #e2e8f0;border-radius:6px;font-size:12.5px;width:100%;font-family:inherit">' + esc(r.reply || '') + '</textarea></div>';
+  openModal('✉️ رد', b, '<button class="b" onclick="closeModal()">إلغاء</button><button class="b p" onclick="reqSaveReply(\'' + rid + '\')">✉️ إرسال</button>');
+  setTimeout(() => { document.querySelectorAll('.rp-qty').forEach(q => updDiff(q)); }, 60);
+}
+function toggleCit(cb) { const pid = cb.dataset.pid; const inp = document.querySelector('.rp-qty[data-pid="' + pid + '"]'); if (!inp) return; if (cb.checked) inp.disabled = false; else { inp.disabled = true; inp.value = 0; updDiff(inp); } }
+function updDiff(inp) { const pid = inp.dataset.pid; const ord = +inp.dataset.ord || 0; const cb = document.querySelector('.rp-item[data-pid="' + pid + '"]'); let sent = parseInt(inp.value) || 0; if (sent > ord) sent = ord; if (sent < 0) sent = 0; const el = document.querySelector('.diff[data-pid="' + pid + '"]'); if (!el) return; if (!cb || !cb.checked) { el.textContent = '❌ لن يُرسل'; el.style.color = '#dc2626'; return; } if (sent < ord) { el.textContent = '⚠️ ناقص: ' + (ord - sent); el.style.color = '#d97706'; } else el.textContent = ''; }
+async function reqSaveReply(rid) {
+  const r = reqs.find(x => x.id === rid); if (!r) return;
+  const msg = ($('#repMsg') ? $('#repMsg').value : '').trim(); const cf = [];
+  r.items.forEach(it => { const cb = document.querySelector('.rp-item[data-pid="' + it.productId + '"]'); if (!cb || !cb.checked) return; const inp = document.querySelector('.rp-qty[data-pid="' + it.productId + '"]'); let sent = inp ? (parseInt(inp.value) || 0) : it.qty; if (sent > it.qty) sent = it.qty; if (sent < 0) sent = 0; cf.push({ productId: it.productId, name: it.name, orderedQty: it.qty, sentQty: sent }); });
+  if (!msg && !cf.length) return alert('اكتب رسالة أو حدد صنفاً');
+  closeModal(); ld();
+  try { const u = { reply: msg, confirmed_items: cf, reply_at: new Date().toISOString(), status: 'replied', customer_seen: false }; const rr = await sb.from('public_requests').update(u).eq('id', rid); if (rr.error) throw new Error(rr.error.message); Object.assign(r, { reply: msg, cfItems: cf, status: 'replied', replyAt: u.reply_at, seen: false }); await log('رد', r.customerName); ul(); renderTab(); alert('✅'); }
+  catch (e) { ul(); alert('خطأ: ' + e.message); }
+}
+function reqProcess(rid) {
+  const r = reqs.find(x => x.id === rid); if (!r) return;
+  const M = [], mi = []; let src = r.items;
+  if (r.cfItems && r.cfItems.length) src = r.cfItems.filter(c => (c.sentQty === undefined ? c.qty : c.sentQty) > 0).map(c => ({ productId: c.productId, name: c.name, qty: c.sentQty !== undefined ? c.sentQty : c.qty }));
+  src.forEach(it => { let p = invData.products.find(x => x.id === it.productId); if (!p) p = invData.products.find(x => x.name === it.name); if (p) M.push({ product: p, qty: it.qty }); else mi.push(it.name); });
+  const ih = M.map(m => { const ok = +m.product.qty >= m.qty; return '<div style="display:grid;grid-template-columns:1fr 65px 1fr;gap:6px;padding:5px 0;border-bottom:1px solid #f1f5f9;font-size:11.5px"><div><strong>' + esc(m.product.name) + '</strong></div><div style="text-align:center;font-weight:700">' + m.qty + '</div><div style="color:' + (ok ? '#16a34a' : '#dc2626') + ';font-size:11px">متوفر: ' + m.product.qty + (ok ? ' ✅' : ' ⚠️') + '</div></div>'; }).join('');
+  const mh = mi.length ? '<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:5px 8px;font-size:11px;margin-top:6px;color:#92400e">⚠️ غير موجودة: ' + mi.join('، ') + '</div>' : '';
+  const matchC = (invData.customers || []).find(c => c.phone && c.phone === r.customerPhone);
+  let co = '<option value="">— بدون —</option>';
+  (invData.customers || []).forEach(c => { co += '<option value="' + c.id + '"' + (matchC && matchC.id === c.id ? ' selected' : '') + '>' + esc(c.name) + (c.phone ? ' (' + esc(c.phone) + ')' : '') + '</option>'; });
+  co += '<option value="__new"' + (matchC ? '' : ' selected') + '>+ زبون جديد</option>';
+  const b = '<div class="cbx" style="background:#f0fdf4"><div><strong>' + esc(r.customerName) + '</strong></div><div class="mut">📞 ' + esc(r.customerPhone) + '</div></div><div class="sec">الأصناف</div><div>' + ih + '</div>' + mh + '<div class="sec">الزبون</div><div class="f"><select id="prC" onchange="prTog()">' + co + '</select></div><div id="prNB" class="' + (matchC ? 'h' : '') + '"><div class="f"><label>الاسم</label><input id="prNn" value="' + esc(r.customerName) + '"></div><div class="f"><label>الهاتف</label><input id="prNp" value="' + esc(r.customerPhone) + '"></div></div><div class="sec">💳 الدفع</div><div class="pay-opts" id="payWrap2"><div class="pay-opt" onclick="pickPay2(this,\'\')"><div class="ic">💵</div><div class="lbl">نقداً</div></div><div class="pay-opt" onclick="pickPay2(this,\'bank\')"><div class="ic">🏦</div><div class="lbl">بنكي</div></div><div class="pay-opt" onclick="pickPay2(this,\'later\')"><div class="ic">⏳</div><div class="lbl">آجل</div></div></div><input type="hidden" id="prPay" value=""><div class="f" style="margin-top:9px"><label>ملاحظة</label><input id="prNt" value="' + esc(r.note || '') + '"></div>';
+  openModal('تحويل إلى بيع', b, '<button class="b" onclick="closeModal()">إلغاء</button><button class="b s" onclick="reqDo(\'' + rid + '\')">✅ تحويل</button>');
+  window._prM = M; window._prR = r;
+}
+function pickPay2(el, val) { document.querySelectorAll('#payWrap2 .pay-opt').forEach(x => x.classList.remove('sel')); el.classList.add('sel'); const inp = $('#prPay'); if (inp) inp.value = val; }
+function prTog() { $('#prNB').classList.toggle('h', $('#prC').value !== '__new'); }
+async function reqDo(rid) {
+  const M = window._prM; if (!M) return; const r = window._prR; if (!M.length) return alert('لا مطابقة');
+  for (const m of M) { if (m.qty > +m.product.qty) { if (!confirm('الكمية أكبر من المتوفر، متابعة؟')) return; } }
+  let cid = null, cn = ''; const sl = $('#prC').value; let nC = null;
+  if (sl === '__new') { const nm = $('#prNn').value.trim(), ph = $('#prNp').value.trim(); if (!nm) return alert('الاسم مطلوب'); cid = uid(); cn = nm; nC = { id: cid, name: nm, phone: ph, openingDebt: 0 }; }
+  else if (sl) { const c = invData.customers.find(x => x.id === sl); if (c) { cid = c.id; cn = c.name; } }
+  const pay = $('#prPay').value || ''; const nt = $('#prNt').value.trim(), oid = uid();
+  if (pay === 'later' && unpaidDebtsCount() >= MAX_DEBTS) return alert('حد ديون');
+  closeModal(); ld();
+  try {
+    if (nC) { await sb.from('customers').insert({ id: nC.id, inv_id: invData.id, name: nC.name, phone: nC.phone, credit: 0, opening_debt: 0 }); invData.customers.push(nC); }
+    const items = [];
+    for (const m of M) { const p = m.product; const nq = Math.max(0, +p.qty - m.qty); await sb.from('products').update({ qty: nq }).eq('id', p.id); p.qty = nq; items.push({ productId: p.id, name: p.name, qty: m.qty, price: +p.sellPrice || 0, cost: +p.buyPrice || 0 }); }
+    const tt = items.reduce((s, i) => s + i.qty * i.price, 0); const cs2 = items.reduce((s, i) => s + i.qty * i.cost, 0); const pf = tt - cs2; const isLater = pay === 'later';
+    const row = { id: oid, inv_id: invData.id, customer_id: cid, customer_name: cn, items, total: tt, cost: cs2, profit: pf, payment: pay, paid_amount: isLater ? 0 : tt, paid: !isLater, returns: [], note: nt, user_name: session.user };
+    const rr = await sb.from('orders').insert(row).select().single(); if (rr.error) throw new Error(rr.error.message);
+    invData.orders.push(mO(rr.data));
+    await sb.from('public_requests').update({ status: 'processed' }).eq('id', rid);
+    const rq = reqs.find(x => x.id === rid); if (rq) rq.status = 'processed';
+    await log('معالجة', (cn || 'بدون')); ul(); renderTab(); alert('✅ تم');
+  } catch (e) { ul(); alert('خطأ: ' + e.message); }
+}
+
+function hLink() { const has = !!invData.publicToken, on = !!invData.publicEnabled; const url = has ? (location.origin + location.pathname + '#catalog=' + invData.publicToken) : '—'; const st = has ? '<span class="ls ' + (on ? 'on' : 'off') + '">' + (on ? '🟢 مباشر' : '🔴 موقوف') + '</span>' : '<span class="ls off">⚠️ لم يُنشأ</span>'; const uh = has ? '<div class="lu2">' + esc(url) + '</div>' : '<p class="mut" style="margin-bottom:9px">اضغط إنشاء</p>'; let ac = ''; if (!has) ac = '<button class="b p" onclick="genTok()">🔗 إنشاء الرابط</button>'; else ac = '<button class="b" onclick="copyUrl()">📋 نسخ</button><button class="b ' + (on ? 'w' : 's') + '" onclick="tglLink(' + (!on) + ')">' + (on ? '⏸️ إيقاف' : '▶️ تشغيل') + '</button>'; return '<div class="lkb"><h3>🔗 الرابط العام</h3>' + st + uh + '<div style="display:flex;gap:6px;flex-wrap:wrap">' + ac + '</div></div>'; }
+async function genTok() { ld(); try { const t = tk(); const r = await sb.from('inventories').update({ public_token: t, public_enabled: true }).eq('id', invData.id); if (r.error) throw new Error(r.error.message); invData.publicToken = t; invData.publicEnabled = true; await log('إنشاء رابط', ''); ul(); renderTab(); alert('✅'); } catch (e) { ul(); alert('خطأ'); } }
+async function tglLink(e) { ld(); try { const r = await sb.from('inventories').update({ public_enabled: e }).eq('id', invData.id); if (r.error) throw new Error(r.error.message); invData.publicEnabled = e; await log(e ? 'تفعيل' : 'إيقاف', ''); ul(); renderTab(); } catch (er) { ul(); alert('خطأ'); } }
+function copyUrl() { const u = location.origin + location.pathname + '#catalog=' + invData.publicToken; if (navigator.clipboard) navigator.clipboard.writeText(u).then(() => alert('✅')); }
+
+function hAlerts() { const L = (invData.products || []).filter(p => (+p.qty || 0) <= (+p.minQty || 0)); if (!L.length) return '<div class="cbx" style="text-align:center;color:#16a34a;font-weight:600">✅ لا نواقص</div>'; let rows = ''; L.forEach(p => { const out = (+p.qty || 0) <= 0; rows += '<tr><td><strong>' + esc(p.name) + '</strong></td><td>' + mn(p.qty) + '</td><td>' + mn(p.minQty || 0) + '</td><td>' + (out ? '<span class="bd d">نفدت</span>' : '<span class="bd w">قاربت</span>') + '</td><td class="act"><button class="b sm" onclick="pAdj(\'' + p.id + '\')">إضافة</button></td></tr>'; }); return '<div class="tb3"><button class="b p" onclick="printLow()">🖨️</button></div><div class="tbr"><table><thead><tr><th>المنتج</th><th>الكمية</th><th>حد</th><th>حالة</th><th>إجراء</th></tr></thead><tbody>' + rows + '</tbody></table></div>'; }
+function hReports() { return '<div class="cbx"><h4 style="margin-bottom:5px">📋 الجرد</h4><button class="b p" onclick="printInv()">🖨️</button></div><div class="cbx"><h4 style="margin-bottom:5px">🔔 النواقص</h4><button class="b p" onclick="printLow()">🖨️</button></div>'; }
+function prHead(t) { return '<h1>' + esc(t) + '</h1><div style="color:#666;font-size:11.5px;margin-bottom:14px;border-bottom:2px solid #2563eb;padding-bottom:7px">المخزون: <strong>' + esc(session.invName) + '</strong> | ' + nS() + '</div>'; }
+function printInv() { const p = (invData.products || []).slice().sort((a, b) => (a.category || '').localeCompare(b.category || '', 'ar') || a.name.localeCompare(b.name, 'ar')); let rows = ''; p.forEach((x, i) => { rows += '<tr><td>' + (i + 1) + '</td><td>' + esc(x.name) + '</td><td>' + esc(x.category || '—') + '</td><td>' + mn(x.qty) + '</td><td>' + (x.buyPrice ? mn(x.buyPrice) : '—') + '</td><td>' + (x.sellPrice ? mn(x.sellPrice) : '—') + '</td></tr>'; }); doPr(prHead('تقرير الجرد') + '<table><thead><tr><th>#</th><th>المنتج</th><th>القسم</th><th>الكمية</th><th>شراء</th><th>بيع</th></tr></thead><tbody>' + (rows || '<tr><td colspan="6" style="text-align:center">لا توجد</td></tr>') + '</tbody></table>'); }
+function printLow() { const L = (invData.products || []).filter(p => (+p.qty || 0) <= (+p.minQty || 0)); let rows = ''; L.forEach((p, i) => { const out = (+p.qty || 0) <= 0; rows += '<tr><td>' + (i + 1) + '</td><td>' + esc(p.name) + '</td><td>' + mn(p.qty) + '</td><td>' + mn(p.minQty || 0) + '</td><td>' + (out ? 'نفدت' : 'تحتاج طلب') + '</td></tr>'; }); doPr(prHead('النواقص') + '<table><thead><tr><th>#</th><th>المنتج</th><th>الكمية</th><th>الحد</th><th>الحالة</th></tr></thead><tbody>' + (rows || '<tr><td colspan="5" style="text-align:center">لا نواقص</td></tr>') + '</tbody></table>'); }
+function printCust(cid) { const c = invData.customers.find(x => x.id === cid); if (!c) return; const ords = (invData.orders || []).filter(o => o.customerId === cid); const tp = ords.reduce((s, o) => s + (+o.total || 0), 0); const tpaid = ords.reduce((s, o) => s + oP(o), 0); const op = +c.openingDebt || 0; const od = ords.reduce((s, o) => s + oD(o), 0); let rows = ''; ords.forEach(o => { const it = o.items.map(i => i.name + '×' + i.qty).join('، '); rows += '<tr><td>' + fT(o.time) + '</td><td>' + esc(it) + '</td><td>' + mn(o.total) + '</td><td>' + mn(oP(o)) + '</td></tr>'; }); doPr(prHead('كشف حساب: ' + esc(c.name)) + '<div style="margin:10px 0;padding:8px;background:#f0f9ff;border-radius:6px">المشتريات: ' + mn(tp) + ' | المدفوع: ' + mn(tpaid) + ' | دين سابق: ' + mn(op) + ' | دين طلبات: ' + mn(od) + ' | المتبقي: ' + mn(op + od) + '</div><table><thead><tr><th>التاريخ</th><th>الأصناف</th><th>الإجمالي</th><th>مدفوع</th></tr></thead><tbody>' + (rows || '<tr><td colspan="4" style="text-align:center">لا طلبات</td></tr>') + '</tbody></table>'); }
+function doPr(h) { $('#pr').innerHTML = h; setTimeout(() => window.print(), 250); }
+
+function hLog() { const us = [...new Set((invData.logs || []).map(l => l.user))]; const opts = us.map(u => '<option value="' + esc(u) + '">' + esc(u) + '</option>').join(''); setTimeout(renderLog, 0); return '<div class="tb3"><select id="logU" onchange="renderLog()" style="max-width:170px;flex:0 0 auto"><option value="">الكل</option>' + opts + '</select><input class="srch" id="logS" placeholder="🔍" oninput="renderLog()"></div><div id="logL"></div>'; }
+function renderLog() { const uf = ($('#logU') ? $('#logU').value : ''), q = ($('#logS') ? $('#logS').value : '').trim().toLowerCase(); let L = invData.logs || []; if (uf) L = L.filter(l => l.user === uf); if (q) L = L.filter(l => (l.action + ' ' + l.details + ' ' + l.user).toLowerCase().includes(q)); const b = $('#logL'); if (!b) return; if (!L.length) { b.innerHTML = '<div class="cbx" style="text-align:center;color:#64748b">لا عمليات</div>'; return; } b.innerHTML = L.slice(0, 500).map(l => '<div class="li"><div style="font-size:11px;color:#64748b"><strong style="color:#2563eb">' + esc(l.user) + '</strong> — ' + fT(l.time) + '</div><div style="font-weight:600;margin-top:3px">' + esc(l.action) + '</div>' + (l.details ? '<div style="font-size:11px;color:#64748b">' + esc(l.details) + '</div>' : '') + '</div>').join(''); }
+
+function hSet() {
+  const prods = invData.products || [];
+  let qckRows = '';
+  if (prods.length) {
+    prods.forEach(p => {
+      qckRows += '<tr data-name="' + esc(p.name).toLowerCase() + '"><td><strong>' + esc(p.name) + '</strong></td><td>' + mn(p.qty) + '</td><td><input type="number" min="0" class="qck-input" data-pid="' + p.id + '" data-cur="' + p.qty + '" placeholder="' + p.qty + '" style="width:90px;padding:4px 6px;text-align:center"></td></tr>';
+    });
+  } else {
+    qckRows = '<tr><td colspan="3" class="emp">لا منتجات</td></tr>';
+  }
+  return '<div class="cbx"><h4>⚙️ الإعدادات</h4><p class="mut" style="margin:8px 0">المستخدم: <strong>' + esc(session.user) + '</strong></p><p class="mut">المخزون: <strong>' + esc(session.invName) + '</strong></p></div>' +
+    '<div class="cbx"><h4>🔑 تغيير كلمة سر المخزون</h4>' +
+    '<div class="f"><label>كلمة السر الحالية</label><input id="oldInvPass" type="password"></div>' +
+    '<div class="g2"><div class="f"><label>كلمة السر الجديدة</label><input id="newInvPass" type="password" placeholder="4+ أحرف"></div><div class="f"><label>تأكيد الجديدة</label><input id="newInvPass2" type="password"></div></div>' +
+    '<button class="b p" onclick="chgInvPass()" style="padding:8px 14px;font-weight:700">💾 حفظ كلمة السر</button>' +
+    '</div>' +
+    '<div class="cbx"><h4>🗑️ التنظيف التلقائي</h4>' +
+    '<p class="mut" style="margin-bottom:8px">السجلات تُحذف تلقائيًا بعد 6 أشهر (180 يومًا). طلبات الزبائن في الرابط تُقتصر على 1000 طلب. الديون المسددة تُحذف بعد المدة التي تحددها (بحد أقصى 180 يومًا).</p>' +
+    '<div class="f"><label class="chk-label"><input type="checkbox" id="autoDelSettled" ' + (invData.autoDelSettled ? 'checked' : '') + '> حذف الديون المسددة تلقائيًا</label></div>' +
+    '<div class="f"><label>بعد كم يوم من السداد الكامل؟ (الحد الأقصى 180 يوم)</label><input type="number" id="settledDelDays" min="1" max="180" value="' + (invData.settledDelDays || 30) + '"></div>' +
+    '<button class="b p" onclick="saveCleanSettings()" style="padding:8px 14px;font-weight:700">💾 حفظ إعدادات التنظيف</button>' +
+    '</div>' +
+    '<div class="cbx"><h4>📦 إضافة منتجات دفعة واحدة</h4>' +
+    '<p class="mut" style="margin-bottom:8px">اكتب اسم المنتج والكمية في كل صف، ثم اضغط "إضافة الكل"</p>' +
+    '<div id="bulkRows"><div class="bkr"><input type="text" class="bulk-name" placeholder="اسم المنتج"><input type="number" class="bulk-qty" placeholder="الكمية" min="0"><button class="b sm d" onclick="this.parentElement.remove()" type="button">✕</button></div></div>' +
+    '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px"><button class="b sm" onclick="bulkAddRow()" type="button">+ صف</button><button class="b p" onclick="bulkAdd()" type="button">📥 إضافة الكل</button></div>' +
+    '</div>' +
+    '<div class="cbx"><h4>🔧 تصحيح سريع للعداد</h4>' +
+    '<p class="mut" style="margin-bottom:8px">عدّل الكميات مباشرة في العمود الأخير. اترك الحقل فارغًا إذا لم ترد التعديل. اضغط "حفظ التصحيحات" في الأسفل.</p>' +
+    '<input type="text" id="qckSearch" placeholder="🔍 ابحث عن منتج..." oninput="qckFilter(this.value)" style="margin-bottom:8px;background:#f8fafc">' +
+    '<div class="tbr"><table><thead><tr><th>المنتج</th><th>الكمية الحالية</th><th>الكمية الجديدة</th></tr></thead><tbody id="qckTbody">' + qckRows + '</tbody></table></div>' +
+    '<button class="b p" onclick="quickCorr()" style="margin-top:9px;padding:8px 14px;font-weight:700">💾 حفظ التصحيحات</button>' +
+    '</div>' +
+    '<div class="cbx" style="background:#fef2f2;border-color:#fecaca">' +
+    '<h4 style="color:#dc2626">⚠️ منطقة الخطر</h4>' +
+    '<p class="mut" style="margin:8px 0">هذه العمليات لا يمكن التراجع عنها.</p>' +
+    '<div style="display:flex;gap:6px;flex-wrap:wrap">' +
+    '<button class="b d" onclick="delInvData()" style="padding:8px 14px;font-weight:700">🗑️ حذف كل البيانات</button>' +
+    '<button class="b d" onclick="delInvAll()" style="padding:8px 14px;font-weight:700">💥 حذف المخزون بالكامل</button>' +
+    '</div></div>' +
+    '<div class="cbx"><h4>📊 معلومات</h4><p class="mut" style="margin-top:6px">قاعدة البيانات: Neon (PostgreSQL)</p><p class="mut">المنتجات: ' + prods.length + '</p><p class="mut">الزبائن: ' + (invData.customers || []).length + '</p><p class="mut">الطلبات: ' + (invData.orders || []).length + '</p></div>';
+}
+
+async function saveCleanSettings() {
+  const autoDel = document.getElementById('autoDelSettled').checked;
+  const days = parseInt(document.getElementById('settledDelDays').value) || 30;
+  if (days < 1 || days > 180) return alert('عدد الأيام يجب أن يكون بين 1 و 180');
+  ld();
+  try {
+    const r = await sb.from('inventories').update({ auto_del_settled: autoDel, settled_del_days: days }).eq('id', invData.id);
+    if (r.error) throw new Error(r.error.message);
+    invData.autoDelSettled = autoDel;
+    invData.settledDelDays = days;
+    await log('تعديل التنظيف', autoDel ? 'حذف مسدد بعد ' + days + ' يوم' : 'إيقاف حذف المسدد');
+    ul(); alert('✅ تم حفظ الإعدادات'); renderTab();
+  } catch (e) { ul(); alert('خطأ: ' + (e.message || e)); }
+}
+async function chgInvPass() {
+  const oldP = $('#oldInvPass').value;
+  const newP = $('#newInvPass').value;
+  const newP2 = $('#newInvPass2').value;
+  if (!oldP || !newP || !newP2) return alert('املأ الحقول');
+  if (newP.length < 4) return alert('4+ أحرف');
+  if (newP !== newP2) return alert('غير متطابقتين');
+  if (oldP !== invData.password) return alert('❌ كلمة السر الحالية خطأ');
+  ld();
+  try {
+    const r = await sb.from('inventories').update({ password: newP }).eq('id', invData.id);
+    if (r.error) throw new Error(r.error.message);
+    invData.password = newP;
+    await log('تغيير كلمة السر', '');
+    ul(); alert('✅ تم تغيير كلمة السر'); renderTab();
+  } catch (e) { ul(); alert('خطأ: ' + (e.message || e)); }
+}
+function bulkAddRow() {
+  const d = document.createElement('div');
+  d.className = 'bkr';
+  d.innerHTML = '<input type="text" class="bulk-name" placeholder="اسم المنتج"><input type="number" class="bulk-qty" placeholder="الكمية" min="0"><button class="b sm d" onclick="this.parentElement.remove()" type="button">✕</button>';
+  $('#bulkRows').appendChild(d);
+}
+async function bulkAdd() {
+  const rows = document.querySelectorAll('#bulkRows .bkr');
+  const items = [];
+  rows.forEach(r => {
+    const nameEl = r.querySelector('.bulk-name');
+    const qtyEl = r.querySelector('.bulk-qty');
+    const name = nameEl ? nameEl.value.trim() : '';
+    const qty = qtyEl ? +qtyEl.value || 0 : 0;
+    if (!name) return;
+    items.push({ name, qty });
+  });
+  if (!items.length) return alert('أضف منتجات');
+  if (invData.products.length + items.length > MAX_PRODUCTS) return alert('سيتجاوز الحد الأقصى 1000');
+  ld();
+  try {
+    for (const it of items) {
+      const nid = uid();
+      const r = await sb.from('products').insert({ id: nid, inv_id: invData.id, name: it.name, category: null, qty: it.qty, min_qty: 0, buy_price: 0, sell_price: 0 });
+      if (r.error) throw new Error(r.error.message);
+      invData.products.push({ id: nid, name: it.name, category: '', qty: it.qty, minQty: 0, buyPrice: 0, sellPrice: 0 });
+    }
+    await log('إضافة دفعة', items.length + ' منتج');
+    ul(); alert('✅ تم إضافة ' + items.length + ' منتج'); renderTab();
+  } catch (e) { ul(); alert('خطأ: ' + (e.message || e)); }
+}
+function qckFilter(q) {
+  q = (q || '').trim().toLowerCase();
+  const tbody = document.getElementById('qckTbody');
+  if (!tbody) return;
+  const rows = tbody.querySelectorAll('tr');
+  rows.forEach(tr => {
+    const name = tr.dataset.name || '';
+    if (!q || name.includes(q)) tr.style.display = '';
+    else tr.style.display = 'none';
+  });
+}
+async function quickCorr() {
+  const inputs = document.querySelectorAll('.qck-input');
+  const changes = [];
+  inputs.forEach(inp => {
+    const v = inp.value.trim();
+    if (v === '') return;
+    const q = +v;
+    if (isNaN(q) || q < 0) return;
+    const pid = inp.dataset.pid;
+    const cur = +inp.dataset.cur;
+    const p = invData.products.find(x => String(x.id) === String(pid));
+    if (!p) return;
+    if (q === cur) return;
+    changes.push({ p, q });
+  });
+  if (!changes.length) return alert('لم يتم تعديل أي كمية.\nاكتب الكمية الجديدة في العمود الثالث ثم اضغط حفظ.');
+  if (!confirm('سيتم تحديث ' + changes.length + ' منتج. متابعة؟')) return;
+  ld();
+  let ok = 0;
+  try {
+    for (const { p, q } of changes) {
+      const r = await sb.from('products').update({ qty: q }).eq('id', p.id);
+      if (r.error) throw new Error(r.error.message);
+      p.qty = q;
+      ok++;
+    }
+    await log('تصحيح عداد', ok + ' منتج');
+    ul(); alert('✅ تم تحديث ' + ok + ' منتج'); renderTab();
+  } catch (e) {
+    ul();
+    alert('تم تحديث ' + ok + ' من ' + changes.length + '\nخطأ: ' + (e.message || e));
+    renderTab();
+  }
+}
+async function delInvData() {
+  if (!confirm('⚠️ حذف كل البيانات (منتجات، زبائن، طلبات، سجلات)؟\nسيبقى حساب المخزون موجودًا لكن فارغًا.')) return;
+  if (!confirm('تأكيد أخير: هل نسخت بياناتك احتياطيًا؟')) return;
+  const typed = prompt('اكتب كلمة "حذف" بالضبط للتأكيد:');
+  if (typed !== 'حذف') return alert('تم الإلغاء');
+  ld();
+  try {
+    await sb.from('public_requests').delete().eq('inv_id', invData.id);
+    await sb.from('logs').delete().eq('inv_id', invData.id);
+    await sb.from('orders').delete().eq('inv_id', invData.id);
+    await sb.from('customers').delete().eq('inv_id', invData.id);
+    await sb.from('products').delete().eq('inv_id', invData.id);
+    await sb.from('customer_accounts').delete().eq('inv_id', invData.id);
+    invData.products = []; invData.customers = []; invData.orders = []; invData.logs = []; reqs = [];
+    ul(); alert('✅ تم حذف كل البيانات'); renderTab();
+  } catch (e) { ul(); alert('خطأ: ' + (e.message || e)); }
+}
+async function delInvAll() {
+  if (!confirm('💥 حذف المخزون بالكامل (بما فيه الحساب)؟')) return;
+  if (!confirm('تأكيد أخير: سيتم تسجيل خروجك ولا يمكن استرجاع أي شيء.')) return;
+  const typed = prompt('اكتب اسم المخزون بالضبط للتأكيد:');
+  if (typed !== invData.name) return alert('الاسم غير مطابق. تم الإلغاء');
+  ld();
+  try {
+    await sb.from('inventories').delete().eq('id', invData.id);
+    ul();
+    session = null; invData = null; reqs = [];
+    localStorage.removeItem(SK); clearToken();
+    location.reload();
+  } catch (e) { ul(); alert('خطأ: ' + (e.message || e)); }
+}
+
+function openModal(t, b, f) { $('#mT').textContent = t; $('#mB').innerHTML = b; $('#mF').innerHTML = f; $('#ov').classList.remove('h'); }
+function closeModal() { $('#ov').classList.add('h'); }
+
+async function init() { try { const r = await router(); if (!r) await restore(); } catch (e) { console.error('init error', e); } }
+init();
+
+window.aTab = aTab; window.doLogin = doLogin; window.doRegister = doRegister; window.logout = logout; window.refresh = refresh; window.sw = sw;
+window.adminPassModal = adminPassModal; window.adminRefresh = adminRefresh; window.adminLogout = adminLogout;
+window.adminCreateInv = adminCreateInv; window.renderAdminList = renderAdminList; window.togglePasswords = togglePasswords;
+window.copyText = copyText; window.adminToggle = adminToggle; window.adminExtend = adminExtend; window.adminDelete = adminDelete;
+window.adminExtendApply = adminExtendApply; window.adminChangePassApply = adminChangePassApply;
+window.catSetView = catSetView; window.catLogin = catLogin; window.catRegister = catRegister; window.catLogout = catLogout;
+window.catTog = catTog; window.catQty = catQty; window.catSubmit = catSubmit; window.catSearch = catSearch;
+window.pOpen = pOpen; window.pSave = pSave; window.pAdj = pAdj; window.pApply = pApply; window.pDel = pDel;
+window.payOpen = payOpen; window.payApply = payApply; window.printCust = printCust; window.printInv = printInv; window.printLow = printLow;
+window.cOpen = cOpen; window.cSave = cSave; window.cDel = cDel; window.oOpen = oOpen; window.oAddItem = oAddItem;
+window.pickPay = pickPay; window.oNewToggle = oNewToggle; window.oSave = oSave; window.reqReply = reqReply;
+window.reqProcess = reqProcess; window.reqDel = reqDel; window.reqSaveReply = reqSaveReply; window.genTok = genTok;
+window.tglLink = tglLink; window.copyUrl = copyUrl; window.openReturnModal = openReturnModal; window.applyReturn = applyReturn;
+window.updateRetTot = updateRetTot; window.pickPay2 = pickPay2; window.prTog = prTog; window.reqDo = reqDo;
+window.psOpen = psOpen; window.psFilter = psFilter; window.psPick = psPick; window.oCalc = oCalc;
+window.renderLog = renderLog; window.oDel = oDel; window.closeModal = closeModal; window.toggleCit = toggleCit;
+window.updDiff = updDiff; window.chgInvPass = chgInvPass; window.bulkAddRow = bulkAddRow; window.bulkAdd = bulkAdd;
+window.quickCorr = quickCorr; window.qckFilter = qckFilter; window.delInvData = delInvData; window.delInvAll = delInvAll;
+window.saveCleanSettings = saveCleanSettings; window.runAutoClean = runAutoClean;
+</script>
+</body>
+</html>
