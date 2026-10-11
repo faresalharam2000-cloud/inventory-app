@@ -36,7 +36,7 @@ async function verifyJWT(token) {
   } catch (e) { return null; }
 }
 
-const INV_TABLES = ['products', 'customers', 'orders', 'logs', 'public_requests', 'customer_accounts'];
+const INV_TABLES = ['products', 'customers', 'orders', 'logs', 'public_requests', 'customer_accounts', 'stock_receipts'];
 
 function getTableInfo(sqlText) {
   const s = sqlText.trim();
