@@ -1155,22 +1155,19 @@ function hSet() {
   const prods = invData.products || [];
   return '<div class="cbx"><h4>⚙️ الإعدادات</h4><p class="mut" style="margin:8px 0">المستخدم: <strong>' + esc(session.user) + '</strong></p><p class="mut">المخزون: <strong>' + esc(session.invName) + '</strong></p></div>' +
     '<div class="cbx"><h4>📝 اسم المخزون</h4>' +
-'<div class="f"><label>الاسم المعروض (يظهر في الترويسة والفاتورة)</label><input id="dispName" value="' + esc(invData.displayName || invData.name) + '"></div>' +
-'<button class="b p" onclick="saveDispName()" style="padding:8px 14px;font-weight:700">💾 حفظ الاسم</button>' +
-'</div>' + '<div class="cbx"><h4>📝 اسم المخزون</h4>' +
-'<div class="f"><label>الاسم المعروض (يظهر في الترويسة والفاتورة)</label><input id="dispName" value="' + esc(invData.displayName || invData.name) + '"></div>' +
-'<button class="b p" onclick="saveDispName()" style="padding:8px 14px;font-weight:700">💾 حفظ الاسم</button>' +
-'</div>' + '<div class="cbx"><h4>🏢 بيانات النشاط (للفواتير)</h4>' +
-'<div class="f"><label>اسم النشاط التجاري</label><input id="bizName" value="' + esc(invData.businessName || '') + '"></div>' +
-'<div class="f"><label>الرقم الضريبي (VAT) - اختياري</label><input id="bizVat" value="' + esc(invData.vatNumber || '') + '"></div>' +
-'<div class="f"><label>الرقم الضريبي (VAT) - اختياري</label><input id="bizVat" value="' + esc(invData.vatNumber || '') + '"></div>' +
-'<div class="g2"><div class="f"><label>رقم الجوال</label><input id="bizPhone" value="' + esc(invData.businessPhone || '') + '"></div><div class="f"><label>العنوان</label><input id="bizAddress" value="' + esc(invData.businessAddress || '') + '"></div></div>' +
-'<div class="f"><label>نص أسفل الفاتورة</label><input id="bizFooter" value="' + esc(invData.invoiceFooter || 'شكراً لتعاملكم معنا') + '"></div>' +
-'<div class="g2"><div class="f"><label>لون الفاتورة</label><input id="bizColor" type="color" value="' + esc(invData.invoiceColor || '#2563eb') + '" style="height:40px;padding:4px"></div><div class="f"><label class="chk-label" style="margin-top:24px"><input type="checkbox" id="bizShowLogo" ' + (invData.invoiceShowLogo !== false ? 'checked' : '') + '> إظهار الشعار في الفاتورة</label></div></div>' +
-'<div class="f"><label>الشعار (اختياري - حد أقصى 500KB)</label><input type="file" id="bizLogo" accept="image/*" onchange="uploadLogo(event)"></div>' +
-(invData.logoBase64 ? '<div style="margin-top:8px"><img src="' + invData.logoBase64 + '" style="max-width:120px;max-height:80px;border:1px solid #e2e8f0;border-radius:6px;padding:4px"><button class="b sm d" onclick="removeLogo()" style="margin-inline-start:8px">حذف الشعار</button></div>' : '') +
-'<button class="b p" onclick="saveBusinessInfo()" style="margin-top:10px;padding:8px 14px;font-weight:700">💾 حفظ بيانات النشاط</button>' +
-'</div>' +
+    '<div class="f"><label>الاسم المعروض (يظهر في الترويسة والفاتورة)</label><input id="dispName" value="' + esc(invData.displayName || invData.name) + '"></div>' +
+    '<button class="b p" onclick="saveDispName()" style="padding:8px 14px;font-weight:700">💾 حفظ الاسم</button>' +
+    '</div>' + 
+    '<div class="cbx"><h4>🏢 بيانات النشاط (للفواتير)</h4>' +
+    '<div class="f"><label>اسم النشاط التجاري</label><input id="bizName" value="' + esc(invData.businessName || '') + '"></div>' +
+    '<div class="f"><label>الرقم الضريبي (VAT) - اختياري</label><input id="bizVat" value="' + esc(invData.vatNumber || '') + '"></div>' +
+    '<div class="g2"><div class="f"><label>رقم الجوال</label><input id="bizPhone" value="' + esc(invData.businessPhone || '') + '"></div><div class="f"><label>العنوان</label><input id="bizAddress" value="' + esc(invData.businessAddress || '') + '"></div></div>' +
+    '<div class="f"><label>نص أسفل الفاتورة</label><input id="bizFooter" value="' + esc(invData.invoiceFooter || 'شكراً لتعاملكم معنا') + '"></div>' +
+    '<div class="g2"><div class="f"><label>لون الفاتورة</label><input id="bizColor" type="color" value="' + esc(invData.invoiceColor || '#2563eb') + '" style="height:40px;padding:4px"></div><div class="f"><label class="chk-label" style="margin-top:24px"><input type="checkbox" id="bizShowLogo" ' + (invData.invoiceShowLogo !== false ? 'checked' : '') + '> إظهار الشعار في الفاتورة</label></div></div>' +
+    '<div class="f"><label>الشعار (اختياري - حد أقصى 500KB)</label><input type="file" id="bizLogo" accept="image/*" onchange="uploadLogo(event)"></div>' +
+    (invData.logoBase64 ? '<div style="margin-top:8px"><img src="' + invData.logoBase64 + '" style="max-width:120px;max-height:80px;border:1px solid #e2e8f0;border-radius:6px;padding:4px"><button class="b sm d" onclick="removeLogo()" style="margin-inline-start:8px">حذف الشعار</button></div>' : '') +
+    '<button class="b p" onclick="saveBusinessInfo()" style="margin-top:10px;padding:8px 14px;font-weight:700">💾 حفظ بيانات النشاط</button>' +
+    '</div>' +
     '<div class="cbx"><h4>🔑 تغيير كلمة سر المخزون</h4>' +
     '<div class="f"><label>كلمة السر الحالية</label><input id="oldInvPass" type="password"></div>' +
     '<div class="g2"><div class="f"><label>كلمة السر الجديدة</label><input id="newInvPass" type="password" placeholder="4+ أحرف"></div><div class="f"><label>تأكيد الجديدة</label><input id="newInvPass2" type="password"></div></div>' +
@@ -1191,7 +1188,6 @@ function hSet() {
     '</div></div>' +
     '<div class="cbx"><h4>📊 معلومات</h4><p class="mut" style="margin-top:6px">قاعدة البيانات: Neon (PostgreSQL)</p><p class="mut">المنتجات: ' + prods.length + '</p><p class="mut">الزبائن: ' + (invData.customers || []).length + '</p><p class="mut">الطلبات: ' + (invData.orders || []).length + '</p><p class="mut">الاستلامات: ' + receipts.length + '</p></div>';
 }
-
 async function saveCleanSettings() {
   const autoDel = document.getElementById('autoDelSettled').checked;
   const days = parseInt(document.getElementById('settledDelDays').value) || 30;
