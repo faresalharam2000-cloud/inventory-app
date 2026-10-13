@@ -153,7 +153,7 @@ td{padding:7px 9px;border-bottom:1px solid #f1f5f9}
 <div id="aMsg" class="msg"></div></div></div>
 <div id="appScreen" class="h"><header><div class="br">📦 <span id="invT"></span></div><div style="display:flex;gap:6px;align-items:center"><span class="chp" id="uL"></span><button class="b sm" onclick="refresh()">🔄</button><button class="b sm" onclick="logout()">خروج</button></div></header>
 <div class="sts" id="statsB"></div>
-<nav class="nav" id="tabsN"><button data-tab="products" onclick="sw('products')">📦 المنتجات</button><button data-tab="receipts" onclick="sw('receipts')">📥 استلام</button><button data-tab="quotes" onclick="sw('quotes')">🧾 العروض <span id="qtB" class="nb h">0</span></button><button data-tab="customers" onclick="sw('customers')">👥 الزبائن</button><button data-tab="debts" onclick="sw('debts')">💳 الديون</button><button data-tab="orders" onclick="sw('orders')">🧾 الطلبات</button><button data-tab="requests" onclick="sw('requests')">📩 الواردة <span id="reqB" class="nb h">0</span></button><button data-tab="link" onclick="sw('link')">🔗 الرابط</button><button data-tab="alerts" onclick="sw('alerts')">🔔 النواقص <span id="alB" class="nb h">0</span></button><button data-tab="reports" onclick="sw('reports')">🖨️ التقارير</button><button data-tab="log" onclick="sw('log')">📋 السجل</button><button data-tab="settings" onclick="sw('settings')">⚙️ الإعدادات</button></nav>
+<nav class="nav" id="tabsN"><button data-tab="products" onclick="sw('products')">📦 المنتجات</button><button data-tab="receipts" onclick="sw('receipts')">📥 استلام</button><button data-tab="customers" onclick="sw('customers')">👥 الزبائن</button><button data-tab="debts" onclick="sw('debts')">💳 الديون</button><button data-tab="orders" onclick="sw('orders')">🧾 الطلبات</button><button data-tab="requests" onclick="sw('requests')">📩 الواردة <span id="reqB" class="nb h">0</span></button><button data-tab="alerts" onclick="sw('alerts')">🔔 النواقص <span id="alB" class="nb h">0</span></button><button data-tab="reports" onclick="sw('reports')">🖨️ التقارير</button><button data-tab="log" onclick="sw('log')">📋 السجل</button><button data-tab="settings" onclick="sw('settings')">⚙️ الإعدادات</button></nav>
 <main id="tc"></main></div>
 <div id="adminScreen" class="h">
 <header><div class="br">🔧 لوحة الأدمن <span id="admName"></span></div><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><button class="b sm" onclick="adminPassModal()" style="background:rgba(255,255,255,.15);border-color:#fff;color:#fff">🔑 كلمة السر</button><button class="b sm" onclick="adminRefresh()" style="background:#fff;border-color:#fff;color:#1e40af">🔄</button><button class="b sm" onclick="adminLogout()" style="background:transparent;border-color:#fff;color:#fff">خروج</button></div></header>
@@ -874,7 +874,7 @@ function hOrd() {
     if (o.payment === 'later') { if (dd <= 0) pb = '<span class="bd o">آجل مسدد</span>'; else if (pd > 0) pb = '<span class="bd w">آجل جزئي</span>'; else pb = '<span class="bd d">آجل</span>'; }
     else pb = '<span class="bd i">' + (PL[o.payment] || '—') + '</span>';
     const rt = (o.returns || []).length ? '<span class="bd p">مرتجع</span>' : '';
-    rows += '<tr><td style="font-size:11px;color:#64748b">' + fT(o.time) + '</td><td>' + (o.customerName ? esc(o.customerName) : '—') + '</td><td style="max-width:220px;font-size:11.5px">' + (it || '—') + '</td><td><strong>' + mn(o.total) + '</strong></td><td>' + (pd > 0 ? '<span style="color:#16a34a">' + mn(pd) + '</span>' : '—') + '</td><td>' + (dd > 0 ? '<span style="color:#dc2626;font-weight:700">' + mn(dd) + '</span>' : '—') + '</td><td>' + pb + ' ' + rt + '</td><td class="act">' + (o.payment === 'later' && dd > 0 && o.customerId ? '<button class="b sm s" onclick="payOpen(\'' + o.customerId + '\')">💰</button>' : '') + '<button class="b sm w" onclick="openReturnModal(\'' + o.id + '\')">↩️</button><button class="b sm d" onclick="oDel(\'' + o.id + '\')">حذف</button></td></tr>';
+    rows += '<tr><td style="font-size:11px;color:#64748b">' + fT(o.time) + '</td><td>' + (o.customerName ? esc(o.customerName) : '—') + '</td><td style="max-width:220px;font-size:11.5px">' + (it || '—') + '</td><td><strong>' + mn(o.total) + '</strong></td><td>' + (pd > 0 ? '<span style="color:#16a34a">' + mn(pd) + '</span>' : '—') + '</td><td>' + (dd > 0 ? '<span style="color:#dc2626;font-weight:700">' + mn(dd) + '</span>' : '—') + '</td><td>' + pb + ' ' + rt + '</td><td class="act">' + (o.payment === 'later' && dd > 0 && o.customerId ? '<button class="b sm s" onclick="payOpen(\'' + o.customerId + '\')">💰</button>' : '') + '<button class="b sm p" onclick="orderToInvoice(\'' + o.id + '\')">🧾</button>' + '<button class="b sm w" onclick="openReturnModal(\'' + o.id + '\')">↩️</button><button class="b sm d" onclick="oDel(\'' + o.id + '\')">حذف</button></td></tr>';
   });
   else rows = '<tr><td colspan="8" class="emp">لا طلبات</td></tr>';
   return '<div class="tb3"><button class="b p" onclick="oOpen()">+ طلب</button></div><div class="tbr"><table><thead><tr><th>التاريخ</th><th>الزبون</th><th>الأصناف</th><th>الإجمالي</th><th>مدفوع</th><th>متبقي</th><th>الدفع</th><th>إجراءات</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
@@ -986,7 +986,7 @@ function hReq() {
     rows += '<div class="rc ' + cl + '"><div style="display:flex;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap"><div><div style="font-weight:700;font-size:13px">' + esc(r.customerName) + ' ' + sb2 + '</div><div style="color:#64748b;font-size:11px;direction:ltr">📞 ' + esc(r.customerPhone) + '</div></div><div style="color:#64748b;font-size:10.5px">' + fT(r.time) + '</div></div><div class="ri">' + ih + '</div>' + (r.note ? '<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:5px 8px;font-size:11px;margin-top:5px;color:#92400e">📝 ' + esc(r.note) + '</div>' : '') + rh + '<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:7px"><button class="b p sm" onclick="reqReply(\'' + r.id + '\')">✉️ ' + ((r.reply) ? 'تعديل' : 'الرد') + '</button>' + (r.status !== 'processed' ? '<button class="b s sm" onclick="reqProcess(\'' + r.id + '\')">✅ تحويل</button>' : '') + '<button class="b d sm" onclick="reqDel(\'' + r.id + '\')">حذف</button></div></div>';
   });
   else rows = '<div class="cbx" style="text-align:center;color:#64748b;padding:28px"><div style="font-size:34px">📭</div>لا طلبات واردة</div>';
-  return '<div class="cbx" style="background:#eff6ff;border-color:#bfdbfe"><div style="font-size:13px;font-weight:700;color:#1e40af">📩 الواردة</div><div class="mut" style="margin-top:3px">جديدة: <strong style="color:#dc2626">' + nc + '</strong> | إجمالي: ' + L.length + '</div></div>' + rows;
+  return hLink() + '<div class="cbx" style="background:#eff6ff;border-color:#bfdbfe"><div style="font-size:13px;font-weight:700;color:#1e40af">📩 الواردة</div><div class="mut" style="margin-top:3px">جديدة: <strong style="color:#dc2626">' + nc + '</strong> | إجمالي: ' + L.length + '</div></div>' + rows;
 }
 async function reqDel(id) { if (!confirm('حذف؟')) return; try { await sb.from('public_requests').delete().eq('id', id); reqs = reqs.filter(x => x.id !== id); await log('حذف طلب', ''); renderTab(); } catch (e) { alert('خطأ'); } }
 function reqReply(rid) {
@@ -1071,7 +1071,11 @@ async function tglLink(e) { ld(); try { const r = await sb.from('inventories').u
 function copyUrl() { const u = location.origin + location.pathname + '#catalog=' + invData.publicToken; if (navigator.clipboard) navigator.clipboard.writeText(u).then(() => alert('✅')); }
 
 function hAlerts() { const L = (invData.products || []).filter(p => (+p.qty || 0) <= (+p.minQty || 0)); if (!L.length) return '<div class="cbx" style="text-align:center;color:#16a34a;font-weight:600">✅ لا نواقص</div>'; let rows = ''; L.forEach(p => { const out = (+p.qty || 0) <= 0; const tg = tagsOf(p).map(t => '<span class="tag">' + esc(t) + '</span>').join(' '); rows += '<tr><td><strong>' + esc(p.name) + '</strong></td><td>' + (tg || '—') + '</td><td>' + mn(p.qty) + '</td><td>' + mn(p.minQty || 0) + '</td><td>' + (out ? '<span class="bd d">نفدت</span>' : '<span class="bd w">قاربت</span>') + '</td><td class="act"><button class="b sm" onclick="pAdj(\'' + p.id + '\')">إضافة</button></td></tr>'; }); return '<div class="tb3"><button class="b p" onclick="printLow()">🖨️</button></div><div class="tbr"><table><thead><tr><th>المنتج</th><th>التصنيفات</th><th>الكمية</th><th>حد</th><th>حالة</th><th>إجراء</th></tr></thead><tbody>' + rows + '</tbody></table></div>'; }
-function hReports() { return '<div class="cbx"><h4 style="margin-bottom:5px">📋 الجرد</h4><button class="b p" onclick="printInv()">🖨️</button></div><div class="cbx"><h4 style="margin-bottom:5px">🔔 النواقص</h4><button class="b p" onclick="printLow()">🖨️</button></div>'; }
+function hReports() {
+  return hQuotes() +
+    '<div class="cbx"><h4 style="margin-bottom:5px">📋 الجرد</h4><button class="b p" onclick="printInv()">🖨️ طباعة</button></div>' +
+    '<div class="cbx"><h4 style="margin-bottom:5px">🔔 النواقص</h4><button class="b p" onclick="printLow()">🖨️ طباعة</button></div>';
+}
 function prHead(t) { return '<h1>' + esc(t) + '</h1><div style="color:#666;font-size:11.5px;margin-bottom:14px;border-bottom:2px solid #2563eb;padding-bottom:7px">المخزون: <strong>' + esc(session.invName) + '</strong> | ' + nS() + '</div>'; }
 function printInv() { const p = (invData.products || []).slice().sort((a, b) => (a.category || '').localeCompare(b.category || '', 'ar') || a.name.localeCompare(b.name, 'ar')); let rows = ''; p.forEach((x, i) => { const tg = tagsOf(x).join('، '); rows += '<tr><td>' + (i + 1) + '</td><td>' + esc(x.name) + '</td><td>' + esc(x.category || '—') + '</td><td>' + esc(tg || '—') + '</td><td>' + mn(x.qty) + '</td><td>' + (x.buyPrice ? mn(x.buyPrice) : '—') + '</td><td>' + (x.sellPrice ? mn(x.sellPrice) : '—') + '</td></tr>'; }); doPr(prHead('تقرير الجرد') + '<table><thead><tr><th>#</th><th>المنتج</th><th>القسم</th><th>التصنيفات</th><th>الكمية</th><th>شراء</th><th>بيع</th></tr></thead><tbody>' + (rows || '<tr><td colspan="7" style="text-align:center">لا توجد</td></tr>') + '</tbody></table>'); }
 function printLow() { const L = (invData.products || []).filter(p => (+p.qty || 0) <= (+p.minQty || 0)); let rows = ''; L.forEach((p, i) => { const out = (+p.qty || 0) <= 0; const tg = tagsOf(p).join('، '); rows += '<tr><td>' + (i + 1) + '</td><td>' + esc(p.name) + '</td><td>' + esc(tg || '—') + '</td><td>' + mn(p.qty) + '</td><td>' + mn(p.minQty || 0) + '</td><td>' + (out ? 'نفدت' : 'تحتاج طلب') + '</td></tr>'; }); doPr(prHead('النواقص') + '<table><thead><tr><th>#</th><th>المنتج</th><th>التصنيفات</th><th>الكمية</th><th>الحد</th><th>الحالة</th></tr></thead><tbody>' + (rows || '<tr><td colspan="6" style="text-align:center">لا نواقص</td></tr>') + '</tbody></table>'); }
@@ -1351,7 +1355,7 @@ function quoteView(id) {
   const q = quotes.find(x => x.id === id); if (!q) return;
   let rows = q.items.map(i => '<div class="itm"><span>• ' + esc(i.name) + ' × ' + i.qty + '</span><span>' + mn(i.price) + ' = ' + mn(i.total) + '</span></div>').join('');
   const b = '<div class="cbx" style="background:#f0fdf4"><div><strong>🧾 ' + esc(q.number) + '</strong></div><div class="mut">' + fT(q.time) + ' | ' + (q.customerName ? esc(q.customerName) : 'بدون زبون') + '</div></div><div class="sec">المنتجات</div>' + rows + '<div class="sec">الحساب</div><div class="tot">المجموع: ' + mn(q.subtotal) + (q.discount > 0 ? '<br>الخصم: -' + mn(q.discount) : '') + (q.taxRate > 0 ? '<br>الضريبة (' + q.taxRate + '%): ' + mn(q.taxAmount) : '') + '<br><strong>الإجمالي: ' + mn(q.total) + '</strong></div>' + (q.notes ? '<div class="f" style="margin-top:9px"><label>ملاحظات</label><div class="mut">' + esc(q.notes) + '</div></div>' : '') + (q.validUntil ? '<div class="mut" style="margin-top:9px">صالح حتى: ' + q.validUntil + '</div>' : '');
-  openModal('🧾 عرض سعر', b, '<button class="b" onclick="closeModal()">إغلاق</button><button class="b p" onclick="alert(\'الطباعة PDF - المرحلة القادمة\')">🖨️ طباعة PDF</button>');
+  openModal('🧾 عرض سعر', b, '<button class="b" onclick="closeModal()">إغلاق</button><button class="b p" onclick="quotePrint(\'' + id + '\')">🖨️ طباعة PDF</button>');
 }
 async function quoteDel(id) {
   const q = quotes.find(x => x.id === id); if (!q) return;
@@ -1359,6 +1363,62 @@ async function quoteDel(id) {
   ld();
   try { const r = await sb.from('invoices').delete().eq('id', id); if (r.error) throw new Error(r.error.message); quotes = quotes.filter(x => x.id !== id); await log('حذف عرض', q.number); ul(); renderTab(); }
   catch (e) { ul(); alert('خطأ: ' + (e.message || e)); }
+}
+function quotePrint(id) {
+  const q = quotes.find(x => x.id === id); if (!q) return;
+  const biz = invData.businessName || invData.name;
+  const phone = invData.businessPhone || '';
+  const address = invData.businessAddress || '';
+  const footer = invData.invoiceFooter || 'شكراً لتعاملكم معنا';
+  const logo = invData.logoBase64 ? '<img src="' + invData.logoBase64 + '" style="max-width:120px;max-height:80px">' : '';
+  const isInvoice = q.type === 'invoice';
+  const title = isInvoice ? 'فاتورة ضريبية' : 'عرض سعر';
+  let rows = '';
+  q.items.forEach((i, idx) => {
+    rows += '<tr><td>' + (idx + 1) + '</td><td>' + esc(i.name) + '</td><td style="text-align:center">' + i.qty + '</td><td style="text-align:left">' + mn(i.price) + '</td><td style="text-align:left">' + mn(i.total) + '</td></tr>';
+  });
+  const html = '<div style="font-family:Tahoma;direction:rtl;padding:20px;max-width:800px;margin:0 auto">' +
+    '<div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #2563eb;padding-bottom:15px;margin-bottom:20px">' +
+    '<div>' + logo + '<h1 style="color:#2563eb;margin:8px 0 4px;font-size:22px">' + esc(biz) + '</h1>' + (phone ? '<div style="color:#64748b;font-size:13px">📞 ' + esc(phone) + '</div>' : '') + (address ? '<div style="color:#64748b;font-size:13px">📍 ' + esc(address) + '</div>' : '') + '</div>' +
+    '<div style="text-align:left;background:#eff6ff;padding:12px 18px;border-radius:8px"><div style="font-size:14px;color:#1e40af;font-weight:700">' + title + '</div><div style="font-size:20px;font-weight:800;color:#2563eb;margin-top:5px">' + esc(q.number) + '</div><div style="font-size:12px;color:#64748b;margin-top:3px">' + fT(q.time) + '</div>' + (q.validUntil ? '<div style="font-size:12px;color:#dc2626;margin-top:3px">صالح حتى: ' + q.validUntil + '</div>' : '') + '</div>' +
+    '</div>' +
+    (q.customerName ? '<div style="background:#f8fafc;padding:10px 14px;border-radius:6px;margin-bottom:15px"><strong>الزبون:</strong> ' + esc(q.customerName) + (q.customerPhone ? ' | 📞 ' + esc(q.customerPhone) : '') + '</div>' : '') +
+    '<table style="width:100%;border-collapse:collapse;margin-bottom:15px">' +
+    '<thead><tr style="background:#2563eb;color:#fff"><th style="padding:8px;border:1px solid #2563eb">#</th><th style="padding:8px;border:1px solid #2563eb">المنتج</th><th style="padding:8px;border:1px solid #2563eb">الكمية</th><th style="padding:8px;border:1px solid #2563eb">السعر</th><th style="padding:8px;border:1px solid #2563eb">الإجمالي</th></tr></thead>' +
+    '<tbody>' + rows + '</tbody></table>' +
+    '<div style="float:left;width:280px;background:#f8fafc;padding:12px;border-radius:8px">' +
+    '<div style="display:flex;justify-content:space-between;padding:4px 0"><span>المجموع:</span><strong>' + mn(q.subtotal) + '</strong></div>' +
+    (q.discount > 0 ? '<div style="display:flex;justify-content:space-between;padding:4px 0;color:#dc2626"><span>الخصم:</span><strong>-' + mn(q.discount) + '</strong></div>' : '') +
+    (q.taxRate > 0 ? '<div style="display:flex;justify-content:space-between;padding:4px 0"><span>الضريبة (' + q.taxRate + '%):</span><strong>' + mn(q.taxAmount) + '</strong></div>' : '') +
+    '<div style="display:flex;justify-content:space-between;padding:8px 0;border-top:2px solid #2563eb;margin-top:5px;font-size:16px;color:#2563eb"><strong>الإجمالي:</strong><strong>' + mn(q.total) + '</strong></div>' +
+    '</div><div style="clear:both"></div>' +
+    (q.notes ? '<div style="margin-top:15px;padding:10px;background:#fffbeb;border-radius:6px"><strong>ملاحظات:</strong> ' + esc(q.notes) + '</div>' : '') +
+    '<div style="margin-top:25px;text-align:center;color:#64748b;font-size:12px;border-top:1px solid #e2e8f0;padding-top:10px">' + esc(footer) + '</div>' +
+    '</div>';
+  const win = window.open('', '_blank');
+  win.document.write('<html dir="rtl"><head><title>' + title + ' ' + q.number + '</title></head><body>' + html + '<script>setTimeout(function(){window.print()},300)<\/script></body></html>');
+  win.document.close();
+}
+async function orderToInvoice(oid) {
+  const o = invData.orders.find(x => x.id === oid); if (!o) return;
+  if (!invData.invoiceEnabled) return alert('⚠️ الفواتير الضريبية غير مفعّلة لهذا المخزون. تواصل مع الأدمن.');
+  if (!confirm('إنشاء فاتورة ضريبية لهذا الطلب؟')) return;
+  const count = quotes.filter(q => q.type === 'invoice').length + 1;
+  const number = 'INV-' + String(count).padStart(4, '0');
+  const items = o.items.map(i => ({ productId: i.productId, name: i.name, qty: i.qty, price: i.price, total: i.qty * i.price }));
+  const subtotal = items.reduce((s, i) => s + i.total, 0);
+  const taxRate = 15;
+  const taxAmount = subtotal * taxRate / 100;
+  const total = subtotal + taxAmount;
+  ld();
+  try {
+    const nid = uid();
+    const r = await sb.from('invoices').insert({ id: nid, inv_id: invData.id, invoice_type: 'invoice', invoice_number: number, customer_name: o.customerName, customer_phone: '', items, subtotal, discount: 0, tax_rate: taxRate, tax_amount: taxAmount, total, notes: o.note || '', status: 'draft', user_name: session.user }).select().single();
+    if (r.error) throw new Error(r.error.message);
+    quotes.unshift(mQ(r.data));
+    await log('فاتورة ضريبية', o.customerName + ' | ' + number);
+    ul(); alert('✅ تم إنشاء الفاتورة ' + number); quoteView(nid);
+  } catch (e) { ul(); alert('خطأ: ' + (e.message || e)); }
 }
 function openModal(t, b, f) { $('#mT').textContent = t; $('#mB').innerHTML = b; $('#mF').innerHTML = f; $('#ov').classList.remove('h'); }
 function closeModal() { $('#ov').classList.add('h'); }
@@ -1372,7 +1432,7 @@ window.adminCreateInv = adminCreateInv; window.renderAdminList = renderAdminList
 window.copyText = copyText; window.adminToggle = adminToggle; window.adminExtend = adminExtend; window.adminDelete = adminDelete;
 window.adminExtendApply = adminExtendApply; window.adminChangePassApply = adminChangePassApply;
 window.catSetView = catSetView; window.catLogin = catLogin; window.catRegister = catRegister; window.catLogout = catLogout;
-window.catTog = catTog; window.catQty = catQty; window.catSubmit = catSubmit; window.catSearch = catSearch; window.catTagFilter = catTagFilter; window.quoteOpen = quoteOpen; window.quoteAddItem = quoteAddItem; window.quoteCalc = quoteCalc;
+window.catTog = catTog; window.catQty = catQty; window.catSubmit = catSubmit; window.catSearch = catSearch; window.catTagFilter = catTagFilter; window.quotePrint = quotePrint; window.orderToInvoice = orderToInvoice; window.quoteOpen = quoteOpen; window.quoteAddItem = quoteAddItem; window.quoteCalc = quoteCalc;
 window.quoteSave = quoteSave; window.quoteView = quoteView; window.quoteDel = quoteDel; window.quoteNewToggle = quoteNewToggle; window.catGoShop = window.catGoShop;
 window.catGoMyReq = window.catGoMyReq;
 window.pOpen = pOpen; window.pSave = pSave; window.pAdj = pAdj; window.pApply = pApply; window.pDel = pDel; window.pBulkOpen = pBulkOpen;
