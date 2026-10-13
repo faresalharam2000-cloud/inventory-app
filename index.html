@@ -330,7 +330,7 @@ const dT = t => t ? String(t).slice(0, 10) : '—';
 const ld = () => $('#ldr').classList.remove('h');
 const ul = () => $('#ldr').classList.add('h');
 const mP = r => ({ id: r.id, name: r.name, qty: +r.qty || 0, minQty: +r.min_qty || 0, buyPrice: +r.buy_price || 0, sellPrice: +r.sell_price || 0, category: r.category || '', tags: Array.isArray(r.tags) ? r.tags : [] });
-const mC = r => ({ id: r.id, name: r.name, phone: r.phone || '', openingDebt: +r.opening_debt || 0, credit: +r.credit || 0 });
+const mC = r => ({ id: r.id, name: r.name, phone: r.phone || '', taxNumber: r.tax_number || '', openingDebt: +r.opening_debt || 0, credit: +r.credit || 0 });
 const mO = r => ({ id: r.id, customerId: r.customer_id, customerName: r.customer_name || '', items: Array.isArray(r.items) ? r.items : [], total: +r.total || 0, cost: +r.cost || 0, profit: +r.profit || 0, payment: r.payment || '', paidAmount: +r.paid_amount || 0, paid: !!r.paid, returns: Array.isArray(r.returns) ? r.returns : [], note: r.note || '', time: r.created_at, user: r.user_name || '' });
 const mL = r => ({ id: r.id, user: r.user_name || '', action: r.action || '', details: r.details || '', time: r.created_at });
 const mR = r => ({ id: r.id, customerId: r.customer_id, customerName: r.customer_name || '', customerPhone: r.customer_phone || '', items: Array.isArray(r.items) ? r.items : [], note: r.note || '', status: r.status || 'new', time: r.created_at, reply: r.reply || '', cfItems: Array.isArray(r.confirmed_items) ? r.confirmed_items : [], replyAt: r.reply_at, seen: !!r.customer_seen });
@@ -347,7 +347,22 @@ const tagsOf = p => Array.isArray(p.tags) ? p.tags : [];
 function unpaidDebtsCount() { return (invData.orders || []).filter(o => o.payment === 'later' && oD(o) > 0.001).length; }
 function daysLeft(exp) { if (!exp) return null; return Math.ceil((new Date(exp) - new Date()) / 86400000); }
 function invStatus(inv) { if (inv.status === 'suspended') return 'suspended'; if (inv.expires_at && new Date(inv.expires_at) < new Date()) return 'expired'; return 'active'; }
-async function log(a, d) { if (!invData) return; try { const r = await sb.from('logs').insert({ inv_id: invData.id, user_name: session.user, action: a, details: d || '' }).select().single(); if (!r.error && r.data) { invData.logs.unshift(mL(r.data)); if (invData.logs.length > 1000) invData.logs.length = 1000; } } catch (e) {} }
+async function log(a, d) {
+  if (!invData) return;
+  try {
+    const r = await sb.from('logs').insert({ inv_id: invData.id, user_name: session.user, action: a, details: d || '' }).select().single();
+    if (!r.error && r.data) {
+      invData.logs.unshift(mL(r.data));
+      if (invData.logs.length > 1000) {
+        const toRemove = invData.logs.slice(1000);
+        invData.logs = invData.logs.slice(0, 1000);
+        for (const oldLog of toRemove) {
+          try { await sb.from('logs').delete().eq('id', oldLog.id); } catch (e) {}
+        }
+      }
+    }
+  } catch (e) { console.error('log error:', e); }
+}
 async function router() { const m = (location.hash || '').match(/catalog=([a-f0-9]+)/i); if (m) { await showCatalog(m[1]); return true; } return false; }
 
 async function runAutoClean() {
@@ -622,12 +637,12 @@ async function loadAll(id) {
   setCurrentInvId(id);
   MAX_PRODUCTS = +iR.data.max_products || 1000;
   const cm = Number(iR.data.cleanup_months);
-  invData = { id: iR.data.id, name: iR.data.name, displayName: iR.data.display_name || iR.data.name || '', password: iR.data.password, ownerName: iR.data.owner_name || '', expiresAt: iR.data.expires_at || null, status: iR.data.status || 'active', members: Array.isArray(iR.data.members) ? iR.data.members : [], publicToken: iR.data.public_token || null, publicEnabled: !!iR.data.public_enabled, invoiceEnabled: !!iR.data.invoice_enabled, businessName: iR.data.business_name || '', businessPhone: iR.data.business_phone || '', businessAddress: iR.data.business_address || '', invoiceFooter: iR.data.invoice_footer || '', logoBase64: iR.data.logo_base64 || '', vatNumber: iR.data.vat_number || '', invoiceColor: iR.data.invoice_color || '#2563eb', invoiceFontSize: iR.data.invoice_font_size || 'normal', invoiceShowLogo: iR.data.invoice_show_logo !== false, invoiceFooterText: iR.data.invoice_footer_text || '', cleanupMonths: (isNaN(cm) || cm < 1) ? 1 : cm, autoDelSettled: !!iR.data.auto_del_settled, settledDelDays: +iR.data.settled_del_days || 30, products: (pR.data || []).map(mP), customers: (cR.data || []).map(mC), orders: (oR.data || []).map(mO), logs: (lR.data || []).map(mL) };
+  invData = { id: iR.data.id, name: iR.data.name, password: iR.data.password, ownerName: iR.data.owner_name || '', expiresAt: iR.data.expires_at || null, status: iR.data.status || 'active', members: Array.isArray(iR.data.members) ? iR.data.members : [], publicToken: iR.data.public_token || null, publicEnabled: !!iR.data.public_enabled, invoiceEnabled: !!iR.data.invoice_enabled, businessName: iR.data.business_name || '', businessPhone: iR.data.business_phone || '', businessAddress: iR.data.business_address || '', invoiceFooter: iR.data.invoice_footer || '', logoBase64: iR.data.logo_base64 || '', vatNumber: iR.data.vat_number || '', invoiceColor: iR.data.invoice_color || '#2563eb', invoiceFontSize: iR.data.invoice_font_size || 'normal', invoiceShowLogo: iR.data.invoice_show_logo !== false, invoiceFooterText: iR.data.invoice_footer_text || '', cleanupMonths: (isNaN(cm) || cm < 1) ? 1 : cm, autoDelSettled: !!iR.data.auto_del_settled, settledDelDays: +iR.data.settled_del_days || 30, products: (pR.data || []).map(mP), customers: (cR.data || []).map(mC), orders: (oR.data || []).map(mO), logs: (lR.data || []).map(mL) };
   reqs = (qR.data || []).map(mR);
   receipts = (recR.data || []).map(mRec);
   quotes = (quoR.data || []).map(mQ);
 }
-function enterApp() { $('#authScreen').classList.add('h'); $('#adminScreen').classList.add('h'); $('#appScreen').classList.remove('h'); $('#invT').textContent = invData.displayName || session.invName; $('#uL').textContent = '👤 ' + session.user; sw('products'); if (window._sy) clearInterval(window._sy); window._sy = setInterval(() => {
+function enterApp() { $('#authScreen').classList.add('h'); $('#adminScreen').classList.add('h'); $('#appScreen').classList.remove('h'); $('#invT').textContent = session.invName; $('#uL').textContent = '👤 ' + session.user; sw('products'); if (window._sy) clearInterval(window._sy); window._sy = setInterval(() => {
   if (!session || document.hidden) return;
   if (!$('#ov').classList.contains('h')) return;
   if (curTab === 'settings') return;
@@ -850,8 +865,8 @@ function hCust() {
   else rows = '<tr><td colspan="6" class="emp">لا زبائن</td></tr>';
   return '<div class="tb3"><button class="b p" onclick="cOpen()">+ زبون</button></div><div class="tbr"><table><thead><tr><th>الاسم</th><th>الهاتف</th><th>الطلبات</th><th>المشتريات</th><th>الدين</th><th>إجراءات</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
 }
-function cOpen(id) { const c = id ? invData.customers.find(x => x.id === id) : null; const b = '<div class="f"><label>الاسم *</label><input id="cNm" value="' + (c ? esc(c.name) : '') + '"></div><div class="f"><label>الهاتف</label><input id="cPh" value="' + (c ? esc(c.phone || '') : '') + '"></div><div class="f"><label>دين سابق</label><input id="cOd" type="number" min="0" value="' + (c ? (c.openingDebt || 0) : 0) + '"></div>'; openModal(c ? 'تعديل' : 'إضافة زبون', b, '<button class="b" onclick="closeModal()">إلغاء</button><button class="b p" onclick="cSave(\'' + (id || '') + '\')">حفظ</button>'); }
-async function cSave(id) { const n = $('#cNm').value.trim(), ph = $('#cPh').value.trim(), od = +$('#cOd').value || 0; if (!n) return alert('الاسم مطلوب'); if (!id && od > 0 && unpaidDebtsCount() >= MAX_DEBTS) return alert('حد أقصى ديون'); closeModal(); ld(); try { if (id) { const c = invData.customers.find(x => x.id === id); const r = await sb.from('customers').update({ name: n, phone: ph, opening_debt: od }).eq('id', id); if (r.error) throw new Error(r.error.message); Object.assign(c, { name: n, phone: ph, openingDebt: od }); await log('تعديل زبون', n); } else { const nid = uid(); const r = await sb.from('customers').insert({ id: nid, inv_id: invData.id, name: n, phone: ph, credit: 0, opening_debt: od }); if (r.error) throw new Error(r.error.message); invData.customers.push({ id: nid, name: n, phone: ph, credit: 0, openingDebt: od }); await log('إضافة زبون', n); } ul(); renderTab(); } catch (e) { ul(); alert('خطأ: ' + e.message); } }
+function cOpen(id) { const c = id ? invData.customers.find(x => x.id === id) : null; const b = '<div class="f"><label>الاسم *</label><input id="cNm" value="' + (c ? esc(c.name) : '') + '"></div><div class="f"><label>الهاتف</label><input id="cPh" value="' + (c ? esc(c.phone || '') : '') + '"></div><div class="f"><label>الرقم الضريبي (اختياري)</label><input id="cTax" value="' + (c ? esc(c.taxNumber || '') : '') + '"></div><div class="f"><label>دين سابق</label><input id="cOd" type="number" min="0" value="' + (c ? (c.openingDebt || 0) : 0) + '"></div>'; openModal(c ? 'تعديل' : 'إضافة زبون', b, '<button class="b" onclick="closeModal()">إلغاء</button><button class="b p" onclick="cSave(\'' + (id || '') + '\')">حفظ</button>'); }
+async function cSave(id) { const n = $('#cNm').value.trim(), ph = $('#cPh').value.trim(), tx = ($('#cTax') ? $('#cTax').value.trim() : ''), od = +$('#cOd').value || 0; if (!n) return alert('الاسم مطلوب'); if (!id && od > 0 && unpaidDebtsCount() >= MAX_DEBTS) return alert('حد أقصى ديون'); closeModal(); ld(); try { if (id) { const c = invData.customers.find(x => x.id === id); const r = await sb.from('customers').update({ name: n, phone: ph, tax_number: tx, opening_debt: od }).eq('id', id); if (r.error) throw new Error(r.error.message); Object.assign(c, { name: n, phone: ph, taxNumber: tx, openingDebt: od }); await log('تعديل زبون', n); } else { const nid = uid(); const r = await sb.from('customers').insert({ id: nid, inv_id: invData.id, name: n, phone: ph, tax_number: tx, credit: 0, opening_debt: od }); if (r.error) throw new Error(r.error.message); invData.customers.push({ id: nid, name: n, phone: ph, taxNumber: tx, credit: 0, openingDebt: od }); await log('إضافة زبون', n); } ul(); renderTab(); } catch (e) { ul(); alert('خطأ: ' + e.message); } }
 async function cDel(id) { const c = invData.customers.find(x => x.id === id); if (!c) return; if (!confirm('حذف "' + c.name + '"؟')) return; ld(); try { const r = await sb.from('customers').delete().eq('id', id); if (r.error) throw new Error(r.error.message); invData.customers = invData.customers.filter(x => x.id !== id); await log('حذف زبون', c.name); ul(); renderTab(); } catch (e) { ul(); alert('خطأ'); } }
 
 function hDebt() {
@@ -1107,8 +1122,34 @@ function printLow() { const L = (invData.products || []).filter(p => (+p.qty || 
 function printCust(cid) { const c = invData.customers.find(x => x.id === cid); if (!c) return; const ords = (invData.orders || []).filter(o => o.customerId === cid); const tp = ords.reduce((s, o) => s + (+o.total || 0), 0); const tpaid = ords.reduce((s, o) => s + oP(o), 0); const op = +c.openingDebt || 0; const od = ords.reduce((s, o) => s + oD(o), 0); let rows = ''; ords.forEach(o => { const it = o.items.map(i => i.name + '×' + i.qty).join('، '); rows += '<tr><td>' + fT(o.time) + '</td><td>' + esc(it) + '</td><td>' + mn(o.total) + '</td><td>' + mn(oP(o)) + '</td></tr>'; }); doPr(prHead('كشف حساب: ' + esc(c.name)) + '<div style="margin:10px 0;padding:8px;background:#f0f9ff;border-radius:6px">المشتريات: ' + mn(tp) + ' | المدفوع: ' + mn(tpaid) + ' | دين سابق: ' + mn(op) + ' | دين طلبات: ' + mn(od) + ' | المتبقي: ' + mn(op + od) + '</div><table><thead><tr><th>التاريخ</th><th>الأصناف</th><th>الإجمالي</th><th>مدفوع</th></tr></thead><tbody>' + (rows || '<tr><td colspan="4" style="text-align:center">لا طلبات</td></tr>') + '</tbody></table>'); }
 function doPr(h) { $('#pr').innerHTML = h; setTimeout(() => window.print(), 250); }
 
-function hLog() { const us = [...new Set((invData.logs || []).map(l => l.user))]; const opts = us.map(u => '<option value="' + esc(u) + '">' + esc(u) + '</option>').join(''); setTimeout(renderLog, 0); return '<div class="tb3"><select id="logU" onchange="renderLog()" style="max-width:170px;flex:0 0 auto"><option value="">الكل</option>' + opts + '</select><input class="srch" id="logS" placeholder="🔍" oninput="renderLog()"></div><div id="logL"></div>'; }
-function renderLog() { const uf = ($('#logU') ? $('#logU').value : ''), q = ($('#logS') ? $('#logS').value : '').trim().toLowerCase(); let L = invData.logs || []; if (uf) L = L.filter(l => l.user === uf); if (q) L = L.filter(l => (l.action + ' ' + l.details + ' ' + l.user).toLowerCase().includes(q)); const b = $('#logL'); if (!b) return; if (!L.length) { b.innerHTML = '<div class="cbx" style="text-align:center;color:#64748b">لا عمليات</div>'; return; } b.innerHTML = L.slice(0, 500).map(l => '<div class="li"><div style="font-size:11px;color:#64748b"><strong style="color:#2563eb">' + esc(l.user) + '</strong> — ' + fT(l.time) + '</div><div style="font-weight:600;margin-top:3px">' + esc(l.action) + '</div>' + (l.details ? '<div style="font-size:11px;color:#64748b">' + esc(l.details) + '</div>' : '') + '</div>').join(''); }
+function hLog() {
+  const us = [...new Set((invData.logs || []).map(l => l.user))];
+  const opts = us.map(u => '<option value="' + esc(u) + '">' + esc(u) + '</option>').join('');
+  setTimeout(renderLog, 0);
+  return '<div class="tb3"><select id="logType" onchange="renderLog()" style="max-width:150px;flex:0 0 auto"><option value="">كل السجلات</option><option value="invoice">الفواتير فقط</option><option value="product">المنتجات</option><option value="customer">الزبائن</option><option value="order">الطلبات</option></select><select id="logU" onchange="renderLog()" style="max-width:150px;flex:0 0 auto"><option value="">كل المستخدمين</option>' + opts + '</select><input class="srch" id="logS" placeholder="🔍" oninput="renderLog()"></div><div id="logL"></div>';
+}
+function renderLog() {
+  const uf = ($('#logU') ? $('#logU').value : '');
+  const tf = ($('#logType') ? $('#logType').value : '');
+  const q = ($('#logS') ? $('#logS').value : '').trim().toLowerCase();
+  let L = invData.logs || [];
+  if (uf) L = L.filter(l => l.user === uf);
+  if (tf) {
+    const maps = {
+      invoice: ['فاتورة', 'عرض سعر', 'إرجاع'],
+      product: ['منتج', 'كمية', 'تصحيح عداد'],
+      customer: ['زبون'],
+      order: ['طلب', 'معالجة']
+    };
+    const keywords = maps[tf] || [];
+    L = L.filter(l => keywords.some(k => (l.action || '').includes(k)));
+  }
+  if (q) L = L.filter(l => (l.action + ' ' + l.details + ' ' + l.user).toLowerCase().includes(q));
+  const b = $('#logL');
+  if (!b) return;
+  if (!L.length) { b.innerHTML = '<div class="cbx" style="text-align:center;color:#64748b">لا عمليات</div>'; return; }
+  b.innerHTML = L.slice(0, 1000).map(l => '<div class="li"><div style="font-size:11px;color:#64748b"><strong style="color:#2563eb">' + esc(l.user) + '</strong> — ' + fT(l.time) + '</div><div style="font-weight:600;margin-top:3px">' + esc(l.action) + '</div>' + (l.details ? '<div style="font-size:11px;color:#64748b;margin-top:2px">' + esc(l.details) + '</div>' : '') + '</div>').join('');
+}
 
 function hSet() {
   const prods = invData.products || [];
@@ -1426,7 +1467,7 @@ async function quoteDel(id) {
 }
 function quotePrint(id) {
   const q = quotes.find(x => x.id === id); if (!q) return;
-  const biz = invData.businessName || invData.displayName || 'يرجى إعداد بيانات النشاط';
+  const biz = invData.businessName || invData.name || 'يرجى إعداد بيانات النشاط';
   const phone = invData.businessPhone || '';
   const address = invData.businessAddress || '';
   const vat = invData.vatNumber || '';
@@ -1532,19 +1573,6 @@ async function saveBusinessInfo() {
     ul(); alert('✅ تم حفظ بيانات النشاط'); renderTab();
   } catch (e) { ul(); alert('خطأ: ' + (e.message || e)); }
 }
-async function saveDispName() {
-  const n = ($('#dispName') ? $('#dispName').value : '').trim();
-  if (!n) return alert('اكتب الاسم');
-  ld();
-  try {
-    const r = await sb.from('inventories').update({ display_name: n }).eq('id', invData.id);
-    if (r.error) throw new Error(r.error.message);
-    invData.displayName = n;
-    $('#invT').textContent = n;
-    await log('تغيير الاسم', n);
-    ul(); alert('✅ تم حفظ الاسم'); renderTab();
-  } catch (e) { ul(); alert('خطأ: ' + (e.message || e)); }
-}
 function openModal(t, b, f) { $('#mT').textContent = t; $('#mB').innerHTML = b; $('#mF').innerHTML = f; $('#ov').classList.remove('h'); }
 function closeModal() { $('#ov').classList.add('h'); }
 
@@ -1577,7 +1605,7 @@ window.quickCorr = quickCorr; window.qckFilter = qckFilter; window.delInvData = 
 window.saveCleanSettings = saveCleanSettings; window.runAutoClean = runAutoClean;
 window.renderProd = renderProd;
 window.adminEditInv = adminEditInv; window.adminSaveInv = adminSaveInv;
-window.uploadLogo = uploadLogo; window.removeLogo = removeLogo; window.saveBusinessInfo = saveBusinessInfo; window.saveDispName = saveDispName; window.zatcaQR = zatcaQR;
+window.uploadLogo = uploadLogo; window.removeLogo = removeLogo; window.saveBusinessInfo = saveBusinessInfo; window.zatcaQR = zatcaQR;
 </script>
 </body>
 </html>
