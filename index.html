@@ -168,7 +168,7 @@ td{padding:7px 9px;border-bottom:1px solid #f1f5f9}
 <div class="adm-panel">
 <h3>📋 قائمة المخازن</h3>
 <div class="tb3"><input class="srch" id="admSearch" placeholder="🔍 بحث..." oninput="renderAdminList()"><button class="b" onclick="togglePasswords()" id="pwToggleBtn">🙈 إخفاء كلمات السر</button></div>
-<div class="tbr"><table><thead><tr><th>#</th><th>المخزون</th><th>المالك</th><th>كلمة السر</th><th>إنشاء</th><th>انتهاء</th><th>المتبقي</th><th>الحالة</th><th>إجراءات</th></tr></thead><tbody id="admRows"></tbody></table></div>
+<div class="tbr"><table><thead><tr><th>#</th><th>المخزون</th><th>المالك</th><th>كلمة السر</th><th>المنتجات</th><th>الفواتير</th><th>إنشاء</th><th>انتهاء</th><th>المتبقي</th><th>الحالة</th><th>إجراءات</th></tr></thead><tbody id="admRows"></tbody></table></div>
 </div></main></div>
 <div id="ov" class="ov h"><div class="md"><div class="mh"><h3 id="mT"></h3><button onclick="closeModal()">✕</button></div><div class="mb" id="mB"></div><div class="mf" id="mF"></div></div></div>
 <div id="ldr" class="ldr h"><div class="sp"></div></div>
@@ -182,7 +182,7 @@ const $$ = s => Array.from(document.querySelectorAll(s));
 const SK_TOKEN = 'jwt_token_v1';
 const SK = 'inv_v21';
 const ADMIN_CONFIG = '__admin__config__';
-const MAX_PRODUCTS = 1000;
+let MAX_PRODUCTS = 1000;
 const MAX_DEBTS = 2000;
 const LOG_RETENTION_DAYS = 180;
 const ORDER_RETENTION_DAYS = 180;
@@ -399,7 +399,9 @@ function renderAdminList() {
     else { stBadge = '<span class="bd w">⌛ منتهي</span>'; dayBadge = '<span class="days-badge danger">0 يوم</span>'; }
     const pw = inv.password || '—';
     const pwHtml = showPasswords ? '<span class="pw" onclick="copyText(\'' + esc(pw).replace(/'/g, "\\'") + '\')">' + esc(pw) + '</span>' : '<span class="pw pw-hidden" onclick="togglePasswords()">●●●●●●</span>';
-    html += '<tr><td>' + (i + 1) + '</td><td><strong>' + esc(inv.name) + '</strong></td><td>' + esc(inv.owner_name || '—') + '</td><td>' + pwHtml + '</td><td style="font-size:11px;color:#64748b">' + dT(inv.created_at) + '</td><td style="font-size:11px;color:#64748b">' + dT(inv.expires_at) + '</td><td>' + dayBadge + '</td><td>' + stBadge + '</td><td class="act"><button class="b sm ' + (st === 'active' ? 'w' : 's') + '" onclick="adminToggle(\'' + inv.id + '\')">' + (st === 'active' ? '⏸️' : '▶️') + '</button><button class="b sm p" onclick="adminExtend(\'' + inv.id + '\')">➕</button><button class="b sm d" onclick="adminDelete(\'' + inv.id + '\')">🗑️</button></td></tr>';
+   const maxP = inv.max_products || 1000;
+const invEnabled = inv.invoice_enabled ? '<span class="bd o">مفعّلة</span>' : '<span class="bd g">معطّلة</span>';
+html += '<tr><td>' + (i + 1) + '</td><td><strong>' + esc(inv.name) + '</strong></td><td>' + esc(inv.owner_name || '—') + '</td><td>' + pwHtml + '</td><td>' + maxP + '</td><td>' + invEnabled + '</td><td style="font-size:11px;color:#64748b">' + dT(inv.created_at) + '</td><td style="font-size:11px;color:#64748b">' + dT(inv.expires_at) + '</td><td>' + dayBadge + '</td><td>' + stBadge + '</td><td class="act"><button class="b sm ' + (st === 'active' ? 'w' : 's') + '" onclick="adminToggle(\'' + inv.id + '\')">' + (st === 'active' ? '⏸️' : '▶️') + '</button><button class="b sm p" onclick="adminExtend(\'' + inv.id + '\')">➕</button><button class="b sm" onclick="adminEditInv(\'' + inv.id + '\')" title="إعدادات">⚙️</button><button class="b sm d" onclick="adminDelete(\'' + inv.id + '\')">🗑️</button></td></tr>';
   });
   tb.innerHTML = html;
 }
@@ -448,6 +450,28 @@ async function adminDelete(id) {
   ld();
   try { await apiCall('admin_op', { op: 'delete', data: { id } }); await adminLoadAll(); renderAdmin(); ul(); alert('✅ تم الحذف'); }
   catch (e) { ul(); alert('خطأ: ' + (e.message || e)); }
+}
+function adminEditInv(id) {
+  const inv = adminList.find(x => x.id === id); if (!inv) return;
+  const maxP = inv.max_products || 1000;
+  const enabled = inv.invoice_enabled ? 'checked' : '';
+  const b = '<p class="mut" style="margin-bottom:12px">إعدادات: <strong>' + esc(inv.name) + '</strong></p>' +
+    '<div class="f"><label>الحد الأقصى للمنتجات</label><input id="admMaxP" type="number" min="100" max="100000" value="' + maxP + '"></div>' +
+    '<div class="f"><label class="chk-label"><input type="checkbox" id="admInvEnabled" ' + enabled + '> تفعيل الفواتير الضريبية</label></div>' +
+    '<p class="mut" style="margin-top:8px">عند تفعيل الفواتير، يستطيع المستخدم إصدار فواتير ضريبية من صفحة الطلبات.</p>';
+  openModal('⚙️ إعدادات المخزون', b, '<button class="b" onclick="closeModal()">إلغاء</button><button class="b p" onclick="adminSaveInv(\'' + id + '\')">💾 حفظ</button>');
+}
+async function adminSaveInv(id) {
+  const maxP = parseInt($('#admMaxP').value) || 1000;
+  const enabled = $('#admInvEnabled').checked;
+  if (maxP < 100 || maxP > 100000) return alert('الحد يجب أن يكون بين 100 و 100,000');
+  ld();
+  try {
+    const r = await sb.from('inventories').update({ max_products: maxP, invoice_enabled: enabled }).eq('id', id);
+    if (r.error) throw new Error(r.error.message);
+    await adminLoadAll(); renderAdmin(); closeModal(); ul();
+    alert('✅ تم الحفظ');
+  } catch (e) { ul(); alert('خطأ: ' + (e.message || e)); }
 }
 function adminPassModal() { openModal('🔑 تغيير كلمة سر الأدمن', '<div class="f"><label>كلمة السر الحالية</label><input id="admOldPass" type="password"></div><div class="f"><label>الجديدة</label><input id="admNewPass" type="password" placeholder="4+ أحرف"></div><div class="f"><label>تأكيد الجديدة</label><input id="admNewPass2" type="password"></div>', '<button class="b" onclick="closeModal()">إلغاء</button><button class="b p" onclick="adminChangePassApply()">💾 حفظ</button>'); }
 async function adminChangePassApply() {
@@ -596,8 +620,9 @@ async function loadAll(id) {
   ]);
   if (iR.error) throw new Error(iR.error.message);
   setCurrentInvId(id);
+  MAX_PRODUCTS = +iR.data.max_products || 1000;
   const cm = Number(iR.data.cleanup_months);
-  invData = { id: iR.data.id, name: iR.data.name, password: iR.data.password, ownerName: iR.data.owner_name || '', expiresAt: iR.data.expires_at || null, status: iR.data.status || 'active', members: Array.isArray(iR.data.members) ? iR.data.members : [], publicToken: iR.data.public_token || null, publicEnabled: !!iR.data.public_enabled, cleanupMonths: (isNaN(cm) || cm < 1) ? 1 : cm, autoDelSettled: !!iR.data.auto_del_settled, settledDelDays: +iR.data.settled_del_days || 30, products: (pR.data || []).map(mP), customers: (cR.data || []).map(mC), orders: (oR.data || []).map(mO), logs: (lR.data || []).map(mL) };
+  invData = { id: iR.data.id, name: iR.data.name, password: iR.data.password, ownerName: iR.data.owner_name || '', expiresAt: iR.data.expires_at || null, status: iR.data.status || 'active', members: Array.isArray(iR.data.members) ? iR.data.members : [], publicToken: iR.data.public_token || null, publicEnabled: !!iR.data.public_enabled, invoiceEnabled: !!iR.data.invoice_enabled, cleanupMonths: (isNaN(cm) || cm < 1) ? 1 : cm, autoDelSettled: !!iR.data.auto_del_settled, settledDelDays: +iR.data.settled_del_days || 30, products: (pR.data || []).map(mP), customers: (cR.data || []).map(mC), orders: (oR.data || []).map(mO), logs: (lR.data || []).map(mL) };
   reqs = (qR.data || []).map(mR);
   receipts = (recR.data || []).map(mRec);
   quotes = (quoR.data || []).map(mQ);
@@ -1088,6 +1113,14 @@ function renderLog() { const uf = ($('#logU') ? $('#logU').value : ''), q = ($('
 function hSet() {
   const prods = invData.products || [];
   return '<div class="cbx"><h4>⚙️ الإعدادات</h4><p class="mut" style="margin:8px 0">المستخدم: <strong>' + esc(session.user) + '</strong></p><p class="mut">المخزون: <strong>' + esc(session.invName) + '</strong></p></div>' +
+    '<div class="cbx"><h4>🏢 بيانات النشاط (للفواتير)</h4>' +
+'<div class="f"><label>اسم النشاط التجاري</label><input id="bizName" value="' + esc(invData.businessName || '') + '"></div>' +
+'<div class="g2"><div class="f"><label>رقم الجوال</label><input id="bizPhone" value="' + esc(invData.businessPhone || '') + '"></div><div class="f"><label>العنوان</label><input id="bizAddress" value="' + esc(invData.businessAddress || '') + '"></div></div>' +
+'<div class="f"><label>نص أسفل الفاتورة</label><input id="bizFooter" value="' + esc(invData.invoiceFooter || 'شكراً لتعاملكم معنا') + '"></div>' +
+'<div class="f"><label>الشعار (اختياري - حد أقصى 500KB)</label><input type="file" id="bizLogo" accept="image/*" onchange="uploadLogo(event)"></div>' +
+(invData.logoBase64 ? '<div style="margin-top:8px"><img src="' + invData.logoBase64 + '" style="max-width:120px;max-height:80px;border:1px solid #e2e8f0;border-radius:6px;padding:4px"><button class="b sm d" onclick="removeLogo()" style="margin-inline-start:8px">حذف الشعار</button></div>' : '') +
+'<button class="b p" onclick="saveBusinessInfo()" style="margin-top:10px;padding:8px 14px;font-weight:700">💾 حفظ بيانات النشاط</button>' +
+'</div>' +
     '<div class="cbx"><h4>🔑 تغيير كلمة سر المخزون</h4>' +
     '<div class="f"><label>كلمة السر الحالية</label><input id="oldInvPass" type="password"></div>' +
     '<div class="g2"><div class="f"><label>كلمة السر الجديدة</label><input id="newInvPass" type="password" placeholder="4+ أحرف"></div><div class="f"><label>تأكيد الجديدة</label><input id="newInvPass2" type="password"></div></div>' +
@@ -1420,6 +1453,38 @@ async function orderToInvoice(oid) {
     ul(); alert('✅ تم إنشاء الفاتورة ' + number); quoteView(nid);
   } catch (e) { ul(); alert('خطأ: ' + (e.message || e)); }
 }
+function uploadLogo(e) {
+  const f = e.target.files[0]; if (!f) return;
+  if (f.size > 500 * 1024) return alert('حجم الصورة أكبر من 500KB');
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    invData.logoBase64 = ev.target.result;
+    renderTab();
+  };
+  reader.readAsDataURL(f);
+}
+function removeLogo() {
+  if (!confirm('حذف الشعار؟')) return;
+  invData.logoBase64 = '';
+  renderTab();
+}
+async function saveBusinessInfo() {
+  const name = ($('#bizName') ? $('#bizName').value : '').trim();
+  const phone = ($('#bizPhone') ? $('#bizPhone').value : '').trim();
+  const address = ($('#bizAddress') ? $('#bizAddress').value : '').trim();
+  const footer = ($('#bizFooter') ? $('#bizFooter').value : '').trim();
+  ld();
+  try {
+    const r = await sb.from('inventories').update({ business_name: name, business_phone: phone, business_address: address, invoice_footer: footer, logo_base64: invData.logoBase64 || '' }).eq('id', invData.id);
+    if (r.error) throw new Error(r.error.message);
+    invData.businessName = name;
+    invData.businessPhone = phone;
+    invData.businessAddress = address;
+    invData.invoiceFooter = footer;
+    await log('تعديل بيانات النشاط', name);
+    ul(); alert('✅ تم حفظ بيانات النشاط'); renderTab();
+  } catch (e) { ul(); alert('خطأ: ' + (e.message || e)); }
+}
 function openModal(t, b, f) { $('#mT').textContent = t; $('#mB').innerHTML = b; $('#mF').innerHTML = f; $('#ov').classList.remove('h'); }
 function closeModal() { $('#ov').classList.add('h'); }
 
@@ -1451,6 +1516,8 @@ window.updDiff = updDiff; window.chgInvPass = chgInvPass; window.bulkAddRow = bu
 window.quickCorr = quickCorr; window.qckFilter = qckFilter; window.delInvData = delInvData; window.delInvAll = delInvAll;
 window.saveCleanSettings = saveCleanSettings; window.runAutoClean = runAutoClean;
 window.renderProd = renderProd;
+window.adminEditInv = adminEditInv; window.adminSaveInv = adminSaveInv;
+window.uploadLogo = uploadLogo; window.removeLogo = removeLogo; window.saveBusinessInfo = saveBusinessInfo;
 </script>
 </body>
 </html>
