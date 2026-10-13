@@ -1380,37 +1380,105 @@ async function qcSave() {
 }
 function hQuotes() {
   const filter = window._invFilter || 'all';
+  const search = (window._invSearch || '').trim().toLowerCase();
   let list = quotes.slice();
+  
+  // فلترة النوع
   if (filter === 'quote') list = list.filter(q => q.type === 'quote');
   else if (filter === 'invoice') list = list.filter(q => q.type === 'invoice');
+  else if (filter === 'paid') list = list.filter(q => q.status === 'paid');
+  else if (filter === 'draft') list = list.filter(q => q.status === 'draft');
   
+  // البحث
+  if (search) list = list.filter(q => 
+    (q.number || '').toLowerCase().includes(search) || 
+    (q.customerName || '').toLowerCase().includes(search) ||
+    (q.customerTaxNumber || '').toLowerCase().includes(search)
+  );
+  
+  // إحصائيات
   const qCount = quotes.filter(q => q.type === 'quote').length;
   const iCount = quotes.filter(q => q.type === 'invoice').length;
+  const pCount = quotes.filter(q => q.status === 'paid').length;
+  const dCount = quotes.filter(q => q.status === 'draft').length;
   const qTotal = quotes.filter(q => q.type === 'invoice').reduce((s, q) => s + (+q.total || 0), 0);
   
+  // بناء صفوف الجدول
   let rows = '';
   if (list.length) {
     list.forEach(q => {
       const itemsTxt = q.items.map(i => esc(i.name) + ' × ' + i.qty).join('، ');
-      const stBadge = q.status === 'draft' ? '<span class="bd w">مسودة</span>' : q.status === 'sent' ? '<span class="bd i">مرسل</span>' : q.status === 'accepted' ? '<span class="bd o">مقبول</span>' : '<span class="bd g">مرفوض</span>';
+      const stBadge = q.status === 'draft' ? '<span class="bd w">📝 مسودة</span>' : 
+                      q.status === 'sent' ? '<span class="bd i">📤 مرسل</span>' : 
+                      q.status === 'accepted' ? '<span class="bd o">✅ مقبول</span>' : 
+                      q.status === 'paid' ? '<span class="bd o">💰 مدفوع</span>' : 
+                      q.status === 'cancelled' ? '<span class="bd d">❌ ملغي</span>' : 
+                      '<span class="bd g">' + esc(q.status) + '</span>';
       const typeBadge = q.type === 'invoice' ? '<span class="bd p">🧾 فاتورة</span>' : '<span class="bd i">📋 عرض</span>';
-      rows += '<tr><td style="font-size:11px;color:#64748b">' + fT(q.time) + '</td><td>' + typeBadge + '</td><td><strong>' + esc(q.number) + '</strong></td><td><strong>' + (q.customerName ? esc(q.customerName) : '—') + '</strong>' + (q.customerTaxNumber ? '<div style="font-size:10px;color:#64748b">VAT: ' + esc(q.customerTaxNumber) + '</div>' : '') + '</td><td style="max-width:180px;font-size:11.5px">' + (itemsTxt || '—') + '</td><td><strong>' + mn(q.total) + '</strong></td><td>' + stBadge + '</td><td class="act"><button class="b sm" onclick="quoteView(\'' + q.id + '\')">عرض</button><button class="b sm p" onclick="quotePrint(\'' + q.id + '\')">🖨️</button><button class="b sm d" onclick="quoteDel(\'' + q.id + '\')">حذف</button></td></tr>';
+      rows += '<tr>' +
+        '<td style="font-size:11px;color:#64748b">' + fT(q.time) + '</td>' +
+        '<td>' + typeBadge + '</td>' +
+        '<td><strong>' + esc(q.number) + '</strong></td>' +
+        '<td><strong>' + (q.customerName ? esc(q.customerName) : '—') + '</strong>' + 
+          (q.customerTaxNumber ? '<div style="font-size:10px;color:#64748b">VAT: ' + esc(q.customerTaxNumber) + '</div>' : '') + 
+        '</td>' +
+        '<td style="max-width:180px;font-size:11.5px">' + (itemsTxt || '—') + '</td>' +
+        '<td><strong>' + mn(q.total) + '</strong></td>' +
+        '<td>' + stBadge + '</td>' +
+        '<td class="act">' +
+          '<button class="b sm" onclick="quoteView(\'' + q.id + '\')">👁️ عرض</button>' +
+          '<button class="b sm p" onclick="quotePrint(\'' + q.id + '\')">🖨️</button>' +
+          '<button class="b sm d" onclick="quoteDel(\'' + q.id + '\')">🗑️</button>' +
+        '</td>' +
+      '</tr>';
     });
-  } else rows = '<tr><td colspan="8" class="emp">لا سجلات</td></tr>';
+  } else {
+    rows = '<tr><td colspan="8" class="emp">لا سجلات مطابقة</td></tr>';
+  }
   
+  // شريط الأزرار (الفلاتر)
   const filterBar = '<div class="tb3">' +
     '<button class="b ' + (filter === 'all' ? 'p' : '') + '" onclick="setInvFilter(\'all\')">📚 الكل (' + quotes.length + ')</button>' +
     '<button class="b ' + (filter === 'invoice' ? 'p' : '') + '" onclick="setInvFilter(\'invoice\')">🧾 فواتير (' + iCount + ')</button>' +
     '<button class="b ' + (filter === 'quote' ? 'p' : '') + '" onclick="setInvFilter(\'quote\')">📋 عروض (' + qCount + ')</button>' +
-    '<button class="b p" onclick="quoteOpen()" style="margin-inline-start:auto">+ عرض سعر</button>' +
+    '<button class="b ' + (filter === 'paid' ? 'p' : '') + '" onclick="setInvFilter(\'paid\')">💰 مدفوعة (' + pCount + ')</button>' +
+    '<button class="b ' + (filter === 'draft' ? 'p' : '') + '" onclick="setInvFilter(\'draft\')">📝 مسودة (' + dCount + ')</button>' +
+  '</div>' +
+  '<div class="tb3">' +
+    '<input class="srch" id="invSearch" placeholder="🔍 ابحث برقم الفاتورة أو اسم الزبون أو الرقم الضريبي..." value="' + esc(window._invSearch || '') + '" oninput="filterInvList()">' +
+    '<button class="b p" onclick="quoteOpen()" style="white-space:nowrap">+ عرض سعر جديد</button>' +
   '</div>';
   
-  const summary = iCount > 0 ? '<div class="cbx" style="background:#f0fdf4;border-color:#86efac;text-align:center"><div class="mut">إجمالي الفواتير</div><div style="font-size:22px;font-weight:800;color:#16a34a;margin-top:3px">' + mn(qTotal) + '</div><div class="mut" style="font-size:11px;margin-top:3px">عدد الفواتير: ' + iCount + '</div></div>' : '';
+  // ملخص الفواتير
+  const summary = iCount > 0 ? 
+    '<div class="cbx" style="background:#f0fdf4;border-color:#86efac;text-align:center;display:flex;justify-content:space-around;flex-wrap:wrap;gap:10px">' +
+      '<div><div class="mut" style="font-size:11px">إجمالي الفواتير</div><div style="font-size:20px;font-weight:800;color:#16a34a;margin-top:3px">' + mn(qTotal) + '</div></div>' +
+      '<div><div class="mut" style="font-size:11px">عدد الفواتير</div><div style="font-size:20px;font-weight:800;color:#7c3aed;margin-top:3px">' + iCount + '</div></div>' +
+      '<div><div class="mut" style="font-size:11px">عدد العروض</div><div style="font-size:20px;font-weight:800;color:#2563eb;margin-top:3px">' + qCount + '</div></div>' +
+    '</div>' : '';
   
-  return summary + filterBar + '<div class="tbr"><table><thead><tr><th>التاريخ</th><th>النوع</th><th>الرقم</th><th>الزبون</th><th>المنتجات</th><th>الإجمالي</th><th>الحالة</th><th>إجراءات</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
+  // الجدول النهائي
+  return summary + filterBar + '<div class="tbr"><table><thead><tr>' +
+    '<th>التاريخ</th><th>النوع</th><th>الرقم</th><th>الزبون</th><th>المنتجات</th><th>الإجمالي</th><th>الحالة</th><th>إجراءات</th>' +
+    '</tr></thead><tbody>' + rows + '</tbody></table></div>';
 }
-window.setInvFilter = function(f) { window._invFilter = f; renderTab(); };
-function quoteOpen() {
+  function setInvFilter(f) {
+  window._invFilter = f;
+  window._invSearch = '';
+  renderTab();
+}
+function filterInvList() {
+  const el = document.getElementById('invSearch');
+  window._invSearch = el ? el.value : '';
+  const scrollY = window.scrollY;
+  renderTab();
+  window.scrollTo(0, scrollY);
+  setTimeout(() => { 
+    const e = document.getElementById('invSearch'); 
+    if (e) { e.focus(); e.setSelectionRange(e.value.length, e.value.length); } 
+  }, 10);
+}
+  function quoteOpen() {
   if (!invData.products.length) return alert('أضف منتجات أولاً');
   const co = (invData.customers || []).map(c => '<option value="' + c.id + '">' + esc(c.name) + '</option>').join('');
   const b = '<div class="f"><label>الزبون</label><select id="qC" onchange="quoteNewToggle()"><option value="">— بدون —</option>' + co + '<option value="__new">+ جديد</option></select></div><div id="qNewBox" class="h g2"><div class="f"><label>الاسم</label><input id="qNn"></div><div class="f"><label>الهاتف</label><input id="qNp"></div></div>' +
@@ -1487,9 +1555,142 @@ async function quoteSave() {
 }
 function quoteView(id) {
   const q = quotes.find(x => x.id === id); if (!q) return;
-  let rows = q.items.map(i => '<div class="itm"><span>• ' + esc(i.name) + ' × ' + i.qty + '</span><span>' + mn(i.price) + ' = ' + mn(i.total) + '</span></div>').join('');
-  const b = '<div class="cbx" style="background:#f0fdf4"><div><strong>🧾 ' + esc(q.number) + '</strong></div><div class="mut">' + fT(q.time) + ' | ' + (q.customerName ? esc(q.customerName) : 'بدون زبون') + '</div></div><div class="sec">المنتجات</div>' + rows + '<div class="sec">الحساب</div><div class="tot">المجموع: ' + mn(q.subtotal) + (q.discount > 0 ? '<br>الخصم: -' + mn(q.discount) : '') + (q.taxRate > 0 ? '<br>الضريبة (' + q.taxRate + '%): ' + mn(q.taxAmount) : '') + '<br><strong>الإجمالي: ' + mn(q.total) + '</strong></div>' + (q.notes ? '<div class="f" style="margin-top:9px"><label>ملاحظات</label><div class="mut">' + esc(q.notes) + '</div></div>' : '') + (q.validUntil ? '<div class="mut" style="margin-top:9px">صالح حتى: ' + q.validUntil + '</div>' : '');
-  openModal('🧾 عرض سعر', b, '<button class="b" onclick="closeModal()">إغلاق</button><button class="b p" onclick="quotePrint(\'' + id + '\')">🖨️ طباعة PDF</button>');
+  
+  const isInvoice = q.type === 'invoice';
+  const typeLabel = isInvoice ? '🧾 فاتورة ضريبية' : '📋 عرض سعر';
+  const typeColor = isInvoice ? '#7c3aed' : '#2563eb';
+  const typeBg = isInvoice ? '#f5f3ff' : '#eff6ff';
+  const cust = q.customerName ? (invData.customers || []).find(c => c.name === q.customerName) : null;
+  
+  // ============ 1. معلومات أساسية ============
+  const headerInfo = 
+    '<div class="cbx" style="background:' + typeBg + ';border-color:' + typeColor + '33;margin-bottom:9px">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">' +
+        '<div>' +
+          '<div style="font-size:15px;font-weight:800;color:' + typeColor + '">' + typeLabel + '</div>' +
+          '<div style="font-size:18px;font-weight:800;color:#1e293b;margin-top:3px;letter-spacing:1px">' + esc(q.number) + '</div>' +
+        '</div>' +
+        '<div style="text-align:left">' +
+          (q.status === 'draft' ? '<span class="bd w">📝 مسودة</span>' : 
+           q.status === 'sent' ? '<span class="bd i">📤 مرسل</span>' : 
+           q.status === 'accepted' ? '<span class="bd o">✅ مقبول</span>' : 
+           q.status === 'paid' ? '<span class="bd o">💰 مدفوع</span>' :
+           q.status === 'cancelled' ? '<span class="bd d">❌ ملغي</span>' :
+           '<span class="bd g">' + esc(q.status) + '</span>') +
+          (isInvoice ? ' <span class="bd p">ضريبية 15%</span>' : '') +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  
+  // ============ 2. جدول البيانات الوصفية ============
+  const metaTable = 
+    '<div class="cbx">' +
+      '<h4 style="margin-bottom:8px;font-size:13px;color:#1e40af">📅 بيانات الفاتورة</h4>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px">' +
+        '<div style="padding:6px 8px;background:#f8fafc;border-radius:6px"><div style="color:#64748b;font-size:10.5px;font-weight:600">📆 تاريخ الإنشاء</div><div style="font-weight:700;margin-top:2px">' + fT(q.time) + '</div></div>' +
+        '<div style="padding:6px 8px;background:#f8fafc;border-radius:6px"><div style="color:#64748b;font-size:10.5px;font-weight:600">👤 أنشأها</div><div style="font-weight:700;margin-top:2px">' + esc(q.user || '—') + '</div></div>' +
+        (isInvoice ? '<div style="padding:6px 8px;background:#f8fafc;border-radius:6px"><div style="color:#64748b;font-size:10.5px;font-weight:600">💼 نوع الفاتورة</div><div style="font-weight:700;margin-top:2px">فاتورة ضريبية رسمية</div></div>' : 
+          (q.validUntil ? '<div style="padding:6px 8px;background:#fffbeb;border-radius:6px"><div style="color:#b45309;font-size:10.5px;font-weight:600">⏳ صالح حتى</div><div style="font-weight:700;margin-top:2px">' + q.validUntil + '</div></div>' : '')) +
+        '<div style="padding:6px 8px;background:#f8fafc;border-radius:6px"><div style="color:#64748b;font-size:10.5px;font-weight:600">📦 عدد الأصناف</div><div style="font-weight:700;margin-top:2px">' + q.items.length + ' صنف</div></div>' +
+      '</div>' +
+    '</div>';
+  
+  // ============ 3. بيانات الزبون (مع الرقم الضريبي) ============
+  let customerSection = '';
+  if (q.customerName) {
+    customerSection = 
+      '<div class="cbx" style="background:#fefefe;border-right:3px solid #16a34a">' +
+        '<h4 style="margin-bottom:8px;font-size:13px;color:#16a34a">👤 بيانات الزبون</h4>' +
+        '<div style="font-size:12.5px;line-height:1.8">' +
+          '<div><strong>الاسم:</strong> ' + esc(q.customerName) + '</div>' +
+          (q.customerPhone ? '<div><strong>📞 الهاتف:</strong> <span style="direction:ltr;display:inline-block">' + esc(q.customerPhone) + '</span></div>' : '') +
+          (q.customerTaxNumber ? '<div style="background:#f0fdf4;padding:5px 8px;border-radius:6px;margin-top:5px;border:1px solid #86efac"><strong>🏢 الرقم الضريبي (VAT):</strong> <span style="font-family:monospace;direction:ltr;display:inline-block">' + esc(q.customerTaxNumber) + '</span></div>' : 
+            (isInvoice ? '<div style="background:#fffbeb;padding:5px 8px;border-radius:6px;margin-top:5px;border:1px solid #fde68a;color:#92400e;font-size:11px">⚠️ الزبون بدون رقم ضريبي مسجّل</div>' : '')) +
+        '</div>' +
+        (cust ? '<button class="b sm p" style="margin-top:8px" onclick="closeModal();printCust(\'' + cust.id + '\')">📄 كشف حساب الزبون</button>' : '') +
+      '</div>';
+  } else {
+    customerSection = '<div class="cbx" style="text-align:center;color:#94a3b8;font-size:12px;padding:12px">👤 بدون زبون محدد</div>';
+  }
+  
+  // ============ 4. تفاصيل الأصناف ============
+  let itemsTable = 
+    '<div class="cbx">' +
+      '<h4 style="margin-bottom:8px;font-size:13px;color:#1e40af">📦 تفاصيل الأصناف (' + q.items.length + ')</h4>' +
+      '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11.5px;min-width:380px">' +
+        '<thead><tr style="background:' + typeBg + ';color:' + typeColor + '">' +
+          '<th style="padding:6px;border:1px solid #e2e8f0;text-align:center">#</th>' +
+          '<th style="padding:6px;border:1px solid #e2e8f0">المنتج</th>' +
+          '<th style="padding:6px;border:1px solid #e2e8f0;text-align:center">الكمية</th>' +
+          '<th style="padding:6px;border:1px solid #e2e8f0;text-align:center">السعر</th>' +
+          '<th style="padding:6px;border:1px solid #e2e8f0;text-align:center">الإجمالي</th>' +
+        '</tr></thead><tbody>';
+  q.items.forEach((it, idx) => {
+    const stockBadge = (() => {
+      const p = (invData.products || []).find(x => x.id === it.productId);
+      if (!p) return '<span class="bd g" style="font-size:9px">محذوف</span>';
+      const enough = +p.qty >= +it.qty;
+      return enough ? '<span class="bd o" style="font-size:9px">✓ متوفر</span>' : '<span class="bd d" style="font-size:9px">⚠ نقص</span>';
+    })();
+    itemsTable += '<tr>' +
+      '<td style="padding:6px;border:1px solid #e2e8f0;text-align:center">' + (idx + 1) + '</td>' +
+      '<td style="padding:6px;border:1px solid #e2e8f0"><div style="font-weight:600">' + esc(it.name) + '</div>' + stockBadge + '</td>' +
+      '<td style="padding:6px;border:1px solid #e2e8f0;text-align:center;font-weight:700">' + it.qty + '</td>' +
+      '<td style="padding:6px;border:1px solid #e2e8f0;text-align:center">' + mn(it.price) + '</td>' +
+      '<td style="padding:6px;border:1px solid #e2e8f0;text-align:center;font-weight:700">' + mn(it.total) + '</td>' +
+    '</tr>';
+  });
+  itemsTable += '</tbody></table></div></div>';
+  
+  // ============ 5. الحسابات التفصيلية ============
+  const calculations = 
+    '<div class="cbx" style="background:#f8fafc">' +
+      '<h4 style="margin-bottom:8px;font-size:13px;color:#1e40af">🧮 الحسابات</h4>' +
+      '<div style="font-size:12.5px">' +
+        '<div style="display:flex;justify-content:space-between;padding:7px 10px;background:#fff;border-radius:6px;margin-bottom:4px"><span>المجموع الفرعي:</span><strong>' + mn(q.subtotal) + ' ﷼</strong></div>' +
+        (q.discount > 0 ? '<div style="display:flex;justify-content:space-between;padding:7px 10px;background:#fef2f2;border-radius:6px;margin-bottom:4px;color:#dc2626"><span>➖ الخصم:</span><strong>-' + mn(q.discount) + ' ﷼</strong></div>' : '') +
+        (q.taxRate > 0 ? '<div style="display:flex;justify-content:space-between;padding:7px 10px;background:#fffbeb;border-radius:6px;margin-bottom:4px;color:#b45309"><span>➕ الضريبة (' + q.taxRate + '%):</span><strong>+' + mn(q.taxAmount) + ' ﷼</strong></div>' : '') +
+        '<div style="display:flex;justify-content:space-between;padding:10px 12px;background:' + typeBg + ';border:2px solid ' + typeColor + '33;border-radius:8px;margin-top:6px;font-size:15px"><span style="color:' + typeColor + ';font-weight:800">💵 الإجمالي النهائي:</span><strong style="color:' + typeColor + '">' + mn(q.total) + ' ﷼</strong></div>' +
+      '</div>' +
+    '</div>';
+  
+  // ============ 6. الملاحظات ============
+  let notesSection = '';
+  if (q.notes || q.validUntil) {
+    notesSection = '<div class="cbx">';
+    if (q.notes) notesSection += '<h4 style="margin-bottom:6px;font-size:12px;color:#b45309">📝 ملاحظات</h4><div style="background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:8px;font-size:12px;color:#78350e">' + esc(q.notes) + '</div>';
+    notesSection += '</div>';
+  }
+  
+  // ============ 7. التحقق الضريبي للفاتورة ============
+  let vatInfo = '';
+  if (isInvoice) {
+    const vatNumber = invData.vatNumber || '—';
+    const vatBase = invData.businessName || invData.name;
+    vatInfo = 
+      '<div class="cbx" style="background:#f0fdf4;border-color:#86efac">' +
+        '<h4 style="margin-bottom:6px;font-size:12px;color:#166534">🏛️ التحقق الضريبي (ZATCA)</h4>' +
+        '<div style="font-size:11.5px;line-height:1.8">' +
+          '<div><strong>البائع:</strong> ' + esc(vatBase) + '</div>' +
+          '<div><strong>الرقم الضريبي للبائع:</strong> <span style="font-family:monospace;direction:ltr;display:inline-block">' + esc(vatNumber) + '</span></div>' +
+          (q.customerTaxNumber ? '<div><strong>الرقم الضريبي للمشتري:</strong> <span style="font-family:monospace;direction:ltr;display:inline-block">' + esc(q.customerTaxNumber) + '</span></div>' : '') +
+          '<div><strong>رمز QR:</strong> ' + (invData.invoiceShowQR !== false ? '✅ مُضمّن' : '❌ غير مُضمّن') + '</div>' +
+          '<div><strong>حالة الفاتورة:</strong> ' + (q.status === 'draft' ? '📝 مسودة (غير مُرسلة للهيئة)' : '✅ صادرة') + '</div>' +
+        '</div>' +
+      '</div>';
+  }
+  
+  // ============ 8. أزرار الإجراءات ============
+  const actions = 
+    '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:9px">' +
+      '<button class="b p" onclick="quotePrint(\'' + q.id + '\')" style="flex:1;min-width:110px;padding:9px">🖨️ طباعة PDF</button>' +
+      '<button class="b" onclick="quoteDuplicate(\'' + q.id + '\')" style="padding:9px 14px">📋 نسخ</button>' +
+      '<button class="b w" onclick="quoteChangeStatus(\'' + q.id + '\')" style="padding:9px 14px">🔄 الحالة</button>' +
+      '<button class="b d" onclick="closeModal();quoteDel(\'' + q.id + '\')" style="padding:9px 14px">🗑️ حذف</button>' +
+    '</div>';
+  
+  const body = headerInfo + metaTable + customerSection + itemsTable + calculations + notesSection + vatInfo + actions;
+  openModal(typeLabel + ' - ' + q.number, body, '<button class="b" onclick="closeModal()" style="flex:1">إغلاق</button>');
 }
 async function quoteDel(id) {
   const q = quotes.find(x => x.id === id); if (!q) return;
@@ -1766,6 +1967,76 @@ function previewInvoiceDesign() {
 }
 window.saveInvoiceDesign = saveInvoiceDesign;
 window.previewInvoiceDesign = previewInvoiceDesign;
+function quoteDuplicate(id) {
+  const q = quotes.find(x => x.id === id); if (!q) return;
+  if (!confirm('إنشاء نسخة جديدة من ' + q.number + '؟')) return;
+  
+  const count = quotes.filter(x => x.type === q.type).length + 1;
+  const prefix = q.type === 'invoice' ? 'INV-' : 'Q-';
+  const newNumber = prefix + String(count).padStart(4, '0');
+  
+  const b = '<p class="mut" style="margin-bottom:9px">سيتم إنشاء نسخة جديدة:</p>' +
+    '<div class="f"><label>رقم الفاتورة الجديد</label><input id="dupNum" value="' + newNumber + '"></div>' +
+    '<div class="f"><label>الزبون</label><input id="dupCust" value="' + esc(q.customerName || '') + '"></div>' +
+    '<div class="f"><label class="chk-label"><input type="checkbox" id="dupResetStatus" checked> بدء الحالة كمسودة</label></div>';
+  openModal('📋 نسخ ' + q.number, b, '<button class="b" onclick="closeModal()">إلغاء</button><button class="b p" onclick="quoteDuplicateApply(\'' + id + '\')">📋 إنشاء</button>');
+}
+async function quoteDuplicateApply(id) {
+  const q = quotes.find(x => x.id === id); if (!q) return;
+  const newNum = $('#dupNum').value.trim();
+  const newCust = $('#dupCust').value.trim();
+  const resetStatus = $('#dupResetStatus').checked;
+  if (!newNum) return alert('اكتب الرقم');
+  closeModal(); ld();
+  try {
+    const nid = uid();
+    const c = (invData.customers || []).find(x => x.name === newCust);
+    const r = await sb.from('invoices').insert({
+      id: nid, inv_id: invData.id, invoice_type: q.type, invoice_number: newNum,
+      customer_name: newCust, customer_phone: q.customerPhone || '', 
+      customer_tax_number: c ? (c.taxNumber || '') : (q.customerTaxNumber || ''),
+      items: q.items, subtotal: q.subtotal, discount: q.discount, tax_rate: q.taxRate,
+      tax_amount: q.taxAmount, total: q.total, notes: q.notes, valid_until: q.validUntil,
+      status: resetStatus ? 'draft' : q.status, user_name: session.user
+    }).select().single();
+    if (r.error) throw new Error(r.error.message);
+    quotes.unshift(mQ(r.data));
+    await log('نسخ فاتورة', q.number + ' → ' + newNum);
+    ul(); alert('✅ تم إنشاء النسخة ' + newNum); renderTab();
+  } catch (e) { ul(); alert('خطأ: ' + (e.message || e)); }
+}
+window.quoteDuplicate = quoteDuplicate;
+window.quoteDuplicateApply = quoteDuplicateApply;
+
+function quoteChangeStatus(id) {
+  const q = quotes.find(x => x.id === id); if (!q) return;
+  const statuses = [
+    { v: 'draft', l: '📝 مسودة', c: '#b45309' },
+    { v: 'sent', l: '📤 مرسل', c: '#2563eb' },
+    { v: 'accepted', l: '✅ مقبول', c: '#16a34a' },
+    { v: 'paid', l: '💰 مدفوع', c: '#16a34a' },
+    { v: 'cancelled', l: '❌ ملغي', c: '#dc2626' }
+  ];
+  const b = '<p class="mut" style="margin-bottom:9px">الحالة الحالية: <strong>' + q.status + '</strong></p>' +
+    '<div class="f"><label>الحالة الجديدة</label><select id="newStatus">' +
+    statuses.map(s => '<option value="' + s.v + '"' + (s.v === q.status ? ' selected' : '') + '>' + s.l + '</option>').join('') +
+    '</select></div>';
+  openModal('🔄 تغيير الحالة', b, '<button class="b" onclick="closeModal()">إلغاء</button><button class="b p" onclick="quoteChangeStatusApply(\'' + id + '\')">💾 حفظ</button>');
+}
+async function quoteChangeStatusApply(id) {
+  const newStatus = $('#newStatus').value;
+  closeModal(); ld();
+  try {
+    const r = await sb.from('invoices').update({ status: newStatus }).eq('id', id);
+    if (r.error) throw new Error(r.error.message);
+    const q = quotes.find(x => x.id === id);
+    if (q) q.status = newStatus;
+    await log('تغيير حالة فاتورة', (q ? q.number : '') + ' → ' + newStatus);
+    ul(); alert('✅ تم التحديث'); renderTab();
+  } catch (e) { ul(); alert('خطأ: ' + (e.message || e)); }
+}
+window.quoteChangeStatus = quoteChangeStatus;
+window.quoteChangeStatusApply = quoteChangeStatusApply;
 function openModal(t, b, f) { $('#mT').textContent = t; $('#mB').innerHTML = b; $('#mF').innerHTML = f; $('#ov').classList.remove('h'); }
 function closeModal() { $('#ov').classList.add('h'); }
 
@@ -1801,7 +2072,8 @@ window.adminEditInv = adminEditInv; window.adminSaveInv = adminSaveInv;
 window.uploadLogo = uploadLogo; window.removeLogo = removeLogo; window.saveBusinessInfo = saveBusinessInfo; window.zatcaQR = zatcaQR;
   window.saveInvoiceDesign = saveInvoiceDesign;
 window.previewInvoiceDesign = previewInvoiceDesign;
-window.setInvFilter = setInvFilter;
+window.setInvFilter = setInvFilter; window.setInvFilter = setInvFilter;
+window.filterInvList = filterInvList;
 </script>
 </body>
 </html>
