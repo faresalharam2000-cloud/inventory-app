@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>المخزون</title>
+<title>المخزون</title><script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:Tahoma,sans-serif;background:#f1f5f9;line-height:1.5;font-size:13px}
@@ -627,7 +627,7 @@ async function loadAll(id) {
   receipts = (recR.data || []).map(mRec);
   quotes = (quoR.data || []).map(mQ);
 }
-function enterApp() { $('#authScreen').classList.add('h'); $('#adminScreen').classList.add('h'); $('#appScreen').classList.remove('h'); $('#invT').textContent = session.invName; $('#uL').textContent = '👤 ' + session.user; sw('products'); if (window._sy) clearInterval(window._sy); window._sy = setInterval(() => {
+function enterApp() { $('#authScreen').classList.add('h'); $('#adminScreen').classList.add('h'); $('#appScreen').classList.remove('h'); $('#invT').textContent = invData.displayName || session.invName; $('#uL').textContent = '👤 ' + session.user; sw('products'); if (window._sy) clearInterval(window._sy); window._sy = setInterval(() => {
   if (!session || document.hidden) return;
   if (!$('#ov').classList.contains('h')) return;
   if (curTab === 'settings') return;
@@ -1113,8 +1113,12 @@ function renderLog() { const uf = ($('#logU') ? $('#logU').value : ''), q = ($('
 function hSet() {
   const prods = invData.products || [];
   return '<div class="cbx"><h4>⚙️ الإعدادات</h4><p class="mut" style="margin:8px 0">المستخدم: <strong>' + esc(session.user) + '</strong></p><p class="mut">المخزون: <strong>' + esc(session.invName) + '</strong></p></div>' +
-    '<div class="cbx"><h4>🏢 بيانات النشاط (للفواتير)</h4>' +
+    '<div class="cbx"><h4>📝 اسم المخزون</h4>' +
+'<div class="f"><label>الاسم المعروض (يظهر في الترويسة والفاتورة)</label><input id="dispName" value="' + esc(invData.displayName || invData.name) + '"></div>' +
+'<button class="b p" onclick="saveDispName()" style="padding:8px 14px;font-weight:700">💾 حفظ الاسم</button>' +
+'</div>' + '<div class="cbx"><h4>🏢 بيانات النشاط (للفواتير)</h4>' +
 '<div class="f"><label>اسم النشاط التجاري</label><input id="bizName" value="' + esc(invData.businessName || '') + '"></div>' +
+'<div class="f"><label>الرقم الضريبي (VAT) - اختياري</label><input id="bizVat" value="' + esc(invData.vatNumber || '') + '"></div>' +
 '<div class="g2"><div class="f"><label>رقم الجوال</label><input id="bizPhone" value="' + esc(invData.businessPhone || '') + '"></div><div class="f"><label>العنوان</label><input id="bizAddress" value="' + esc(invData.businessAddress || '') + '"></div></div>' +
 '<div class="f"><label>نص أسفل الفاتورة</label><input id="bizFooter" value="' + esc(invData.invoiceFooter || 'شكراً لتعاملكم معنا') + '"></div>' +
 '<div class="f"><label>الشعار (اختياري - حد أقصى 500KB)</label><input type="file" id="bizLogo" accept="image/*" onchange="uploadLogo(event)"></div>' +
@@ -1397,9 +1401,32 @@ async function quoteDel(id) {
   try { const r = await sb.from('invoices').delete().eq('id', id); if (r.error) throw new Error(r.error.message); quotes = quotes.filter(x => x.id !== id); await log('حذف عرض', q.number); ul(); renderTab(); }
   catch (e) { ul(); alert('خطأ: ' + (e.message || e)); }
 }
+function zatcaQR(sellerName, vatNumber, timestamp, total, vatTotal) {
+    const win = window.open('', '_blank');
+  const qrFn = 'function zatcaQR(s,v,t,tot,vt){function tlv(tag,value){var enc=new TextEncoder().encode(String(value));var out=[tag,enc.length];for(var i=0;i<enc.length;i++)out.push(enc[i]);return out}var bytes=[].concat(tlv(1,s||''),tlv(2,v||''),tlv(3,t||''),tlv(4,parseFloat(tot).toFixed(2)),tlv(5,parseFloat(vt).toFixed(2)));var bin=\'\';for(var i=0;i<bytes.length;i++)bin+=String.fromCharCode(bytes[i]);return btoa(bin)}';
+  win.document.write('<html dir="rtl"><head><title>' + title + ' ' + q.number + '</title><script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"><\/script><script>' + qrFn + '<\/script></head><body>' + html + '<script>setTimeout(function(){ if(typeof QRCode!==\'undefined\' && document.getElementById(\'qrHolder_' + id + '\')){ var qr=zatcaQR(\'' + esc(biz).replace(/'/g, "\\'") + '\',\'' + esc(invData.vatNumber||'').replace(/'/g, "\\'") + '\',\'' + fT(q.time) + '\',' + q.total + ',' + (q.taxAmount || 0) + '); QRCode.toCanvas(document.createElement(\'canvas\'), qr, {width:110,margin:0}, function(err,canvas){ if(!err){ document.getElementById(\'qrHolder_' + id + '\').innerHTML=\'\'; document.getElementById(\'qrHolder_' + id + '\').appendChild(canvas); } }); } setTimeout(function(){window.print()},300); },500)<\/script></body></html>');
+  win.document.close();
+}
+  function tlv(tag, value) {
+    const enc = new TextEncoder().encode(String(value));
+    const out = [tag, enc.length];
+    for (let i = 0; i < enc.length; i++) out.push(enc[i]);
+    return out;
+  }
+  const bytes = [
+    ...tlv(1, sellerName || ''),
+    ...tlv(2, vatNumber || ''),
+    ...tlv(3, timestamp || ''),
+    ...tlv(4, total.toFixed(2)),
+    ...tlv(5, vatTotal.toFixed(2))
+  ];
+  let binary = '';
+  for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+  return btoa(binary);
+}
 function quotePrint(id) {
   const q = quotes.find(x => x.id === id); if (!q) return;
-  const biz = invData.businessName || invData.name;
+  const biz = invData.businessName || invData.displayName || 'يرجى إعداد بيانات النشاط';
   const phone = invData.businessPhone || '';
   const address = invData.businessAddress || '';
   const footer = invData.invoiceFooter || 'شكراً لتعاملكم معنا';
@@ -1426,7 +1453,8 @@ function quotePrint(id) {
     '<div style="display:flex;justify-content:space-between;padding:8px 0;border-top:2px solid #2563eb;margin-top:5px;font-size:16px;color:#2563eb"><strong>الإجمالي:</strong><strong>' + mn(q.total) + '</strong></div>' +
     '</div><div style="clear:both"></div>' +
     (q.notes ? '<div style="margin-top:15px;padding:10px;background:#fffbeb;border-radius:6px"><strong>ملاحظات:</strong> ' + esc(q.notes) + '</div>' : '') +
-    '<div style="margin-top:25px;text-align:center;color:#64748b;font-size:12px;border-top:1px solid #e2e8f0;padding-top:10px">' + esc(footer) + '</div>' +
+    (isInvoice ? '<div style="margin-top:20px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid #e2e8f0;padding-top:15px"><div style="flex:1;font-size:11px;color:#64748b">' + (q.notes ? '<strong>ملاحظات:</strong> ' + esc(q.notes) : '') + '</div><div style="text-align:center"><div id="qrHolder_' + id + '" style="width:120px;height:120px;background:#fff;padding:5px;border:1px solid #e2e8f0"></div><div style="font-size:10px;color:#64748b;margin-top:5px">امسح للتحقق</div></div></div>' : '') +
+'<div style="margin-top:25px;text-align:center;color:#64748b;font-size:12px;border-top:1px solid #e2e8f0;padding-top:10px">' + esc(footer) + '</div>' +
     '</div>';
   const win = window.open('', '_blank');
   win.document.write('<html dir="rtl"><head><title>' + title + ' ' + q.number + '</title></head><body>' + html + '<script>setTimeout(function(){window.print()},300)<\/script></body></html>');
@@ -1473,16 +1501,31 @@ async function saveBusinessInfo() {
   const phone = ($('#bizPhone') ? $('#bizPhone').value : '').trim();
   const address = ($('#bizAddress') ? $('#bizAddress').value : '').trim();
   const footer = ($('#bizFooter') ? $('#bizFooter').value : '').trim();
+  const vat = ($('#bizVat') ? $('#bizVat').value : '').trim();
   ld();
   try {
-    const r = await sb.from('inventories').update({ business_name: name, business_phone: phone, business_address: address, invoice_footer: footer, logo_base64: invData.logoBase64 || '' }).eq('id', invData.id);
+    const r = await sb.from('inventories').update({ business_name: name, business_phone: phone, business_address: address, invoice_footer: footer, vat_number: vat, logo_base64: invData.logoBase64 || '' }).eq('id', invData.id);
     if (r.error) throw new Error(r.error.message);
     invData.businessName = name;
     invData.businessPhone = phone;
     invData.businessAddress = address;
     invData.invoiceFooter = footer;
+    invData.vatNumber = vat;
     await log('تعديل بيانات النشاط', name);
     ul(); alert('✅ تم حفظ بيانات النشاط'); renderTab();
+  } catch (e) { ul(); alert('خطأ: ' + (e.message || e)); }
+}
+async function saveDispName() {
+  const n = ($('#dispName') ? $('#dispName').value : '').trim();
+  if (!n) return alert('اكتب الاسم');
+  ld();
+  try {
+    const r = await sb.from('inventories').update({ display_name: n }).eq('id', invData.id);
+    if (r.error) throw new Error(r.error.message);
+    invData.displayName = n;
+    $('#invT').textContent = n;
+    await log('تغيير الاسم', n);
+    ul(); alert('✅ تم حفظ الاسم'); renderTab();
   } catch (e) { ul(); alert('خطأ: ' + (e.message || e)); }
 }
 function openModal(t, b, f) { $('#mT').textContent = t; $('#mB').innerHTML = b; $('#mF').innerHTML = f; $('#ov').classList.remove('h'); }
@@ -1517,7 +1560,7 @@ window.quickCorr = quickCorr; window.qckFilter = qckFilter; window.delInvData = 
 window.saveCleanSettings = saveCleanSettings; window.runAutoClean = runAutoClean;
 window.renderProd = renderProd;
 window.adminEditInv = adminEditInv; window.adminSaveInv = adminSaveInv;
-window.uploadLogo = uploadLogo; window.removeLogo = removeLogo; window.saveBusinessInfo = saveBusinessInfo;
+window.uploadLogo = uploadLogo; window.removeLogo = removeLogo; window.saveBusinessInfo = saveBusinessInfo; window.saveDispName = saveDispName; window.zatcaQR = zatcaQR;
 </script>
 </body>
 </html>
