@@ -153,7 +153,7 @@ td{padding:7px 9px;border-bottom:1px solid #f1f5f9}
 <div id="aMsg" class="msg"></div></div></div>
 <div id="appScreen" class="h"><header><div class="br">📦 <span id="invT"></span></div><div style="display:flex;gap:6px;align-items:center"><span class="chp" id="uL"></span><button class="b sm" onclick="refresh()">🔄</button><button class="b sm" onclick="logout()">خروج</button></div></header>
 <div class="sts" id="statsB"></div>
-<nav class="nav" id="tabsN"><button data-tab="products" onclick="sw('products')">📦 المنتجات</button><button data-tab="receipts" onclick="sw('receipts')">📥 استلام</button><button data-tab="customers" onclick="sw('customers')">👥 الزبائن</button><button data-tab="debts" onclick="sw('debts')">💳 الديون</button><button data-tab="orders" onclick="sw('orders')">🧾 الطلبات</button><button data-tab="requests" onclick="sw('requests')">📩 الواردة <span id="reqB" class="nb h">0</span></button><button data-tab="link" onclick="sw('link')">🔗 الرابط</button><button data-tab="alerts" onclick="sw('alerts')">🔔 النواقص <span id="alB" class="nb h">0</span></button><button data-tab="reports" onclick="sw('reports')">🖨️ التقارير</button><button data-tab="log" onclick="sw('log')">📋 السجل</button><button data-tab="settings" onclick="sw('settings')">⚙️ الإعدادات</button></nav>
+<nav class="nav" id="tabsN"><button data-tab="products" onclick="sw('products')">📦 المنتجات</button><button data-tab="receipts" onclick="sw('receipts')">📥 استلام</button><button data-tab="quotes" onclick="sw('quotes')">🧾 العروض <span id="qtB" class="nb h">0</span></button><button data-tab="customers" onclick="sw('customers')">👥 الزبائن</button><button data-tab="debts" onclick="sw('debts')">💳 الديون</button><button data-tab="orders" onclick="sw('orders')">🧾 الطلبات</button><button data-tab="requests" onclick="sw('requests')">📩 الواردة <span id="reqB" class="nb h">0</span></button><button data-tab="link" onclick="sw('link')">🔗 الرابط</button><button data-tab="alerts" onclick="sw('alerts')">🔔 النواقص <span id="alB" class="nb h">0</span></button><button data-tab="reports" onclick="sw('reports')">🖨️ التقارير</button><button data-tab="log" onclick="sw('log')">📋 السجل</button><button data-tab="settings" onclick="sw('settings')">⚙️ الإعدادات</button></nav>
 <main id="tc"></main></div>
 <div id="adminScreen" class="h">
 <header><div class="br">🔧 لوحة الأدمن <span id="admName"></span></div><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><button class="b sm" onclick="adminPassModal()" style="background:rgba(255,255,255,.15);border-color:#fff;color:#fff">🔑 كلمة السر</button><button class="b sm" onclick="adminRefresh()" style="background:#fff;border-color:#fff;color:#1e40af">🔄</button><button class="b sm" onclick="adminLogout()" style="background:transparent;border-color:#fff;color:#fff">خروج</button></div></header>
@@ -315,7 +315,7 @@ function createSQLShim() {
 }
 const sb = createSQLShim();
 
-let session = null, invData = null, curTab = 'products', reqs = [], receipts = [];
+let session = null, invData = null, curTab = 'products', reqs = [], receipts = [], quotes = [];
 let adminSession = null, adminList = [], showPasswords = true;
 let catTimer = null;
 const cs = { token: null, inv: null, products: [], sel: {}, done: false, account: null, view: 'login', myReq: [], msg: '', search: '', tagFilter: '' };
@@ -335,6 +335,8 @@ const mO = r => ({ id: r.id, customerId: r.customer_id, customerName: r.customer
 const mL = r => ({ id: r.id, user: r.user_name || '', action: r.action || '', details: r.details || '', time: r.created_at });
 const mR = r => ({ id: r.id, customerId: r.customer_id, customerName: r.customer_name || '', customerPhone: r.customer_phone || '', items: Array.isArray(r.items) ? r.items : [], note: r.note || '', status: r.status || 'new', time: r.created_at, reply: r.reply || '', cfItems: Array.isArray(r.confirmed_items) ? r.confirmed_items : [], replyAt: r.reply_at, seen: !!r.customer_seen });
 const mRec = r => ({ id: r.id, supplierName: r.supplier_name || '', items: Array.isArray(r.items) ? r.items : [], totalCost: +r.total_cost || 0, note: r.note || '', user: r.user_name || '', time: r.created_at });
+  
+const mQ = r => ({ id: r.id, type: r.invoice_type || 'quote', number: r.invoice_number || '', customerName: r.customer_name || '', customerPhone: r.customer_phone || '', items: Array.isArray(r.items) ? r.items : [], subtotal: +r.subtotal || 0, discount: +r.discount || 0, taxRate: +r.tax_rate || 0, taxAmount: +r.tax_amount || 0, total: +r.total || 0, notes: r.notes || '', validUntil: r.valid_until || null, status: r.status || 'draft', user: r.user_name || '', time: r.created_at });
 const oP = o => +o.paidAmount || 0;
 const oD = o => o.payment !== 'later' ? 0 : Math.max(0, (+o.total || 0) - oP(o));
 const cOD = id => (invData.orders || []).filter(o => o.customerId === id).reduce((s, o) => s + oD(o), 0);
@@ -582,14 +584,15 @@ async function doLogin() {
 async function doRegister() { aMsg('التسجيل متوقف'); }
 
 async function loadAll(id) {
-  const [iR, pR, cR, oR, lR, qR, recR] = await Promise.all([
+  const [iR, pR, cR, oR, lR, qR, recR ,quoR] = await Promise.all([
     sb.from('inventories').select('*').eq('id', id).single(),
     sb.from('products').select('*').eq('inv_id', id).order('created_at'),
     sb.from('customers').select('*').eq('inv_id', id).order('created_at'),
     sb.from('orders').select('*').eq('inv_id', id).order('created_at'),
     sb.from('logs').select('*').eq('inv_id', id).order('created_at', { ascending: false }).limit(1000),
     sb.from('public_requests').select('*').eq('inv_id', id).order('created_at', { ascending: false }).limit(1000),
-    sb.from('stock_receipts').select('*').eq('inv_id', id).order('created_at', { ascending: false }).limit(500)
+    sb.from('stock_receipts').select('*').eq('inv_id', id).order('created_at', { ascending: false }).limit(500),
+    sb.from('invoices').select('*').eq('inv_id', id).eq('invoice_type', 'quote').order('created_at', { ascending: false }).limit(500)
   ]);
   if (iR.error) throw new Error(iR.error.message);
   setCurrentInvId(id);
@@ -597,6 +600,7 @@ async function loadAll(id) {
   invData = { id: iR.data.id, name: iR.data.name, password: iR.data.password, ownerName: iR.data.owner_name || '', expiresAt: iR.data.expires_at || null, status: iR.data.status || 'active', members: Array.isArray(iR.data.members) ? iR.data.members : [], publicToken: iR.data.public_token || null, publicEnabled: !!iR.data.public_enabled, cleanupMonths: (isNaN(cm) || cm < 1) ? 1 : cm, autoDelSettled: !!iR.data.auto_del_settled, settledDelDays: +iR.data.settled_del_days || 30, products: (pR.data || []).map(mP), customers: (cR.data || []).map(mC), orders: (oR.data || []).map(mO), logs: (lR.data || []).map(mL) };
   reqs = (qR.data || []).map(mR);
   receipts = (recR.data || []).map(mRec);
+  quotes = (quoR.data || []).map(mQ);
 }
 function enterApp() { $('#authScreen').classList.add('h'); $('#adminScreen').classList.add('h'); $('#appScreen').classList.remove('h'); $('#invT').textContent = session.invName; $('#uL').textContent = '👤 ' + session.user; sw('products'); if (window._sy) clearInterval(window._sy); window._sy = setInterval(() => {
   if (!session || document.hidden) return;
@@ -623,7 +627,7 @@ async function restore() {
 }
 
 function sw(t) { curTab = t; $$('#tabsN button').forEach(b => b.classList.toggle('on', b.dataset.tab === t)); renderTab(); }
-function renderTab() { const c = $('#tc'); if (!session || !invData) return; if (curTab === 'products') { c.innerHTML = hProd(); renderProd(); } else if (curTab === 'receipts') c.innerHTML = hReceipts(); else if (curTab === 'customers') c.innerHTML = hCust(); else if (curTab === 'debts') c.innerHTML = hDebt(); else if (curTab === 'orders') c.innerHTML = hOrd(); else if (curTab === 'requests') c.innerHTML = hReq(); else if (curTab === 'link') c.innerHTML = hLink(); else if (curTab === 'alerts') c.innerHTML = hAlerts(); else if (curTab === 'reports') c.innerHTML = hReports(); else if (curTab === 'log') c.innerHTML = hLog(); else if (curTab === 'settings') c.innerHTML = hSet(); stats(); badges(); }
+function renderTab() { const c = $('#tc'); if (!session || !invData) return; if (curTab === 'products') { c.innerHTML = hProd(); renderProd(); } else if (curTab === 'receipts') c.innerHTML = hReceipts(); else if (curTab === 'quotes') c.innerHTML = hQuotes(); else if (curTab === 'customers') c.innerHTML = hCust(); else if (curTab === 'debts') c.innerHTML = hDebt(); else if (curTab === 'orders') c.innerHTML = hOrd(); else if (curTab === 'requests') c.innerHTML = hReq(); else if (curTab === 'link') c.innerHTML = hLink(); else if (curTab === 'alerts') c.innerHTML = hAlerts(); else if (curTab === 'reports') c.innerHTML = hReports(); else if (curTab === 'log') c.innerHTML = hLog(); else if (curTab === 'settings') c.innerHTML = hSet(); stats(); badges(); }
 function stats() {
   const p = invData.products || [], o = invData.orders || [];
   const tq = p.reduce((s, x) => s + (+x.qty || 0), 0); const sv = p.reduce((s, x) => s + (+x.qty || 0) * (+x.buyPrice || 0), 0);
@@ -1258,6 +1262,104 @@ async function qcSave() {
     ul(); alert('✅ تم تحديث ' + ok + ' منتج'); renderTab();
   } catch (e) { ul(); alert('تم تحديث ' + ok + ' من ' + changes.length + '\nخطأ: ' + (e.message || e)); renderTab(); }
 }
+function hQuotes() {
+  let rows = '';
+  if (quotes.length) {
+    quotes.forEach(q => {
+      const itemsTxt = q.items.map(i => esc(i.name) + ' × ' + i.qty).join('، ');
+      const stBadge = q.status === 'draft' ? '<span class="bd w">مسودة</span>' : q.status === 'sent' ? '<span class="bd i">مرسل</span>' : q.status === 'accepted' ? '<span class="bd o">مقبول</span>' : '<span class="bd g">مرفوض</span>';
+      rows += '<tr><td style="font-size:11px;color:#64748b">' + fT(q.time) + '</td><td><strong>' + (q.customerName ? esc(q.customerName) : '—') + '</strong></td><td style="max-width:200px;font-size:11.5px">' + (itemsTxt || '—') + '</td><td><strong>' + mn(q.total) + '</strong></td><td>' + stBadge + '</td><td class="act"><button class="b sm" onclick="quoteView(\'' + q.id + '\')">عرض</button><button class="b sm d" onclick="quoteDel(\'' + q.id + '\')">حذف</button></td></tr>';
+    });
+  } else rows = '<tr><td colspan="6" class="emp">لا عروض أسعار بعد</td></tr>';
+  return '<div class="tb3"><button class="b p" onclick="quoteOpen()">+ عرض سعر جديد</button></div><div class="tbr"><table><thead><tr><th>التاريخ</th><th>الزبون</th><th>المنتجات</th><th>الإجمالي</th><th>الحالة</th><th>إجراءات</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
+}
+function quoteOpen() {
+  if (!invData.products.length) return alert('أضف منتجات أولاً');
+  const co = (invData.customers || []).map(c => '<option value="' + c.id + '">' + esc(c.name) + '</option>').join('');
+  const b = '<div class="f"><label>الزبون</label><select id="qC" onchange="quoteNewToggle()"><option value="">— بدون —</option>' + co + '<option value="__new">+ جديد</option></select></div><div id="qNewBox" class="h g2"><div class="f"><label>الاسم</label><input id="qNn"></div><div class="f"><label>الهاتف</label><input id="qNp"></div></div>' +
+    '<div class="sec">المنتجات</div><div id="qItems"></div><button class="b sm" onclick="quoteAddItem()">+ صنف</button>' +
+    '<div class="tot">المجموع: <strong id="qSubtotal">0</strong></div>' +
+    '<div class="g2" style="margin-top:9px"><div class="f"><label>الخصم</label><input id="qDiscount" type="number" min="0" value="0" oninput="quoteCalc()"></div><div class="f"><label>الضريبة %</label><input id="qTaxRate" type="number" min="0" max="100" value="0" oninput="quoteCalc()"></div></div>' +
+    '<div class="tot" style="background:#ecfdf5;color:#16a34a;font-size:15px">الإجمالي النهائي: <strong id="qTotal">0</strong></div>' +
+    '<div class="f" style="margin-top:9px"><label>صالح حتى</label><input id="qValid" type="date"></div>' +
+    '<div class="f"><label>ملاحظات</label><input id="qNotes" placeholder="شروط، تفاصيل، إلخ"></div>';
+  openModal('🧾 عرض سعر جديد', b, '<button class="b" onclick="closeModal()">إلغاء</button><button class="b p" onclick="quoteSave()">💾 حفظ العرض</button>');
+  quoteAddItem();
+}
+function quoteNewToggle() { $('#qNewBox').classList.toggle('h', $('#qC').value !== '__new'); }
+function quoteAddItem() {
+  const d = document.createElement('div');
+  d.className = 'oi';
+  d.innerHTML = '<div class="ps"><input type="text" class="ps-s" placeholder="🔍 منتج..." onfocus="psOpen(this)" oninput="psFilter(this)"><input type="hidden" class="ps-i"><div class="pdr h"></div></div><input class="oi-q" type="number" min="0.01" value="1" oninput="quoteCalc()"><input class="oi-p" type="number" min="0" placeholder="السعر" oninput="quoteCalc()"><button class="b sm d" onclick="this.parentElement.remove();quoteCalc()">✕</button>';
+  $('#qItems').appendChild(d);
+}
+function quoteCalc() {
+  let sub = 0;
+  $$('#qItems .oi').forEach(r => { sub += (+r.querySelector('.oi-q').value || 0) * (+r.querySelector('.oi-p').value || 0); });
+  const disc = +($('#qDiscount') ? $('#qDiscount').value : 0) || 0;
+  const rate = +($('#qTaxRate') ? $('#qTaxRate').value : 0) || 0;
+  const afterDisc = Math.max(0, sub - disc);
+  const tax = afterDisc * rate / 100;
+  const total = afterDisc + tax;
+  const s = $('#qSubtotal'); if (s) s.textContent = mn(sub);
+  const t = $('#qTotal'); if (t) t.textContent = mn(total);
+}
+async function quoteSave() {
+  const rows = $$('#qItems .oi');
+  const items = [];
+  for (const r of rows) {
+    const pid = r.querySelector('.ps-i').value;
+    const q = +r.querySelector('.oi-q').value || 0;
+    const pr = +r.querySelector('.oi-p').value || 0;
+    if (!pid || q <= 0) continue;
+    const p = invData.products.find(x => x.id === pid);
+    if (!p) continue;
+    items.push({ productId: p.id, name: p.name, qty: q, price: pr, total: q * pr });
+  }
+  if (!items.length) return alert('أضف صنفًا واحدًا على الأقل');
+  let cid = null, cn = '', cp = '';
+  const sl = $('#qC').value;
+  if (sl === '__new') {
+    cn = ($('#qNn').value || '').trim();
+    cp = ($('#qNp').value || '').trim();
+    if (!cn) return alert('اكتب اسم الزبون');
+  } else if (sl) {
+    const c = invData.customers.find(x => x.id === sl);
+    if (c) { cid = c.id; cn = c.name; cp = c.phone || ''; }
+  }
+  const subtotal = items.reduce((s, i) => s + i.total, 0);
+  const discount = +($('#qDiscount') ? $('#qDiscount').value : 0) || 0;
+  const taxRate = +($('#qTaxRate') ? $('#qTaxRate').value : 0) || 0;
+  const afterDisc = Math.max(0, subtotal - discount);
+  const taxAmount = afterDisc * taxRate / 100;
+  const total = afterDisc + taxAmount;
+  const notes = ($('#qNotes') ? $('#qNotes').value : '').trim();
+  const validUntil = ($('#qValid') ? $('#qValid').value : '') || null;
+  const count = quotes.length + 1;
+  const number = 'Q-' + String(count).padStart(4, '0');
+  closeModal(); ld();
+  try {
+    const nid = uid();
+    const r = await sb.from('invoices').insert({ id: nid, inv_id: invData.id, invoice_type: 'quote', invoice_number: number, customer_name: cn, customer_phone: cp, items, subtotal, discount, tax_rate: taxRate, tax_amount: taxAmount, total, notes, valid_until: validUntil, status: 'draft', user_name: session.user }).select().single();
+    if (r.error) throw new Error(r.error.message);
+    quotes.unshift(mQ(r.data));
+    await log('عرض سعر', cn + ' | ' + mn(total));
+    ul(); alert('✅ تم حفظ العرض ' + number); renderTab();
+  } catch (e) { ul(); alert('خطأ: ' + (e.message || e)); }
+}
+function quoteView(id) {
+  const q = quotes.find(x => x.id === id); if (!q) return;
+  let rows = q.items.map(i => '<div class="itm"><span>• ' + esc(i.name) + ' × ' + i.qty + '</span><span>' + mn(i.price) + ' = ' + mn(i.total) + '</span></div>').join('');
+  const b = '<div class="cbx" style="background:#f0fdf4"><div><strong>🧾 ' + esc(q.number) + '</strong></div><div class="mut">' + fT(q.time) + ' | ' + (q.customerName ? esc(q.customerName) : 'بدون زبون') + '</div></div><div class="sec">المنتجات</div>' + rows + '<div class="sec">الحساب</div><div class="tot">المجموع: ' + mn(q.subtotal) + (q.discount > 0 ? '<br>الخصم: -' + mn(q.discount) : '') + (q.taxRate > 0 ? '<br>الضريبة (' + q.taxRate + '%): ' + mn(q.taxAmount) : '') + '<br><strong>الإجمالي: ' + mn(q.total) + '</strong></div>' + (q.notes ? '<div class="f" style="margin-top:9px"><label>ملاحظات</label><div class="mut">' + esc(q.notes) + '</div></div>' : '') + (q.validUntil ? '<div class="mut" style="margin-top:9px">صالح حتى: ' + q.validUntil + '</div>' : '');
+  openModal('🧾 عرض سعر', b, '<button class="b" onclick="closeModal()">إغلاق</button><button class="b p" onclick="alert(\'الطباعة PDF - المرحلة القادمة\')">🖨️ طباعة PDF</button>');
+}
+async function quoteDel(id) {
+  const q = quotes.find(x => x.id === id); if (!q) return;
+  if (!confirm('حذف عرض السعر ' + q.number + '؟')) return;
+  ld();
+  try { const r = await sb.from('invoices').delete().eq('id', id); if (r.error) throw new Error(r.error.message); quotes = quotes.filter(x => x.id !== id); await log('حذف عرض', q.number); ul(); renderTab(); }
+  catch (e) { ul(); alert('خطأ: ' + (e.message || e)); }
+}
 function openModal(t, b, f) { $('#mT').textContent = t; $('#mB').innerHTML = b; $('#mF').innerHTML = f; $('#ov').classList.remove('h'); }
 function closeModal() { $('#ov').classList.add('h'); }
 
@@ -1270,7 +1372,8 @@ window.adminCreateInv = adminCreateInv; window.renderAdminList = renderAdminList
 window.copyText = copyText; window.adminToggle = adminToggle; window.adminExtend = adminExtend; window.adminDelete = adminDelete;
 window.adminExtendApply = adminExtendApply; window.adminChangePassApply = adminChangePassApply;
 window.catSetView = catSetView; window.catLogin = catLogin; window.catRegister = catRegister; window.catLogout = catLogout;
-window.catTog = catTog; window.catQty = catQty; window.catSubmit = catSubmit; window.catSearch = catSearch; window.catTagFilter = catTagFilter; window.catGoShop = window.catGoShop;
+window.catTog = catTog; window.catQty = catQty; window.catSubmit = catSubmit; window.catSearch = catSearch; window.catTagFilter = catTagFilter; window.quoteOpen = quoteOpen; window.quoteAddItem = quoteAddItem; window.quoteCalc = quoteCalc;
+window.quoteSave = quoteSave; window.quoteView = quoteView; window.quoteDel = quoteDel; window.quoteNewToggle = quoteNewToggle; window.catGoShop = window.catGoShop;
 window.catGoMyReq = window.catGoMyReq;
 window.pOpen = pOpen; window.pSave = pSave; window.pAdj = pAdj; window.pApply = pApply; window.pDel = pDel; window.pBulkOpen = pBulkOpen;
 window.tagAddChip = tagAddChip; window.qkOpen = qkOpen; window.qkAddRow = qkAddRow; window.qkSave = qkSave;
